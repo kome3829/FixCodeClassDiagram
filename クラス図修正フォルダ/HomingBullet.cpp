@@ -65,7 +65,7 @@ void HomingBullet::draw()
 {
 	if (mIsActive)
 	{
-		DrawGraph((int)mX  - PLAYER_BULLET_WIDTH / CUT_HALF, (int)mY  -  PLAYER_BULLET_HEIGHT / CUT_HALF -  HOMING_DRAW_OFFSET_Y, Data::getInstance() -> mPlayerBulletImageHandleArray[BULLET_NORMAL], true);
+		DrawGraph((int)mX  - PLAYER_BULLET_WIDTH / CUT_HALF, (int)mY  -  PLAYER_BULLET_HEIGHT / CUT_HALF -  HOMING_DRAW_OFFSET_Y, Data::getInstance() -> mPlayerBulletImageHandleArray[PLAYER_NOMAL], true);
 	}
 }
 

@@ -72,7 +72,7 @@ void SpecialBullet::draw()
 	if (mIsActive)
 	{
 		//修正案。オフセットの削除
-		DrawGraph((int)mX - PLAYER_SPECIAL_BULLET_WIDTH / CUT_HALF, (int)mY - PLAYER_SPECIAL_BULLET_HEIGHT / CUT_HALF - SPECIAL_DRAW_OFFSET_Y, Data::getInstance()->mPlayerBulletImageHandleArray[BULLET_SPECIAL], true);
+		DrawGraph((int)mX - PLAYER_SPECIAL_BULLET_WIDTH / CUT_HALF, (int)mY - PLAYER_SPECIAL_BULLET_HEIGHT / CUT_HALF - SPECIAL_DRAW_OFFSET_Y, Data::getInstance()->mPlayerBulletImageHandleArray[PLAYER_SPECIAL], true);
 	}
 }
 

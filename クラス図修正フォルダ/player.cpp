@@ -12,8 +12,11 @@ Player::Player()
 {
 	 mX = SCREEN_CENTER_X;
 	 mY = SCREEN_CENTER_Y;
-	 mWidth = PLAYER_WIDTH;
-	 mHeight = PLAYER_HEIGHT;
+	 mWidth = PLAYER_HIT_RANGE;
+	 mHeight = PLAYER_HIT_RANGE;
+
+	 mImageWidth = PLAYER_WIDTH;
+	 mImageHeight = PLAYER_HEIGHT;
 	 mSpeed = PLAYER_SPEED;
 	 mLife = MAX_LIFE;
 	 mIsActiveMissileShot = false;
@@ -70,9 +73,9 @@ void Player::action()
 	{
 		mX -= mSpeed;
 		//画面外へ出ないように制限
-		if (mX <= mWidth / CUT_HALF)
+		if (mX <= mImageWidth / CUT_HALF)
 		{
-			mX = mWidth / CUT_HALF;
+			mX = mImageWidth / CUT_HALF;
 		}
 	}
 
@@ -81,9 +84,9 @@ void Player::action()
 	{
 		mX += mSpeed;
 		//画面外へ出ないように制限
-		if (mX >= MAX_SCREEN_WIDTH - mWidth / CUT_HALF)
+		if (mX >= MAX_SCREEN_WIDTH - mImageWidth / CUT_HALF)
 		{
-			mX = MAX_SCREEN_WIDTH - mWidth / CUT_HALF;
+			mX = MAX_SCREEN_WIDTH - mImageWidth / CUT_HALF;
 		}
 	}
 
@@ -93,9 +96,9 @@ void Player::action()
 		mY -= mSpeed;
 		//画面外へ出ないように制限
 		//修正案。条件式に/2の追加。
-		if (mY <= mHeight)
+		if (mY <= mImageHeight)
 		{
-			mY =  mHeight;
+			mY = mImageHeight;
 		}
 	}
 
@@ -104,9 +107,9 @@ void Player::action()
 	{
 		mY += mSpeed;
 		//画面外へ出ないように制限
-		if (mY >= MAX_SCREEN_HEIGHT - mHeight)
+		if (mY >= MAX_SCREEN_HEIGHT - mImageHeight)
 		{
-			mY = MAX_SCREEN_HEIGHT - mHeight;
+			mY = MAX_SCREEN_HEIGHT - mImageHeight;
 		}
 	}
 
@@ -170,7 +173,9 @@ void Player::draw()
 	//playerの表示
 	if (mIsTakeDamage)//ダメージ用画像の表示
 	{
-		DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF, Data::getInstance()->mPleyerDamageImageHandle, true);
+		DrawGraph((int)mX - mImageWidth / CUT_HALF,
+		          (int)mY - mImageHeight / CUT_HALF,
+		          Data::getInstance()->mPleyerDamageImageHandle, true);
 	}
 	else if (mIsUnbeatable)//無敵用画像の表示
 	{
@@ -178,12 +183,16 @@ void Player::draw()
 		if (mUnbeatableCount < UNBEATABLE_FLASH_START_FRAME ||(mUnbeatableCount / PLAYER_UNBEATABLE_FLASH_INTERVAL_FRAME) % EVEN_NUMBER == 0)
 		{
 			//無敵用画像の表示
-			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF, Data::getInstance()->mPleyerUnbeatableImageHandle, true);
+			DrawGraph((int)mX - mImageWidth / CUT_HALF,
+			          (int)mY - mImageHeight / CUT_HALF,
+			          Data::getInstance()->mPleyerUnbeatableImageHandle, true);
 		}
 		else
 		{
 			//通常画像の表示
-			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF, Data::getInstance()->mPleyerImageHandle, true);
+			DrawGraph((int)mX - mImageWidth / CUT_HALF,
+			          (int)mY - mImageHeight / CUT_HALF,
+			          Data::getInstance()->mPleyerImageHandle, true);
 		}
 		//無敵時間表示ゲージ
 		//プレイヤーの画像の下に表示のための位置の計算
@@ -196,7 +205,9 @@ void Player::draw()
 	}
 	else//通常画像を表示
 	{
-		DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF, Data::getInstance()->mPleyerImageHandle, true);
+		DrawGraph((int)mX - mImageWidth / CUT_HALF,
+		          (int)mY - mImageHeight / CUT_HALF,
+		          Data::getInstance()->mPleyerImageHandle, true);
 	}
 
 	//HPをアイコンで表示

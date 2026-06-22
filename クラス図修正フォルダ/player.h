@@ -50,6 +50,10 @@ public:
 	double mY;							//y座標
 	int mWidth;							//画像の横サイズ
 	int mHeight;						//画像の縦サイズ
+
+	int mImageWidth;					//画像の横サイズ
+	int mImageHeight;				//画像の縦サイズ
+
 	bool mIsActiveMissileShot;			//ミサイル弾有効化判定
 	double mSpeed;						//移動速度
 	int mLife;							//残機

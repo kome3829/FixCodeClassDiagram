@@ -20,7 +20,7 @@ GameMainScene::GameMainScene()
 	mTraceEnemies[i] = new TraceEnemy();
 	mChargeEnemies[i] = new ChargeEnemy();
 	}
-	for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		mBullets[i] = new Bullet();
 		mMissileBullets[i] = new MissileBullet();
@@ -165,7 +165,7 @@ int GameMainScene::action()
 		//エフェクト表示の確認
 		if (checkSinglePushKey(KEY_INPUT_SPACE))
 		{
-			for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+			for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 			{
 				if (mEffects[i]->setEffect(&(mPlayer->mX), &(mPlayer->mY), WARP_EF)) 
 				{
@@ -194,7 +194,7 @@ int GameMainScene::action()
 	shotBossEnemyBullet(mBoss);
 
 	//ボス、プレイヤーの当たり判定処理
-	for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		//弾との当たり判定
 		mBoss->checkPlayerBulletHit(mBullets[i], mMissileBullets[i], mSpecialBullets[i], &mScore);
@@ -205,7 +205,7 @@ int GameMainScene::action()
 		{
 		case OBJECT_LIFE://回復アイテム
 			//フラグのたっていないものを探し、１つだけ実行
-			for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+			for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 			{
 				//獲得時のエフェクトを表示
 				if (mEffects[k]->setEffect(&(mPlayer->mX), &(mPlayer->mY), LIFE_EF))
@@ -217,7 +217,7 @@ int GameMainScene::action()
 
 		case OBJECT_STAR://無敵アイテム
 			//フラグのたっていないものを探し、１つだけ実行
-			for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+			for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 			{
 				//獲得時のエフェクトを表示
 				if (mEffects[k]->setEffect(&(mPlayer->mX), &(mPlayer->mY), STAR_EF))
@@ -248,13 +248,13 @@ int GameMainScene::action()
 	//雑魚敵の当たり判定（通常弾、ミサイル弾、スペシャル弾,ホーミング弾）
 	for (int i = 0; i < MAX_ENEMY_COUNT; i++)
 	{
-		for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+		for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 		{
 			//通常敵の判定
 			if (mEnemies[i]->checkPlayerBulletHit(mBullets[k], mMissileBullets[k], mSpecialBullets[k], mHomingBullets[k], &mScore))
 			{
 				//フラグのたっていないものを探し、１つだけ実行
-				for (int l = 0; l < MAX_BALLET_NUMBER; l++)
+				for (int l = 0; l < MAX_BULLET_NUMBER; l++)
 				{
 					//ヒットエフェクトの表示
 					if (mEffects[l]->setEffect(&(mEnemies[i]->mX), &(mEnemies[i]->mY), HIT_EF)) 
@@ -271,7 +271,7 @@ int GameMainScene::action()
 					dropItem((int)mEnemies[i]->mX + DROP_OFFSET_X, (int)mEnemies[i]->mY, OBJECT_STAR);
 					dropItem((int)mEnemies[i]->mX, (int)mEnemies[i]->mY, OBJECT_LIFE);
 					//フラグのたっていないものを探し、１つだけ実行
-					for (int l = 0; l < MAX_BALLET_NUMBER; l++)
+					for (int l = 0; l < MAX_BULLET_NUMBER; l++)
 					{
 						//撃破エフェクトの表示
 						if (mExplosions[l]->setExplosion((int)mEnemies[i]->mX,(int)mEnemies[i]->mY)) 
@@ -285,7 +285,7 @@ int GameMainScene::action()
 			if (mTraceEnemies[i]->checkPlayerBulletHit(mBullets[k], mMissileBullets[k], mSpecialBullets[k], mHomingBullets[k], &mScore))
 			{
 				//フラグのたっていないものを探し、１つだけ実行
-				for (int l = 0; l < MAX_BALLET_NUMBER; l++)
+				for (int l = 0; l < MAX_BULLET_NUMBER; l++)
 				{
 					//ヒットエフェクトの表示
 					if (mEffects[l]->setEffect(&(mTraceEnemies[i]->mX), &(mTraceEnemies[i]->mY), HIT_EF)) 
@@ -302,7 +302,7 @@ int GameMainScene::action()
 					dropItem((int)mTraceEnemies[i]->mX + DROP_OFFSET_X, (int)mTraceEnemies[i]->mY, OBJECT_STAR);
 					dropItem((int)mTraceEnemies[i]->mX, (int)mTraceEnemies[i]->mY, OBJECT_LIFE);
 					//フラグのたっていないものを探し、１つだけ実行
-					for (int l = 0; l < MAX_BALLET_NUMBER; l++)
+					for (int l = 0; l < MAX_BULLET_NUMBER; l++)
 					{
 					//撃破エフェクトの表示
 						if (mExplosions[l]->setExplosion((int)mTraceEnemies[i]->mX, (int)mTraceEnemies[i]->mY)) 
@@ -316,7 +316,7 @@ int GameMainScene::action()
 			if (mChargeEnemies[i]->checkPlayerBulletHit(mBullets[k], mMissileBullets[k], mSpecialBullets[k], mHomingBullets[k], &mScore))
 			{
 				//フラグのたっていないものを探し、１つだけ実行
-				for (int l = 0; l < MAX_BALLET_NUMBER; l++)
+				for (int l = 0; l < MAX_BULLET_NUMBER; l++)
 				{
 					//ヒットエフェクトの表示
 					if (mEffects[l]->setEffect(&(mChargeEnemies[i]->mX), &(mChargeEnemies[i]->mY), HIT_EF)) 
@@ -333,7 +333,7 @@ int GameMainScene::action()
 					dropItem((int)mChargeEnemies[i]->mX + DROP_OFFSET_X, (int)mChargeEnemies[i]->mY, OBJECT_STAR);
 					dropItem((int)mChargeEnemies[i]->mX, (int)mChargeEnemies[i]->mY, OBJECT_LIFE);
 					//フラグのたっていないものを探し、１つだけ実行
-					for (int l = 0; l < MAX_BALLET_NUMBER; l++)
+					for (int l = 0; l < MAX_BULLET_NUMBER; l++)
 					{
 					//撃破エフェクトの表示
 						if (mExplosions[l]->setExplosion((int)mChargeEnemies[i]->mX, (int)mChargeEnemies[i]->mY)) 
@@ -347,7 +347,7 @@ int GameMainScene::action()
 	}
 
 	//各弾の更新処理
-	for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		mBullets[i]->action();
 		mMissileBullets[i]->action();
@@ -488,7 +488,7 @@ void GameMainScene::draw()
 	//ボスの表示
 	mBoss->draw();
 	//エフェクトの表示
-	for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		mEffects[i]->playEffectAnimation();
 	}
@@ -500,7 +500,7 @@ void GameMainScene::draw()
 		mChargeEnemies[i]->draw();
 	}
 	//各弾、アイテム、爆破エフェクトの表示
-	for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		mBullets[i]->draw();
 		mMissileBullets[i]->draw();
@@ -512,7 +512,7 @@ void GameMainScene::draw()
 	//プレイヤーの表示
 	mPlayer->draw();
 	//敵の弾表示。被って見えなくならないようにプレイヤーよりも手前に表示させる
-	for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		mEnemyBullets[i]->draw();
 		mEnemyMiniBullets[i]->draw();
@@ -614,7 +614,7 @@ void GameMainScene::start()
 		mTraceEnemies[i]->start();
 		mChargeEnemies[i]->start();
 	}
-	for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		mBullets[i]->start();
 		mMissileBullets[i]->start();
@@ -863,7 +863,7 @@ void GameMainScene::shotEnemyBullet( Enemy* enemy)
 			//弾の設置、発射エフェクト、発射SEの再生
 
 			//フラグのたっていないものを探し、1つだけsetbullet関数実行
-			for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+			for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 			{
 				//弾を設置
 				if (mEnemyBullets[i]->setBullet((int)enemy->mX, (int)enemy->mY, setAngle, true))
@@ -872,7 +872,7 @@ void GameMainScene::shotEnemyBullet( Enemy* enemy)
 				}
 			}
 			//フラグのたっていないものを探し、1つだけsetef関数実行
-			for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+			for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 			{
 				//発射エフェクトの表示
 				if (mEffects[i] ->setEffect(&(enemy ->mX), &(enemy ->mY), SHOT_EF))
@@ -923,7 +923,7 @@ void GameMainScene::shotTraceEnemyBullet(TraceEnemy* traceEnemy)
 				int setAngleDistance = (i + 1) * TRACE_ENEMY_SHOT_BASE_ANGLE;
 
 				//フラグのたっていないものを探し、1つだけsetbullet関数実行
-				for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+				for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 				{
 					//弾の設置
 					if (mEnemyBullets[k]->setBullet((int)traceEnemy->mX,(int)traceEnemy->mY,setAngleDistance + traceEnemy->mShotCount - TRACE_ENEMY_SHOT_START_FRAME,true))//実行したフレームカウントで角度が10度づつ変わるように設定
@@ -932,7 +932,7 @@ void GameMainScene::shotTraceEnemyBullet(TraceEnemy* traceEnemy)
 					}
 				}
 				//フラグのたっていないものを探し、1つだけsetef関数実行
-				for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+				for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 				{
 					//発射エフェクトの表示
 					if (mEffects[k]->setEffect(&(traceEnemy->mX), &(traceEnemy->mY), SHOT_EF))
@@ -1003,7 +1003,7 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy* chargeEnemy)
 			if (chargeEnemy->mShotCount % CHARGE_EF_INTERVAL == 0 &&chargeEnemy->mShotCount <= CHARGE_EF_END)
 			{
 				//フラグのたっていないものを探し、1つだけsetef関数実行
-				for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+				for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 				{	
 					//チャージエフェクトを表示
 					if (mEffects[i]->setEffect(&(chargeEnemy->mX), &(chargeEnemy->mY), CHARGE_EF))
@@ -1025,7 +1025,7 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy* chargeEnemy)
 					double targetAngle = atan2(vectorTargetY, vectorTargetX);
 
 					//フラグのたっていないものを探し、1つだけsetbullet関数実行発車口の間隔
-					for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+					for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 					{
 						//弾の設置
 						if (mEnemyMiniBullets[i]->setBullet((int)chargeEnemy->mX, (int)chargeEnemy->mY, targetAngle, MINI_BULLET_ORANGE)) 
@@ -1034,7 +1034,7 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy* chargeEnemy)
 						}
 					}
 					//フラグのたっていないものを探し、1つだけsetef関数実行
-					for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+					for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 					{
 						//発射エフェクトの表示
 						if (mEffects[i]->setEffect(&(chargeEnemy->mX), &(chargeEnemy->mY), SHOT_EF)) 
@@ -1063,7 +1063,7 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy* chargeEnemy)
 				if (chargeEnemy->mMoveCount % CHARGE_EF_INTERVAL == 0 &&chargeEnemy->mMoveCount >= CHARGE_EF_INTERVAL)
 				{
 					//フラグのたっていないものを探し、1つだけsetef関数実行
-					for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+					for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 					{
 						//エフェクトの表示
 						if (mEffects[i]->setEffect(&(chargeEnemy->mX), &(chargeEnemy->mY), CHARGE_EF))
@@ -1078,7 +1078,7 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy* chargeEnemy)
 			if (chargeEnemy->mMoveCount == CHARGE_ENEMY_BOSS_WARP_EF_FRAME)
 			{
 				//フラグのたっていないものを探し、1つだけsetef関数実行
-				for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+				for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 				{
 					//ワープエフェクトの表示
 					if (mEffects[i]->setEffect(&(chargeEnemy->mX), &(chargeEnemy->mY), WARP_EF)) 
@@ -1097,7 +1097,7 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy* chargeEnemy)
 					if (chargeEnemy->mNumber == SUMMON_LEFT)
 					{
 						//フラグのたっていないものを探し、1つだけset関数実行
-						for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+						for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 						{
 							//無敵アイテムを出現
 							if (mItemObjects[i]->setItemObject(ITEM_DROP_LEFT_X, ITEM_DROP_Y, 0, OBJECT_STAR, &(mPlayer->mX),&(mPlayer->mY)))
@@ -1109,7 +1109,7 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy* chargeEnemy)
 					else if (chargeEnemy->mNumber == SUMMON_RIGHT)
 					{
 						//フラグのたっていないものを探し、1つだけset関数実行
-						for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+						for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 						{
 							//無敵アイテムを出現
 							if (mItemObjects[i]->setItemObject(ITEM_DROP_RIGHT_X,ITEM_DROP_Y,0,OBJECT_STAR,&(mPlayer->mX),&(mPlayer->mY)))
@@ -1131,7 +1131,7 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy* chargeEnemy)
 						ringShotAngle = i * CHARGE_ENEMY_RING_SHOT_ANGLE;
 
 						//フラグのたっていないものを探し、1つだけsetbullet関数実行
-						for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+						for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 						{
 							//弾の設置
 							if (mEnemyBullets[k]->setBullet((int)chargeEnemy->mX, (int)chargeEnemy->mY, ringShotAngle, true))
@@ -1160,7 +1160,7 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy* chargeEnemy)
 							double targetAngle = atan2(vectorTargetY, vectorTargetX);
 							
 							//フラグのたっていないものを探し、1つだけsetbullet関数実行
-							for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+							for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 							{
 								//弾の設置
 								//3つの弾が重ならないようループ回数で角度を変更
@@ -1256,7 +1256,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 					//30毎に発射角度を変更
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 					//フラグのたっていないものを探し、1つだけsetbullet関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{
 						//ミニ弾の設置
 						if (mEnemyMiniBullets[k]->setBullet((int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle, MINI_BULLET_YELLOW))
@@ -1291,7 +1291,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 				for (int i = 0; i < BOSS_EXPLOSION_COUNT; i++)
 				{	
 					//フラグのたっていないものを探し、1つだけsetexplosion関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{
 						//爆破エフェクトの表示
 						//重ならないようにループ回数によって位置を変更
@@ -1326,7 +1326,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 					//30度毎に発射角度を変更
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 					//フラグのたっていないものを探し、1つだけsetbullet関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{
 						//ミニ弾の設置
 						if (mEnemyMiniBullets[k]->setBullet((int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle, MINI_BULLET_YELLOW))
@@ -1360,7 +1360,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 				for (int i = 0; i < BOSS_EXPLOSION_COUNT; i++)
 				{	
 					//フラグのたっていないものを探し、1つだけsetexplosion関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{
 						//爆破エフェクトの表示
 						//重ならないようにループ回数によって位置を変更
@@ -1397,7 +1397,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 					//30度毎に発射角度を変更
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 					//フラグのたっていないものを探し、1つだけsetbullet関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{	
 						//ミニ弾の設置
 						if (mEnemyMiniBullets[k]->setBullet((int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle, MINI_BULLET_YELLOW))
@@ -1422,7 +1422,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 					//12度毎に角度を変更
 					ringBulletAngle = i * BOSS_NOMAL_SHOT_ANGLE_STEP;
 					//フラグのたっていないものを探し、1つだけsetbullet関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{
 						//弾の設置
 						if (mEnemyBullets[k]->setBullet((int)bossEnemy->mX, (int)bossEnemy->mY, ringBulletAngle, true))
@@ -1455,7 +1455,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 				for (int i = 0; i < BOSS_EXPLOSION_COUNT; i++)
 				{	
 					//フラグのたっていないものを探し、1つだけsetexplosion関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{
 						//爆破エフェクトの表示
 						//重ならないようにループ回数によって位置を変更
@@ -1494,7 +1494,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 					//30度毎に発射角度を変更
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 					//フラグのたっていないものを探し、1つだけsetbullet関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{
 						//ミニ弾の設置
 						if (mEnemyMiniBullets[k]->setBullet((int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle, MINI_BULLET_YELLOW))
@@ -1519,7 +1519,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP + BOSS_MINI_BURST_OFFSET_ANGLE;
 					
 					//フラグのたっていないものを探し、1つだけsetbullet関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{
 						//ミニ弾の設置
 						if (mEnemyMiniBullets[k]->setBullet((int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle, MINI_BULLET_YELLOW))
@@ -1543,7 +1543,7 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy* bossEnemy)
 					//12度毎に角度を変更
 					ringBulletAngle = i * BOSS_NOMAL_SHOT_ANGLE_STEP;
 					//フラグのたっていないものを探し、1つだけsetbullet関数実行
-					for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+					for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 					{
 						//弾の設置
 						if (mEnemyBullets[k]->setBullet((int)bossEnemy->mX, (int)bossEnemy->mY, ringBulletAngle, true))
@@ -1658,7 +1658,7 @@ void GameMainScene::shotPlayerBullet(int playerX, int playerY, int shotPower)
 			{
 				mNomalShotIntervalCount = 0;
 				//フラグのたっていないものを探し、1つだけsetbullet関数を実行
-				for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+				for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 				{
 					//通常弾の設置
 					if (mBullets[i]->setBullet(playerX, playerY, 0))
@@ -1673,7 +1673,7 @@ void GameMainScene::shotPlayerBullet(int playerX, int playerY, int shotPower)
 				//強化SEの再生
 				PlaySoundMem(Data::getInstance()->mPowerUpSoundEffectHandle, DX_PLAYTYPE_BACK, TRUE);
 				//フラグのたっていないものを探し、1つだけsetef関数を実行
-				for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+				for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 				{
 					//パワーアップエフェクトの表示
 					if (mEffects[i]->setEffect(&(mPlayer->mX), &(mPlayer->mY), POWERUP_EF))
@@ -1692,7 +1692,7 @@ void GameMainScene::shotPlayerBullet(int playerX, int playerY, int shotPower)
 				//強化SEの再生
 				PlaySoundMem(Data::getInstance()->mPowerUpSoundEffectHandle, DX_PLAYTYPE_BACK, TRUE);
 				//フラグのたっていないものを探し、1つだけsetef関数を実行
-				for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+				for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 				{
 					//パワーアップエフェクトの表示
 					if (mEffects[i]->setEffect(&(mPlayer->mX), &(mPlayer->mY), POWERUP_EF))
@@ -1717,7 +1717,7 @@ void GameMainScene::shotPlayerBullet(int playerX, int playerY, int shotPower)
 					for (int i = 0; i < PLAYER_MISSILE_AMOUNT; i++)
 					{
 						//フラグのたっていないものを探し、1つだけsetbulletf関数を実行
-						for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+						for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 						{
 							//ミサイル弾の設置
 							//発射角度をループ回数によって変更(70度,110度)
@@ -1740,7 +1740,7 @@ void GameMainScene::shotPlayerBullet(int playerX, int playerY, int shotPower)
 				//強化SEの再生
 				PlaySoundMem(Data::getInstance()->mPowerUpSoundEffectHandle, DX_PLAYTYPE_BACK, TRUE);
 				//フラグのたっていないものを探し、1つだけsetef関数を実行
-				for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+				for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 				{
 					//パワーアップエフェクトの表示
 					if (mEffects[i]->setEffect(&(mPlayer->mX), &(mPlayer->mY), POWERUP_EF))
@@ -1766,7 +1766,7 @@ void GameMainScene::shotPlayerBullet(int playerX, int playerY, int shotPower)
 					{
 						//フラグのたっていないものを探し、1つだけsetbullet関数を実行		
 						//角度ではなく発射番号を設定				
-						for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+						for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 						{
 							//スペシャル弾の設置
 							if (mSpecialBullets[k]->setBullet(playerX, playerY, i))
@@ -1828,7 +1828,7 @@ void GameMainScene::dropItem(int itemX, int itemY, int itemType)
 			int expItemAngle = (i + DROP_EXP_START_INDEX) * DROP_EXP_ANGLE_STEP;
 
 			//フラグのたっていないものを探し、1つだけset関数を実行		
-			for (int k = 0; k < MAX_BALLET_NUMBER; k++)
+			for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 			{
 				//経験値アイテムの設置
 				if (mItemObjects[k]->setItemObject(itemX, itemY, expItemAngle, OBJECT_EXP, &(mPlayer->mX), &(mPlayer->mY)))
@@ -1849,7 +1849,7 @@ void GameMainScene::dropItem(int itemX, int itemY, int itemType)
 		if (randomNumber <= OBJECT_LIFE_DROP_PAESENT)
 		{
 			//フラグのたっていないものを探し、1つだけset関数を実行		
-			for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+			for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 			{
 				//回復アイテムの設置
 				if (mItemObjects[i]->setItemObject(itemX, itemY, 0, OBJECT_LIFE, &(mPlayer->mX), &(mPlayer->mY)))
@@ -1869,7 +1869,7 @@ void GameMainScene::dropItem(int itemX, int itemY, int itemType)
 		if (randomNumber <= OBJECT_STAR_DROP_PAESENT)
 		{
 			//フラグのたっていないものを探し、1つだけset関数を実行		
-			for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+			for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 			{
 				//無敵アイテムを設置
 				if (mItemObjects[i]->setItemObject(itemX, itemY, 0, OBJECT_STAR, &(mPlayer->mX), &(mPlayer->mY)))
@@ -1913,7 +1913,7 @@ void GameMainScene::playBossDefeatExplosion()
 			//間隔カウントリセット
 			mBossExploEFIntervalCount = 0;
 			//フラグのたっていないものを探し、1つだけsetexplosion関数を実行		
-			for (int i = 0; i < MAX_BALLET_NUMBER; i++)
+			for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 			{
 				//ボス画像上のランダムな位置を計算
 				int randomExplositionPositionX = (int)mBoss->mX + BOSS_DEFEAT_EXPLOSION_OFFSET_X + GetRand(BOSS_DEFEAT_EXPLOSION_RANDOM_RANGE) * BOSS_DEFEAT_EXPLOSION_STEP;

@@ -1,4 +1,5 @@
 ﻿#include "bullet.h"
+
 /*
 @brief	コンストラクタ
 
@@ -10,14 +11,18 @@
 */
 Bullet::Bullet()
 {
-	 mX = 0.0f;
-	 mY = 0.0f;
-	 mVectorX = 0.0f;
-	 mVectorY = 0.0f;
-	 mAngle = 0.0f;
-	 mIsActive=false;
+	mX = 0.0f;
+	mY = 0.0f;
+	mVectorX = 0.0f;
+	mVectorY = 0.0f;
+	mAngle = 0.0f;
+	mIsActive = false;
+	mWidth = 0;
+	mHeight = 0;
+	mBulletType = PLAYER_NOMAL;
+	mIsBossEnemy = false;
+	mSpeed = ENEMY_BULLET_SPEED;
 }
-
 
 /*
 @brief	デストラクタ
@@ -42,16 +47,40 @@ Bullet::~Bullet()
 */
 void Bullet::action()
 {
-	if (mIsActive)
+	if (!mIsActive)
 	{
-		//位置(X,Y)に速度(Vx,Vy)を加算して、移動している
+		return;
+	}
+	if (mIsBossEnemy) // ボス敵の場合
+	{
+		// ラジアンに変換
+		double moveRadian = mAngle / DEGREE_TO_RADIAN_DIVISOR * PI;
+		// 一定値まで徐々に減速
+		if (mSpeed >= BOSS_BULLET_SPEEDDOWN_LIMIT)
+		{
+			mSpeed *= BOSS_BULLET_SPEEDDOWN;
+		}
+		// 角度から速度（Vx,Vy）を計算して設定している
+		mVectorX = cos(moveRadian) * mSpeed;
+		mVectorY = sin(moveRadian) * mSpeed;
+
+		// 位置(X,Y)に速度(Vx,Vy)を加算して、移動している
+		mX += mVectorX;
+		mY += mVectorY;
+
+	}
+	else
+	{
+		// 位置(X,Y)に速度(Vx,Vy)を加算して、移動している
 		mX += mVectorX;
 		mY += mVectorY;
 	}
-	//画面外判定
-	if (mY <= SCREEN_MARGIN || mX <= SCREEN_MARGIN || mY >= MAX_SCREEN_HEIGHT + SCREEN_MARGIN || mX >= MAX_SCREEN_WIDTH + SCREEN_MARGIN)
+	// 画面外での処理
+	if (mY <= SCREEN_MARGIN || mX <= SCREEN_MARGIN ||
+	    mY >= MAX_SCREEN_HEIGHT + SCREEN_MARGIN ||
+	    mX >= MAX_SCREEN_WIDTH + SCREEN_MARGIN)
 	{
-		start();//修正案。初期化関数をコピーしない
+		start();
 	}
 }
 
@@ -69,11 +98,14 @@ void Bullet::action()
 */
 void Bullet::draw()
 {
-	if (mIsActive)
+	if (!mIsActive)
 	{
-		DrawGraph((int)mX - PLAYER_BULLET_WIDTH / CUT_HALF - DRAW_OFFSET_X, (int)mY - PLAYER_BULLET_HEIGHT / CUT_HALF - DRAW_OFFSET_Y, Data::getInstance()->mPlayerBulletImageHandleArray[BULLET_NORMAL], true);
-		DrawGraph((int)mX - PLAYER_BULLET_WIDTH / CUT_HALF + DRAW_OFFSET_X, (int)mY - PLAYER_BULLET_HEIGHT / CUT_HALF - DRAW_OFFSET_Y, Data::getInstance()->mPlayerBulletImageHandleArray[BULLET_NORMAL], true);
+		return;
 	}
+
+	DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
+	          Data::getInstance()->mBulletImgageHandleArray[mBulletType], true);
+
 }
 
 /*
@@ -90,6 +122,9 @@ void Bullet::start()
 	mVectorY = 0.0f;
 	mAngle = 0.0f;
 	mIsActive = false;
+	mIsBossEnemy = false;
+	mSpeed = ENEMY_BULLET_SPEED;
+	mBulletType = PLAYER_NOMAL;
 }
 
 /*
@@ -100,15 +135,16 @@ void Bullet::start()
 @param[in]	int setAngle:設定する角度
 
 @return		実行の成否
-@note   実行時 ture/ 失敗時 false	
+@note   実行時 ture/ 失敗時 false
 @note	フラグ（flg）が true の場合は再設定を行わず false を返す
 @note	フラグ(flg)をtrueにしてaction関数及びdraw関数の処理を有効にしている
-@note	引数で渡された位置・角度をもとに各パラメータを設定する	
+@note	引数で渡された位置・角度をもとに各パラメータを設定する
 @warning
 
 - すでに発射中かどうかを判定できるように、返り値は bool 型としている
 
-- ※角度から速度を設定するが、通常弾は画面上向きで発射するので角度の引数は使用していない
+-
+※角度から速度を設定するが、通常弾は画面上向きで発射するので角度の引数は使用していない
 */
 bool Bullet::setBullet(int setPositionX, int setPositionY, int setAngle)
 {
@@ -116,16 +152,41 @@ bool Bullet::setBullet(int setPositionX, int setPositionY, int setAngle)
 	{
 		return false;
 	}
-	//発射SEの再生
-	PlaySoundMem(Data::getInstance()->mPlayerShotSoundEffectHandle, DX_PLAYTYPE_BACK, TRUE);
+	// 発射SEの再生
+	PlaySoundMem(Data::getInstance()->mPlayerShotSoundEffectHandle,
+	             DX_PLAYTYPE_BACK, TRUE);
 
-	//各パラメータの設定
+	// 各パラメータの設定
 	mX = setPositionX;
 	mY = setPositionY;
-	//修正案。mAngleの削除もしくはローカル変数
+	// 修正案。mAngleの削除もしくはローカル変数
 	mAngle = setAngle;
 	mVectorX = 0;
 	mVectorY = PLAYER_BULLET_VECTOR_Y;
 	mIsActive = true;
 	return true;
+}
+/*
+@brief	弾の当たり判定を行う関数
+
+@param[in]	Character *class_p:当たり判定をとるクラスのポインタ
+
+@note	弾と当たり判定を行うクラスとの距離で距離で判定
+@note	引数でクラスポインタから座標とサイズを参照している
+*/
+void Bullet::hitCheck(Character *class_p)
+{
+	// 弾と当たり判定をとるクラスとの距離を計算
+	int distX = abs((int)(class_p->mX - mX));
+	int distY = abs((int)(class_p->mY - mY));
+
+	// 弾と当たり判定をとるクラスのサイズを加算した半分の値を計算
+	int hitRangeX = (class_p->mWidth + mWidth) / 2;
+	int hitRangeY = (class_p->mHeight + mHeight) / 2;
+
+	// 一定距離まで近づいたら当たったと判定
+	if (distX < hitRangeX && distY < hitRangeY)
+	{
+		class_p->mIsTakeDamage = true; // ダメージ判定を有効
+	}
 }

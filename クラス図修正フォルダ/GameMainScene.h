@@ -202,17 +202,17 @@ private:
     TraceEnemy* mTraceEnemies[MAX_ENEMY_COUNT];           //追従敵
     BossEnemy* mBoss;                                      //ボス敵
     //弾
-    EnemyBullet* mEnemyBullets[MAX_BALLET_NUMBER];         //敵通常弾
-    EnemyMiniBullet* mEnemyMiniBullets[MAX_BALLET_NUMBER]; //敵ミニ弾
-    Bullet* mBullets[MAX_BALLET_NUMBER];                   //プレイヤー弾
-    MissileBullet* mMissileBullets[MAX_BALLET_NUMBER];     //プレイヤーミサイル弾
-    SpecialBullet* mSpecialBullets[MAX_BALLET_NUMBER];     //プレイヤースペシャル弾
-    HomingBullet* mHomingBullets[MAX_BALLET_NUMBER];       //プレイヤーホーミング弾
+    EnemyBullet* mEnemyBullets[MAX_BULLET_NUMBER];         //敵通常弾
+    EnemyMiniBullet* mEnemyMiniBullets[MAX_BULLET_NUMBER]; //敵ミニ弾
+    Bullet* mBullets[MAX_BULLET_NUMBER];                   //プレイヤー弾
+    MissileBullet* mMissileBullets[MAX_BULLET_NUMBER];     //プレイヤーミサイル弾
+    SpecialBullet* mSpecialBullets[MAX_BULLET_NUMBER];     //プレイヤースペシャル弾
+    HomingBullet* mHomingBullets[MAX_BULLET_NUMBER];       //プレイヤーホーミング弾
     //アイテム
-    Object* mItemObjects[MAX_BALLET_NUMBER];                   //アイテム、オブジェクト
+    Object* mItemObjects[MAX_BULLET_NUMBER];                   //アイテム、オブジェクト
     //エフェクト
-    Explosion* mExplosions[MAX_BALLET_NUMBER];             //爆発エフェクト
-    Effect* mEffects[MAX_BALLET_NUMBER];                   //強化エフェクト
+    Explosion* mExplosions[MAX_BULLET_NUMBER];             //爆発エフェクト
+    Effect* mEffects[MAX_BULLET_NUMBER];                   //強化エフェクト
 
     //----------------------
 
