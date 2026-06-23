@@ -28,6 +28,7 @@ TraceEnemy::TraceEnemy()
 	mIsReachedStartPosition = false;
 	mIsReachedBossPosition = false;
 	mIsInvincible = false;
+	mIsDamageCoolDown = false;
 }
 
 /*
@@ -50,156 +51,162 @@ TraceEnemy::~TraceEnemy()
 
 @return		なし
 
-@note      
+@note
 
 - フラグ(FLG)がtrueの場合のみ処理を実行する
 - MoveCount を用いて移動タイミングや動作を制御している
 - ステージに応じて処理を分岐している
 
 1. 通常ステージ
-	- 出現してからy=100の位置までは降下移動をする
-	- 降下移動後はプレイヤーを追いかける移動をする
-	- 画面外へ行くとフラグ(FLG)をfalseにし撃破フラグ(Defeat)をtrueにする
+    - 出現してからy=100の位置までは降下移動をする
+    - 降下移動後はプレイヤーを追いかける移動をする
+    - 画面外へ行くとフラグ(FLG)をfalseにし撃破フラグ(Defeat)をtrueにする
 
 2. ボスステージ
-	- ボスに召喚されて指定位置まで移動する
-	- 指定位置に移動後、一定カウント内までに倒されなかった場合、画面外へ移動する
+    - ボスに召喚されて指定位置まで移動する
+    - 指定位置に移動後、一定カウント内までに倒されなかった場合、画面外へ移動する
 
 */
-void TraceEnemy::action(int playerX , int playerY)
+void TraceEnemy::action(int playerX, int playerY, int *score)
 {
-	if (mIsActive)
+	if (!mIsActive)
 	{
-		mMoveCount++;//移動カウントの更新
+		return;
+	}
+	takeDamage(score); // ダメージ処理
+	mMoveCount++;      // 移動カウントの更新
 
-		if (!mIsBossStage)
+	if (!mIsBossStage)
+	{
+		if (mMoveCount % MOVE_INTERVAL_FRAME == 0) // ２フレームに一回移動
 		{
-			if (mMoveCount % MOVE_INTERVAL_FRAME == 0)//２フレームに一回移動
+			// y100まで降下
+			if (mY >= ENEMY_DESCEND_LIMIT_Y)
 			{
-				//y100まで降下
-				if (mY >= ENEMY_DESCEND_LIMIT_Y)
-				{
-					mIsReachedStartPosition = true;
-				}
+				mIsReachedStartPosition = true;
+			}
 
-				if (mIsReachedStartPosition == false)
-				{
-					mVectorY *= ENEMY_SLOWDOWN_Y;//徐々に減速
-					mY += mVectorY;
-				}
-				else//プレイヤーを追いかけるように移動
-				{
-					//atan2を使用してプレイヤーと追従敵とのなす角を計算
-					double vectorTargetX = (playerX - mX);
-					double vectorTargetY = (playerY - mY);
-					double targetAngle = atan2(vectorTargetY,vectorTargetX);
-					//角度から速度を計算
-					mVectorX = cos(targetAngle) * TRACE_ENEMY_TRACK_SPEED;
-					mVectorY = sin(targetAngle) * TRACE_ENEMY_TRACK_SPEED;
-					//位置(X,Y)に速度(Vx,Vy)を加算して、移動している
-					mX += mVectorX;
-					mY += mVectorY;
-				}
-				//画面外なら消える処理
-				if (mX >= MAX_SCREEN_WIDTH + mWidth || mX <=  -(mWidth) ||
-					mY >= MAX_SCREEN_HEIGHT + mHeight || mY <=  -(mHeight))
-				{
-					mIsActive = false;
-					mIsDefeat = true;
-				}
-			}
-		}
-		else
-		{
-			if (mNumber == SUMMON_LEFT)//左側
+			if (mIsReachedStartPosition == false)
 			{
-				//ポジションにつくまで移動
-				//指定位置との誤差が一定値になるまで移動処理を実行
-				if (abs((int)mX - TRACE_ENEMY_SUMMON_POINT_LEFT_X) >= ENEMY_POSITION_DIFFERENCE_RANGE &&
-					abs((int)mY - TRACE_ENEMY_SUMMON_POINT_LEFT_Y) >= ENEMY_POSITION_DIFFERENCE_RANGE &&
-					!mIsReachedBossPosition)
-				{
-					//atan2を使用してプレイヤーと追従敵とのなす角を計算
-					double vectorTargetX = (TRACE_ENEMY_SUMMON_POINT_LEFT_X - mX);
-					double vectorTargetY = (TRACE_ENEMY_SUMMON_POINT_LEFT_Y - mY);
-					double targetAngle = atan2(vectorTargetY, vectorTargetX);
-					//角度から速度を計算
-					mVectorX = cos(targetAngle) * ENEMY_POSITION_MOVE_SPEED;
-					mVectorY = sin(targetAngle) * ENEMY_POSITION_MOVE_SPEED;
-					//位置(X,Y)に速度(Vx,Vy)を加算して、移動している
-					mX += mVectorX;
-					mY += mVectorY;
-					mShotCount = 0;//発射カウントのリセット
-				}
-				else
-				{
-					//位置に着いた場合移動行動フラグを切り替え
-					mIsReachedBossPosition = true;
-				}
-				//250フレームなると処理を実行
-				//画面外へ移動するよう速度を設定
-				if (mMoveCount == ENEMY_EXIT_START_FRAME)
-				{
-					mVectorX = -(ENEMY_EXIT_SPD);
-					mVectorY = -(ENEMY_EXIT_SPD);
-				}
-				//250フレームを超えるとで画面外へ移動
-				if (mMoveCount > ENEMY_EXIT_START_FRAME)
-				{
-					mShotCount = 0;//発射カウントのリセット。攻撃の停止
-					mX += mVectorX;
-					mY += mVectorY;
-					mVectorY *= ENEMY_SPEEDUP_Y;//徐々に加速
-				}
+				mVectorY *= ENEMY_SLOWDOWN_Y; // 徐々に減速
+				mY += mVectorY;
 			}
-			//マジックナンバー
-			if (mNumber == SUMMON_RIGHT)//右側
+			else // プレイヤーを追いかけるように移動
 			{
-				//ポジションにつくまで移動
-				//現在の位置と指定位置のずれが一定値になるまで処理を実行する
-				if (abs((int)mX - TRACE_ENEMY_SUMMON_POINT_RIGHT_X) >= ENEMY_POSITION_DIFFERENCE_RANGE &&
-					abs((int)mY - TRACE_ENEMY_SUMMON_POINT_RIGHT_Y) >= ENEMY_POSITION_DIFFERENCE_RANGE &&
-					!mIsReachedBossPosition)
-				{
-					//atan2を使用して敵と指定位置とのなす角を計算
-					double vectorTargetX = (TRACE_ENEMY_SUMMON_POINT_RIGHT_X - mX);
-					double vectorTargetY = (TRACE_ENEMY_SUMMON_POINT_RIGHT_Y - mY);
-					double targetAngle = atan2(vectorTargetY, vectorTargetX);
-					//角度から速度（Vx,Vy）を計算して設定している
-					mVectorX = cos(targetAngle) * ENEMY_POSITION_MOVE_SPEED;
-					mVectorY = sin(targetAngle) * ENEMY_POSITION_MOVE_SPEED;
-					//位置(X,Y)に速度(Vx,Vy)を加算して、移動している
-					mX += mVectorX;
-					mY += mVectorY;
-                    mShotCount = 0;//発射カウントのリセット
-				}
-				else
-				{
-					//位置に着いた場合移動行動フラグを切り替え
-					mIsReachedBossPosition = true;
-				}
-				//250フレームなると処理を実行
-				//画面外へ移動するよう速度を設定
-				if (mMoveCount == ENEMY_EXIT_START_FRAME)
-				{
-					mVectorX = ENEMY_EXIT_SPD;
-					mVectorY = -(ENEMY_EXIT_SPD);
-				}
-				//250フレームを超えるとで画面外へ移動
-				if (mMoveCount > ENEMY_EXIT_START_FRAME)
-				{
-                    mShotCount = 0;//発射カウントのリセット。攻撃の停止
-					mX += mVectorX;
-					mY += mVectorY;
-					mVectorY *= ENEMY_SPEEDUP_Y;//徐々に加速
-				}
+				// atan2を使用してプレイヤーと追従敵とのなす角を計算
+				double vectorTargetX = (playerX - mX);
+				double vectorTargetY = (playerY - mY);
+				double targetAngle = atan2(vectorTargetY, vectorTargetX);
+				// 角度から速度を計算
+				mVectorX = cos(targetAngle) * TRACE_ENEMY_TRACK_SPEED;
+				mVectorY = sin(targetAngle) * TRACE_ENEMY_TRACK_SPEED;
+				// 位置(X,Y)に速度(Vx,Vy)を加算して、移動している
+				mX += mVectorX;
+				mY += mVectorY;
+			}
+			// 画面外なら消える処理
+			if (mX >= MAX_SCREEN_WIDTH + mWidth || mX <= -(mWidth) ||
+			    mY >= MAX_SCREEN_HEIGHT + mHeight || mY <= -(mHeight))
+			{
+				mIsActive = false;
+				mIsDefeat = true;
 			}
 		}
-		//オーバーフロー防止
-		if (mMoveCount == MOVE_COUNT_LIMIT)
+	}
+	else
+	{
+		if (mNumber == SUMMON_LEFT) // 左側
 		{
-			mMoveCount = 0;//移動カウントのリセット
+			// ポジションにつくまで移動
+			// 指定位置との誤差が一定値になるまで移動処理を実行
+			if (abs((int)mX - TRACE_ENEMY_SUMMON_POINT_LEFT_X) >=
+			        ENEMY_POSITION_DIFFERENCE_RANGE &&
+			    abs((int)mY - TRACE_ENEMY_SUMMON_POINT_LEFT_Y) >=
+			        ENEMY_POSITION_DIFFERENCE_RANGE &&
+			    !mIsReachedBossPosition)
+			{
+				// atan2を使用してプレイヤーと追従敵とのなす角を計算
+				double vectorTargetX = (TRACE_ENEMY_SUMMON_POINT_LEFT_X - mX);
+				double vectorTargetY = (TRACE_ENEMY_SUMMON_POINT_LEFT_Y - mY);
+				double targetAngle = atan2(vectorTargetY, vectorTargetX);
+				// 角度から速度を計算
+				mVectorX = cos(targetAngle) * ENEMY_POSITION_MOVE_SPEED;
+				mVectorY = sin(targetAngle) * ENEMY_POSITION_MOVE_SPEED;
+				// 位置(X,Y)に速度(Vx,Vy)を加算して、移動している
+				mX += mVectorX;
+				mY += mVectorY;
+				mShotCount = 0; // 発射カウントのリセット
+			}
+			else
+			{
+				// 位置に着いた場合移動行動フラグを切り替え
+				mIsReachedBossPosition = true;
+			}
+			// 250フレームなると処理を実行
+			// 画面外へ移動するよう速度を設定
+			if (mMoveCount == ENEMY_EXIT_START_FRAME)
+			{
+				mVectorX = -(ENEMY_EXIT_SPD);
+				mVectorY = -(ENEMY_EXIT_SPD);
+			}
+			// 250フレームを超えるとで画面外へ移動
+			if (mMoveCount > ENEMY_EXIT_START_FRAME)
+			{
+				mShotCount = 0; // 発射カウントのリセット。攻撃の停止
+				mX += mVectorX;
+				mY += mVectorY;
+				mVectorY *= ENEMY_SPEEDUP_Y; // 徐々に加速
+			}
 		}
+		// マジックナンバー
+		if (mNumber == SUMMON_RIGHT) // 右側
+		{
+			// ポジションにつくまで移動
+			// 現在の位置と指定位置のずれが一定値になるまで処理を実行する
+			if (abs((int)mX - TRACE_ENEMY_SUMMON_POINT_RIGHT_X) >=
+			        ENEMY_POSITION_DIFFERENCE_RANGE &&
+			    abs((int)mY - TRACE_ENEMY_SUMMON_POINT_RIGHT_Y) >=
+			        ENEMY_POSITION_DIFFERENCE_RANGE &&
+			    !mIsReachedBossPosition)
+			{
+				// atan2を使用して敵と指定位置とのなす角を計算
+				double vectorTargetX = (TRACE_ENEMY_SUMMON_POINT_RIGHT_X - mX);
+				double vectorTargetY = (TRACE_ENEMY_SUMMON_POINT_RIGHT_Y - mY);
+				double targetAngle = atan2(vectorTargetY, vectorTargetX);
+				// 角度から速度（Vx,Vy）を計算して設定している
+				mVectorX = cos(targetAngle) * ENEMY_POSITION_MOVE_SPEED;
+				mVectorY = sin(targetAngle) * ENEMY_POSITION_MOVE_SPEED;
+				// 位置(X,Y)に速度(Vx,Vy)を加算して、移動している
+				mX += mVectorX;
+				mY += mVectorY;
+				mShotCount = 0; // 発射カウントのリセット
+			}
+			else
+			{
+				// 位置に着いた場合移動行動フラグを切り替え
+				mIsReachedBossPosition = true;
+			}
+			// 250フレームなると処理を実行
+			// 画面外へ移動するよう速度を設定
+			if (mMoveCount == ENEMY_EXIT_START_FRAME)
+			{
+				mVectorX = ENEMY_EXIT_SPD;
+				mVectorY = -(ENEMY_EXIT_SPD);
+			}
+			// 250フレームを超えるとで画面外へ移動
+			if (mMoveCount > ENEMY_EXIT_START_FRAME)
+			{
+				mShotCount = 0; // 発射カウントのリセット。攻撃の停止
+				mX += mVectorX;
+				mY += mVectorY;
+				mVectorY *= ENEMY_SPEEDUP_Y; // 徐々に加速
+			}
+		}
+	}
+	// オーバーフロー防止
+	if (mMoveCount == MOVE_COUNT_LIMIT)
+	{
+		mMoveCount = 0; // 移動カウントのリセット
 	}
 }
 
@@ -218,26 +225,28 @@ void TraceEnemy::draw()
 {
 	if (mIsActive)
 	{
-		//ダメージ時の場合
-		if (mIsTakeDamage)
+		// ダメージ時の場合
+		if (mIsDamageCoolDown)
 		{
-			mDamageDisplayCount++;//ダメージ表示カウントの更新
-			//ダメージ画像の表示
-			//マジックナンバー
-			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF, Data::getInstance()->mEnemyDamageImageHandle, TRUE);
-			//ダメージ画像表示フレームを制限
+			mDamageDisplayCount++; // ダメージ表示カウントの更新
+			// ダメージ画像の表示
+			// マジックナンバー
+			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
+			          Data::getInstance()->mEnemyDamageImageHandle, TRUE);
+			// ダメージ画像表示フレームを制限
 			if (mDamageDisplayCount > DAMAGE_COUNT_LIMIT)
 			{
-				//ダメージフラグ、カウントのリセット
-				mIsTakeDamage = false;
+				// ダメージフラグ、カウントのリセット
+				mIsDamageCoolDown = false;
 				mDamageDisplayCount = 0;
 			}
 		}
 		else
 		{
-			//通常画像の表示
-			//マジックナンバー
-			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF, Data::getInstance()->mTraceEnemyImageHandle, TRUE);
+			// 通常画像の表示
+			// マジックナンバー
+			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
+			          Data::getInstance()->mTraceEnemyImageHandle, TRUE);
 		}
 	}
 }
@@ -271,4 +280,5 @@ void TraceEnemy::start()
 	mIsBossStage = false;
 	mIsReachedBossPosition = false;
 	mIsInvincible = false;
+	mIsDamageCoolDown = false;
 }

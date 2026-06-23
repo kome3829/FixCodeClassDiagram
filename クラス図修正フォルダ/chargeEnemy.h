@@ -15,7 +15,7 @@ class ChargeEnemy : public Enemy
 public:
 	ChargeEnemy();
 	~ChargeEnemy();
-	 void action();
+	void action(int *score);
 	 void draw();
 	 void start();
 

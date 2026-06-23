@@ -8,12 +8,12 @@
 #include "EffectManager.h"
 #include "ItemObjectManager.h"
 
-enum ENEMY_POP_PATTERN 
-{
-  NOMAL_ENEMY,
-  TRACE_ENEMY,
-  CHARGE_ENEMY,
-};
+//enum ENEMY_POP_PATTERN 
+//{
+//  NOMAL_ENEMY,
+//  TRACE_ENEMY,
+//  CHARGE_ENEMY,
+//};
 
 
 class MinionEnemyManager {
@@ -26,8 +26,8 @@ public:
 
   bool takeDamageMinionEnemy(EffectManager* effectManager_p, int* score,
                   ItemObjectManager* itemobjectManager_p); // ダメージ処理
-  void shotMinionEnemyBullet(BulletManager* bulletManager_p,EffectManager* effectManager_p,
-                        ItemObjectManager* itemObjectManager_p); // 弾発射関数
+  //void shotMinionEnemyBullet(BulletManager* bulletManager_p,EffectManager* effectManager_p,
+  //                      ItemObjectManager* itemObjectManager_p); // 弾発射関数
 
 
 
@@ -46,7 +46,7 @@ public:
   int mChargeEnemyNumber;   // チャージ攻撃敵数
   int mChargeEnemyPopCount; // チャージ攻撃敵出現カウント
 
-  ENEMY_POP_PATTERN mEnemyPopPattern; //雑魚出現パターン　
+  //ENEMY_POP_PATTERN mEnemyPopPattern; //雑魚出現パターン　
 
   //---各雑魚敵出現関数---
   void popEnemy();

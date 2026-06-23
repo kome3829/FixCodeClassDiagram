@@ -20,7 +20,7 @@ public:
    void action();
    void draw();
    void start();
-   void checkHit(Player *player_p, BossEnemy *bossEnemy_p,
+   void checHit(Player *player_p, BossEnemy *bossEnemy_p,
                  MinionEnemyManager *minionEnemyManager_p);
    void setBullet(int setPositionX, int setPositionY, int setAngle,
                   BULLET_TYPE bulletType);
@@ -28,7 +28,8 @@ public:
 
 
 private:
-    
+  void checkHitMinionEnemyPre(MinionEnemyManager *minionEnemyManager_p,
+	                     Bullet *mBullets);
 };
 
 #endif // __BULLETMANAGER_H__

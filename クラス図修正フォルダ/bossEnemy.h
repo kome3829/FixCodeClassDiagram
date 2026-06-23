@@ -83,7 +83,7 @@ class BossEnemy : public Enemy
 public:
     BossEnemy();
     ~BossEnemy();
-    void action();
+	void action(int *score);
     void draw();
     void start();
     void checkPlayerBulletHit(Bullet* bullet, MissileBullet* missileBullet, SpecialBullet* specialBullet, int* score);   //プレイヤー弾の当たり判定
@@ -117,6 +117,9 @@ public:
     bool mIsResetMoveCount;                    //移動カウントのリセット判定
     bool mIsSummonEnemy;                        //雑魚敵召喚判定
 
+    //仮のダメージ処理
+	void takeDamagePle(int *score);
+	void takeDamage(int *score);
 
 private:
     BOSS_DIRECTION mBossDirection;               //ボス向いてる方向

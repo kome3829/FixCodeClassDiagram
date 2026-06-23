@@ -20,6 +20,7 @@ GameMainScene::GameMainScene()
 	mTraceEnemies[i] = new TraceEnemy();
 	mChargeEnemies[i] = new ChargeEnemy();
 	}
+	mBulletManager = new BulletManager();
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		mBullets[i] = new Bullet();
@@ -190,15 +191,21 @@ int GameMainScene::action()
 	mPlayer->action();
 	shotPlayerBullet((int)mPlayer->mX, (int)mPlayer->mY, mPlayer->mShotPower);
 	//ボスの更新処理、発射処理
-	mBoss->action();
+	mBoss->action(&mScore);
 	shotBossEnemyBullet(mBoss);
 
 	//ボス、プレイヤーの当たり判定処理
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		//弾との当たり判定
-		mBoss->checkPlayerBulletHit(mBullets[i], mMissileBullets[i], mSpecialBullets[i], &mScore);
-		mPlayer->checkEnemyBulletHit(mEnemyBullets[i], mEnemyMiniBullets[i]);
+		// プレイヤー弾とボス敵の当たり判定
+		mBullets[i]->hitCheck(mBoss);
+		mMissileBullets[i]->hitCheck(mBoss);
+		mSpecialBullets[i]->hitCheck(mBoss);
+
+		//敵弾とプレイヤーの当たり判定
+		mEnemyBullets[i]->hitCheck(mPlayer);
+		mEnemyMiniBullets[i]->hitCheck(mPlayer);
 
 		//アイテムの当たり判定(プレイヤー)
 		switch (mPlayer->checkItemObjectHit(mItemObjects[i], &mScore))//当たったオブジェクトを返す
@@ -235,13 +242,13 @@ int GameMainScene::action()
 	//雑魚敵の更新処理と発射処理
 	for (int i = 0; i < MAX_ENEMY_COUNT; i++)
 	{
-		mEnemies[i]->action();
+		mEnemies[i]->action(&mScore);
 		shotEnemyBullet(mEnemies[i]);
 
-		mTraceEnemies[i]->action((int)mPlayer->mX, (int)mPlayer->mY);
+		mTraceEnemies[i]->action((int)mPlayer->mX, (int)mPlayer->mY, &mScore);
 		shotTraceEnemyBullet(mTraceEnemies[i]);
 
-		mChargeEnemies[i]->action();
+		mChargeEnemies[i]->action(&mScore);
 		shotChargeEnemyBullet(mChargeEnemies[i]);
 	}
 
@@ -251,6 +258,18 @@ int GameMainScene::action()
 		for (int k = 0; k < MAX_BULLET_NUMBER; k++)
 		{
 			//通常敵の判定
+			/*if (mBullets[k]->hitCheck(mChargeEnemies[i]))
+			{
+				MinionHitFuncPre(mChargeEnemies[i]);
+			}
+			if (mMissileBullets[k]->hitCheck(mChargeEnemies[i]))
+			{
+				MinionHitFuncPre(mChargeEnemies[i]);
+			}
+			if (mSpecialBullets[k]->hitCheck(mChargeEnemies[i]))
+			{
+				MinionHitFuncPre(mChargeEnemies[i]);
+			}*/
 			if (mEnemies[i]->checkPlayerBulletHit(mBullets[k], mMissileBullets[k], mSpecialBullets[k], mHomingBullets[k], &mScore))
 			{
 				//フラグのたっていないものを探し、１つだけ実行
@@ -346,6 +365,8 @@ int GameMainScene::action()
 		}
 	}
 
+	//管理クラスの更新処理
+	mBulletManager->action();
 	//各弾の更新処理
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
@@ -499,6 +520,10 @@ void GameMainScene::draw()
 		mTraceEnemies[i]->draw();
 		mChargeEnemies[i]->draw();
 	}
+
+	// 管理クラスの表示処理
+	mBulletManager->draw();
+
 	//各弾、アイテム、爆破エフェクトの表示
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
@@ -614,6 +639,9 @@ void GameMainScene::start()
 		mTraceEnemies[i]->start();
 		mChargeEnemies[i]->start();
 	}
+	// 管理クラスの初期化処理
+	mBulletManager->start();
+
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		mBullets[i]->start();
@@ -1997,6 +2025,41 @@ int GameMainScene::checkPlayerDefeat()
 		}
 	}
 	return SCENE_GAMEMAIN;
+}
+
+void GameMainScene::MinionHitFuncPre(Enemy* enemys)
+{
+	// フラグのたっていないものを探し、１つだけ実行
+	for (int l = 0; l < MAX_BULLET_NUMBER; l++)
+	{
+		// ヒットエフェクトの表示
+		if (mEffects[l]->setEffect(&(enemys->mX), &(enemys->mY),
+		                           HIT_EF))
+		{
+			break;
+		}
+	}
+	// 撃破判定
+	//この処理をエネミクラスへ移動できるようにする。
+	if (enemys->mIsDefeat)
+	{
+		// 撃破SE再生,アイテムドロップ処理
+		PlaySoundMem(Data::getInstance()->mDefeatEnemySoundEffectHandle,
+		             DX_PLAYTYPE_BACK, TRUE);
+		dropItem((int)enemys->mX, (int)enemys->mY, OBJECT_EXP);
+		dropItem((int)enemys->mX + DROP_OFFSET_X, (int)enemys->mY,
+		         OBJECT_STAR);
+		dropItem((int)enemys->mX, (int)enemys->mY, OBJECT_LIFE);
+		// フラグのたっていないものを探し、１つだけ実行
+		for (int l = 0; l < MAX_BULLET_NUMBER; l++)
+		{
+			// 撃破エフェクトの表示
+			if (mExplosions[l]->setExplosion((int)enemys->mX, (int)enemys->mY))
+			{
+				break;
+			}
+		}
+	}
 }
 
 

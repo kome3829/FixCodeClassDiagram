@@ -8,7 +8,7 @@ class TraceEnemy : public Enemy
 public:
     TraceEnemy();
     ~TraceEnemy();
-    void action(int playerX, int playerY);
+	void action(int playerX, int playerY, int *score);
     void draw();
     void start();
 

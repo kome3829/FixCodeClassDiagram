@@ -174,8 +174,12 @@ bool Bullet::setBullet(int setPositionX, int setPositionY, int setAngle)
 @note	弾と当たり判定を行うクラスとの距離で距離で判定
 @note	引数でクラスポインタから座標とサイズを参照している
 */
-void Bullet::hitCheck(Character *class_p)
+bool Bullet::hitCheck(Character *class_p)
 {
+	if (!mIsActive||!class_p->mIsActive)
+	{
+		return false;
+	}
 	// 弾と当たり判定をとるクラスとの距離を計算
 	int distX = abs((int)(class_p->mX - mX));
 	int distY = abs((int)(class_p->mY - mY));
@@ -187,6 +191,37 @@ void Bullet::hitCheck(Character *class_p)
 	// 一定距離まで近づいたら当たったと判定
 	if (distX < hitRangeX && distY < hitRangeY)
 	{
-		class_p->mIsTakeDamage = true; // ダメージ判定を有効
+		// 弾クラスの無効化
+		mIsActive = false;
+		if (!class_p->mIsTakeDamage)//ダメージ判定中ではなければ
+		{
+			class_p->mIsTakeDamage = true; // ダメージ判定を有効
+		}
+		return true;
 	}
+	return false;
+}
+
+bool Bullet::hitCheckPre(int x, int y, int w, int h)
+{
+	if (!mIsActive)
+	{
+		return false;
+	}
+	// 弾と当たり判定をとるクラスとの距離を計算
+	int distX = abs((int)(x - mX));
+	int distY = abs((int)(y - mY));
+
+	// 弾と当たり判定をとるクラスのサイズを加算した半分の値を計算
+	int hitRangeX = (w + mWidth) / 2;
+	int hitRangeY = (h + mHeight) / 2;
+
+	// 一定距離まで近づいたら当たったと判定
+	if (distX < hitRangeX && distY < hitRangeY)
+	{
+		//弾クラスの無効化
+		mIsActive = false;
+		return true; // ダメージ判定を有効
+	}
+	return false;
 }
