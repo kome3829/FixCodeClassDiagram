@@ -2,15 +2,13 @@
 #define __BULLETMANAGER_H__
 
 #include "DxLib.h"
-#include "MinionEnemyManager.h"
 #include "bossEnemy.h"
 #include "bullet.h"
 #include "define.h"
 #include "deta.h"
 #include "math.h"
 #include "player.h"
-
-
+#include "Character.h"
 
 
 class BulletManager {
@@ -20,15 +18,17 @@ public:
    void action();
    void draw();
    void start();
-   void checHit(Player *player_p, BossEnemy *bossEnemy_p,
-                 MinionEnemyManager *minionEnemyManager_p);
+   //void checHit(Player *player_p, BossEnemy *bossEnemy_p,
+   //              MinionEnemyManager *minionEnemyManager_p);
+   void checHit(Player *player_p, BossEnemy *bossEnemy_p);
+
    void setBullet(int setPositionX, int setPositionY, int setAngle,
 	              BULLET_TYPE bulletType, bool isBossEnemy);
   Bullet* mBullets[MAX_BULLET_NUMBER]; // 弾クラス
 
 
 private:
-  void checkHitMinionEnemyPre(MinionEnemyManager *minionEnemyManager_p,
+  void checkHitMinionEnemyPre( Character *crass_p,
 	                     Bullet *mBullets);
 
   //各弾のパラメータ

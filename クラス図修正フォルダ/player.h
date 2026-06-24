@@ -4,8 +4,6 @@
 #include "DxLib.h"
 #include "define.h"
 #include "deta.h"
-#include "enemyMiniBullet.h"
-#include "enemybullet.h"
 #include "math.h"
 #include "myLib/MyLib.h"
 #include "myLib/key.h"

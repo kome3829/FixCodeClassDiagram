@@ -398,7 +398,7 @@ void Enemy::takeDamage(int *score)
 	}
 }
 
-void Enemy::shotEnemyBullet(BulletManager *bulletManager_p)
+void Enemy::shotEnemyBullet()
 {
 	if (!mIsActive)
 	{
@@ -415,8 +415,8 @@ void Enemy::shotEnemyBullet(BulletManager *bulletManager_p)
 		int setAngle = mShotCount;
 		// 弾の設置、発射エフェクト、発射SEの再生
 
-		bulletManager_p->setBullet((int)mX, (int)mY, setAngle,
-		                          ENEMY_NOMAL, true);
+		//bulletManager_p->setBullet((int)mX, (int)mY, setAngle,
+		//                          ENEMY_NOMAL, true);
 
 		// フラグのたっていないものを探し、1つだけsetef関数実行
 		//for (int i = 0; i < MAX_BULLET_NUMBER; i++)

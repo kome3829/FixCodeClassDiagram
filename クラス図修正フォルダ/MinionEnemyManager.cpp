@@ -1,4 +1,4 @@
-#include "MinionEnemyManager.h"
+﻿#include "MinionEnemyManager.h"
 
 MinionEnemyManager::MinionEnemyManager()
 {
@@ -23,7 +23,7 @@ MinionEnemyManager::~MinionEnemyManager()
 	{
 		delete mEnemies[i];
 		delete mTraceEnemies[i];
-		delete mChargeEnemies;
+		delete mChargeEnemies[i];
 
 		mEnemies[i] = nullptr;
 		mTraceEnemies[i] = nullptr;

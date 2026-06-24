@@ -1,13 +1,13 @@
 ﻿#ifndef __ENEMY_H__
 #define __ENEMY_H__
 
+#include "math.h"
 #include "DxLib.h"
 #include "define.h"
 #include "deta.h"
 #include "myLib/MyLib.h"
 #include "myLib/key.h"
 #include "Character.h"
-#include "BulletManager.h"
 // --- 移動フレーム制御 ---
 #define MOVE_INTERVAL_FRAME (2)
 // --- 出現位置限界 ---
@@ -27,9 +27,11 @@
 #define DAMAGE_COUNT_LIMIT (2)
 // ボスステージ設定
 #define BOSS_STAGE_START_COUNT (10)
+
 // --- 当たり判定マージン ---
 #define HITBOX_MARGIN_X (4)
 #define HITBOX_MARGIN_Y (10)
+
 class Enemy : public Character
 {
   public:
@@ -66,7 +68,7 @@ class Enemy : public Character
 	/// 敵弾発射関数
 	/// </summary>
 	/// <param name="enemy=Enemyクラスのポインタ"></param>
-	void shotEnemyBullet(BulletManager *bulletManager_p);
+	void shotEnemyBullet();
 
   private:
 };

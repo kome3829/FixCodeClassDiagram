@@ -184,7 +184,9 @@ int GameMainScene::action()
 	shotBossEnemyBullet(mBoss);
 
 	// 弾管理クラスの当たり判定関数管理
-	mBulletManager->checHit(mPlayer, mBoss, mMinionEnemyManager);
+	mBulletManager->checHit(mPlayer, mBoss);
+	//mBulletManager->checHit(mPlayer, mBoss, mMinionEnemyManager);
+
 
 	// ボス、プレイヤーの当たり判定処理
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -493,11 +495,11 @@ void GameMainScene::shotTraceEnemyBullet(TraceEnemy *traceEnemy)
 				// ループ回数から発射角度９０度ずつを変更
 				int setAngleDistance = (i + 1) * TRACE_ENEMY_SHOT_BASE_ANGLE;
 
-				mBulletManager->setBullet(
+				/*mBulletManager->setBullet(
 				    (int)traceEnemy->mX, (int)traceEnemy->mY,
 				    setAngleDistance + traceEnemy->mShotCount -
 				        TRACE_ENEMY_SHOT_START_FRAME,
-				    ENEMY_NOMAL, true);
+				    ENEMY_NOMAL, true);*/
 
 				// フラグのたっていないものを探し、1つだけsetef関数実行
 				for (int k = 0; k < MAX_BULLET_NUMBER; k++)
@@ -599,9 +601,9 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy *chargeEnemy)
 					double targetAngle = atan2(vectorTargetY, vectorTargetX);
 					double targetAngle_degPre = targetAngle * 180.0f / PI;
 
-					mBulletManager->setBullet(
-					    (int)chargeEnemy->mX, (int)chargeEnemy->mY,
-					    targetAngle_degPre, ENEMY_MINI_ORANGE, false);
+					//mBulletManager->setBullet(
+					//    (int)chargeEnemy->mX, (int)chargeEnemy->mY,
+					//    targetAngle_degPre, ENEMY_MINI_ORANGE, false);
 
 					// フラグのたっていないものを探し、1つだけsetef関数実行
 					for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -715,9 +717,9 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy *chargeEnemy)
 						// 36度毎に発射角度を変更するよう設定
 						ringShotAngle = i * CHARGE_ENEMY_RING_SHOT_ANGLE;
 
-						mBulletManager->setBullet(
-						    (int)chargeEnemy->mX, (int)chargeEnemy->mY,
-						    ringShotAngle, ENEMY_NOMAL, true);
+						//mBulletManager->setBullet(
+						//    (int)chargeEnemy->mX, (int)chargeEnemy->mY,
+						//    ringShotAngle, ENEMY_NOMAL, true);
 					}
 					// 発射SEの再生
 					PlaySoundMem(
@@ -748,10 +750,10 @@ void GameMainScene::shotChargeEnemyBullet(ChargeEnemy *chargeEnemy)
 							double targetAngle_degPre =
 							    targetAngle * 180.0f / PI;
 
-							mBulletManager->setBullet(
-							    (int)chargeEnemy->mX, (int)chargeEnemy->mY,
-							    targetAngle_degPre + 20 * i - 20,
-							    ENEMY_MINI_ORANGE, false);
+							//mBulletManager->setBullet(
+							//    (int)chargeEnemy->mX, (int)chargeEnemy->mY,
+							//    targetAngle_degPre + 20 * i - 20,
+							//    ENEMY_MINI_ORANGE, false);
 						}
 						// 発射SEの再生
 						PlaySoundMem(
@@ -845,9 +847,9 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy *bossEnemy)
 					// 30毎に発射角度を変更
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 
-					mBulletManager->setBullet(
-					    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
-					    ENEMY_MINI_YELLOW, false);
+					//mBulletManager->setBullet(
+					//    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
+					//    ENEMY_MINI_YELLOW, false);
 				}
 				// 発射カウントのリセット
 				bossEnemy->mShotMiniBulletCount = 0;
@@ -920,9 +922,9 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy *bossEnemy)
 					// 30度毎に発射角度を変更
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 
-					mBulletManager->setBullet(
-					    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
-					    ENEMY_MINI_YELLOW, false);
+					//mBulletManager->setBullet(
+					//    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
+					//    ENEMY_MINI_YELLOW, false);
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
@@ -996,9 +998,9 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy *bossEnemy)
 					// 30度毎に発射角度を変更
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 
-					mBulletManager->setBullet(
-					    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
-					    ENEMY_MINI_YELLOW, false);
+					//mBulletManager->setBullet(
+					//    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
+					//    ENEMY_MINI_YELLOW, false);
 
 				}
 				// 発射SEの再生
@@ -1018,9 +1020,9 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy *bossEnemy)
 					// 12度毎に角度を変更
 					ringBulletAngle = i * BOSS_NOMAL_SHOT_ANGLE_STEP;
 
-					mBulletManager->setBullet(
-					    (int)bossEnemy->mX, (int)bossEnemy->mY, ringBulletAngle,
-					    ENEMY_NOMAL, true);
+					//mBulletManager->setBullet(
+					//    (int)bossEnemy->mX, (int)bossEnemy->mY, ringBulletAngle,
+					//    ENEMY_NOMAL, true);
 
 				}
 				// 発射SEの再生
@@ -1096,9 +1098,9 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy *bossEnemy)
 					// 30度毎に発射角度を変更
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 
-					mBulletManager->setBullet(
-					    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
-					    ENEMY_MINI_YELLOW, false);
+					//mBulletManager->setBullet(
+					//    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
+					//    ENEMY_MINI_YELLOW, false);
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
@@ -1118,9 +1120,9 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy *bossEnemy)
 					// 30度毎に発射角度を変更に加えて20度ずらす
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP +
 					                  BOSS_MINI_BURST_OFFSET_ANGLE;
-					mBulletManager->setBullet(
-					    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
-					    ENEMY_MINI_YELLOW, false);
+					//mBulletManager->setBullet(
+					//    (int)bossEnemy->mX, (int)bossEnemy->mY, miniBulletAngle,
+					//    ENEMY_MINI_YELLOW, false);
 
 				}
 				// 発射SEの再生
@@ -1138,9 +1140,9 @@ void GameMainScene::shotBossEnemyBullet(BossEnemy *bossEnemy)
 				{
 					// 12度毎に角度を変更
 					ringBulletAngle = i * BOSS_NOMAL_SHOT_ANGLE_STEP;
-					mBulletManager->setBullet(
-					    (int)bossEnemy->mX, (int)bossEnemy->mY, ringBulletAngle,
-					    ENEMY_NOMAL, true);
+					//mBulletManager->setBullet(
+					//    (int)bossEnemy->mX, (int)bossEnemy->mY, ringBulletAngle,
+					//    ENEMY_NOMAL, true);
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
