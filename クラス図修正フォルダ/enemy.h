@@ -2,15 +2,12 @@
 #define __ENEMY_H__
 
 #include "DxLib.h"
-#include "HomingBullet.h"
-#include "bullet.h"
 #include "define.h"
 #include "deta.h"
-#include "missileBullet.h"
 #include "myLib/MyLib.h"
 #include "myLib/key.h"
-#include "specialBullet.h"
 #include "Character.h"
+#include "BulletManager.h"
 // --- 移動フレーム制御 ---
 #define MOVE_INTERVAL_FRAME (2)
 // --- 出現位置限界 ---
@@ -43,11 +40,6 @@ class Enemy : public Character
 	void start();
 	void pop(int popPositionX, int popPositionY, int number,
 	         bool isBossStage); // 出現処理
-	virtual bool checkPlayerBulletHit(Bullet *bullet,
-	                                  MissileBullet *missileBullet,
-	                                  SpecialBullet *specialBullet,
-	                                  HomingBullet *homingBullet,
-	                                  int *score); // 当たり判定
 	void playSoundEffect();                        // 死亡SEの再生
 
 	int mNumber;                  // 識別用番号
@@ -68,12 +60,13 @@ class Enemy : public Character
 	double mArcMotionAngle;  // 円運動　角度
 	double mArcMotionRadius; // 円運動　半径
 
-	// 仮作成当たり判定とダメージ処理の分離
-
-	bool checkHitPbltPre(Bullet *bullet);
 	//ダメージ処理
-	void takeDamagePre(int *score);
 	void takeDamage(int *score);
+	/// <summary>
+	/// 敵弾発射関数
+	/// </summary>
+	/// <param name="enemy=Enemyクラスのポインタ"></param>
+	void shotEnemyBullet(BulletManager *bulletManager_p);
 
   private:
 };

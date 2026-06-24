@@ -146,26 +146,6 @@ void Bullet::start()
 -
 ※角度から速度を設定するが、通常弾は画面上向きで発射するので角度の引数は使用していない
 */
-bool Bullet::setBullet(int setPositionX, int setPositionY, int setAngle)
-{
-	if (mIsActive)
-	{
-		return false;
-	}
-	// 発射SEの再生
-	PlaySoundMem(Data::getInstance()->mPlayerShotSoundEffectHandle,
-	             DX_PLAYTYPE_BACK, TRUE);
-
-	// 各パラメータの設定
-	mX = setPositionX;
-	mY = setPositionY;
-	// 修正案。mAngleの削除もしくはローカル変数
-	mAngle = setAngle;
-	mVectorX = 0;
-	mVectorY = PLAYER_BULLET_VECTOR_Y;
-	mIsActive = true;
-	return true;
-}
 /*
 @brief	弾の当たり判定を行う関数
 
@@ -202,26 +182,3 @@ bool Bullet::hitCheck(Character *class_p)
 	return false;
 }
 
-bool Bullet::hitCheckPre(int x, int y, int w, int h)
-{
-	if (!mIsActive)
-	{
-		return false;
-	}
-	// 弾と当たり判定をとるクラスとの距離を計算
-	int distX = abs((int)(x - mX));
-	int distY = abs((int)(y - mY));
-
-	// 弾と当たり判定をとるクラスのサイズを加算した半分の値を計算
-	int hitRangeX = (w + mWidth) / 2;
-	int hitRangeY = (h + mHeight) / 2;
-
-	// 一定距離まで近づいたら当たったと判定
-	if (distX < hitRangeX && distY < hitRangeY)
-	{
-		//弾クラスの無効化
-		mIsActive = false;
-		return true; // ダメージ判定を有効
-	}
-	return false;
-}

@@ -86,7 +86,6 @@ public:
 	void action(int *score);
     void draw();
     void start();
-    void checkPlayerBulletHit(Bullet* bullet, MissileBullet* missileBullet, SpecialBullet* specialBullet, int* score);   //プレイヤー弾の当たり判定
     bool moveCenterPosition();              //中央位置に配置
     void moveLeftAndRight();                //左右移動
     void patrolMoveFourPoint();             //4つのポイントを巡回移動
@@ -117,8 +116,7 @@ public:
     bool mIsResetMoveCount;                    //移動カウントのリセット判定
     bool mIsSummonEnemy;                        //雑魚敵召喚判定
 
-    //仮のダメージ処理
-	void takeDamagePle(int *score);
+    //ダメージ処理
 	void takeDamage(int *score);
 
 private:

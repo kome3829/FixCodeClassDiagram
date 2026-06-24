@@ -201,13 +201,13 @@ void Data::load()
 	mEnemyMiniBulletImageHandleArray[MINI_BULLET_ORANGE] =
 	    LoadGraph("Images/enemyBalletmini2.png");
 
-	mBulletImgageHandleArray[0] = LoadGraph("Images/ballet.png");
-	mBulletImgageHandleArray[1] = LoadGraph("Images/missaile.png");
-	mBulletImgageHandleArray[2] = LoadGraph("Images/specielBallet.png");
-	mBulletImgageHandleArray[3] = LoadGraph("Images/enemyBallet.png");
-	mBulletImgageHandleArray[4] =
+	mBulletImgageHandleArray[P_NOMAL] = LoadGraph("Images/ballet.png");
+	mBulletImgageHandleArray[P_MISSILE] = LoadGraph("Images/missaile.png");
+	mBulletImgageHandleArray[P_SPECIAL] = LoadGraph("Images/specielBallet.png");
+	mBulletImgageHandleArray[E_NOMAL] = LoadGraph("Images/enemyBallet.png");
+	mBulletImgageHandleArray[E_MINI_ORANGE] =
 	    LoadGraph("Images/enemyBalletmini2.png");
-	mBulletImgageHandleArray[5] =
+	mBulletImgageHandleArray[E_MINI_YELLOW] =
 	    LoadGraph("Images/enemyBalletmini.png");
 
 	mOperationGuideImageHandle = LoadGraph("Images/explanation.png");

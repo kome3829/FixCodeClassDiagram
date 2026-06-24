@@ -278,29 +278,6 @@ void BossEnemy::start()
 弾の種別によって分岐し、ボス敵と弾の位置を計算して弾が一定範囲内なら当たり判定を返す
 @note	判定に応じてダメージ処理、スコア加算、撃破判定を行う
 */
-void BossEnemy::checkPlayerBulletHit(Bullet *bullet,
-                                     MissileBullet *missileBullet,
-                                     SpecialBullet *specialBullet, int *score)
-{
-	if (!mIsDefeat)
-	{
-		// 通常弾の判定
-		if (checkHitPbltPre(bullet))
-		{
-			takeDamagePle(score);
-		}
-		// ミサイル弾の判定
-		if (checkHitPbltPre(missileBullet))
-		{
-			takeDamagePle(score);
-		}
-		// スペシャル弾の判定
-		if (checkHitPbltPre(specialBullet))
-		{
-			takeDamagePle(score);
-		}
-	}
-}
 
 /*
 @brief	ボス敵を初期位置へ移動させる行動を行う関数
@@ -1030,28 +1007,6 @@ void BossEnemy::settingNextWarpAndAttackMove()
 	}
 }
 
-void BossEnemy::takeDamagePle(int *score)
-{
-	*score += HIT_SCORE; // ヒットスコアの加算
-	// HPが０以上かつ無敵フラグ(Unbeatable)がfalseの場合はHPを減らす
-	if (mHitPoint > 0)
-	{
-		if (!mIsUnbeatable)
-		{
-			mHitPoint -= ENEMY_TAKE_DAMAGE;
-		}
-		// ダメージフラグがfalseの場合、trueにする
-		if (mIsTakeDamage == false)
-		{
-			mIsTakeDamage = true;
-		}
-	}
-	// HPが０以下の場合は撃破フラグ(Defeat)をtrueにする
-	if (mHitPoint <= 0)
-	{
-		mIsDefeat = true;
-	}
-}
 
 void BossEnemy::takeDamage(int *score)
 {

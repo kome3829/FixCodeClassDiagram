@@ -46,9 +46,7 @@ class Player : public Character
 	void action();
 	void draw();
 	void start();
-	bool
-	checkEnemyBulletHit(EnemyBullet *enemyBullet,
-	                    EnemyMiniBullet *enemyMiniBullet); // 敵弾の当たり判定
+
 	int checkItemObjectHit(Object *itemObject,
 	                       int *score); // アイテムオブジェクトの当たり判定
 
@@ -72,10 +70,6 @@ class Player : public Character
   private:
 	// 仮作成当たり判定とダメージ処理を分離するため
 	// 当たり判定
-	bool checkHitEbltNomal(EnemyBullet *enemyBullet);
-	bool checkHitEbltMini(EnemyMiniBullet *enemyMiniBullet);
-	//ダメージ処理
-	bool takeDamagePre();
 	void takeDamage();
 };
 

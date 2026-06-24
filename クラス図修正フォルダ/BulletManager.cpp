@@ -89,16 +89,34 @@ void BulletManager::checHit(Player *player_p, BossEnemy *bossEnemy_p,
 }
 
 void BulletManager::setBullet(int setPositionX, int setPositionY, int setAngle,
-                              BULLET_TYPE bulletType)
+                              BULLET_TYPE bulletType,bool isBossEnemy)
 {
 	// フラグのたっていないものを探し、1つだけsetbullet関数を実行
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
-		if (!mBullets[i]->mIsActive)
+		if (mBullets[i]->mIsActive)//有効化されているものはスルー
 		{
-			mBullets[i]->setBullet(setPositionX, setPositionY, 0);
-			return;
+			continue;
 		}
+		// 発射SEの再生
+		PlaySoundMem(Data::getInstance()->mPlayerShotSoundEffectHandle,
+		             DX_PLAYTYPE_BACK, TRUE);
+		// 各パラメータの設定
+		mBullets[i]->mX = setPositionX;//ｘ座標
+		mBullets[i]->mY = setPositionY;	//y座標
+		mBullets[i]->mBulletType = bulletType;//弾の種類
+		mBullets[i]->mWidth = mBulletWidthList[bulletType];//横幅
+		mBullets[i]->mHeight = mBulletHightList[bulletType];//縦幅
+		mBullets[i]->mSpeed = mBulletSpeedList[bulletType];//速度
+		// ラジアンに変換
+		double moveRadian = setAngle / DEGREE_TO_RADIAN_DIVISOR * PI;
+
+		mBullets[i]->mAngle = setAngle;//角度（ディグリー）
+		mBullets[i]->mVectorX = cos(moveRadian) * mBullets[i]->mSpeed;//ｘベクトル
+		mBullets[i]->mVectorY = sin(moveRadian) * mBullets[i]->mSpeed;//ｙベクトル
+		mBullets[i]->mIsActive = true;//有効化判定
+		mBullets[i]->mIsBossEnemy = isBossEnemy;//ボス判定
+		return;//設置したからループを抜ける
 	}
 }
 

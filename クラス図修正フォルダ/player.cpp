@@ -279,54 +279,7 @@ void Player::start()
 	mIsDamegeCoolDown = false;
 }
 
-/*
-@brief	プレイヤーが敵の弾に当たるか判定を行う関数
 
-@param[in]	EnemyBullet*     enemyBullet
-:敵弾クラスのインスタンスポインタ
-@param[in]	EnemyMiniBullet* enemyMiniBullet
-:敵ミニ弾クラスのインスタンスポインタ
-
-@return		ヒット判定:bool:当たった　true/ 当たってない　false
-
-@note
-
-- 判定の成否を示すため、返り値はbool型としている
--
-ダメージフラグ（damageFlg）と撃破フラグ(dethFlg)がfalseの場合のみ処理を実行する
-- 2種類の敵の弾を判定している
-- 各敵の弾のフラグ(flg)がtrueの場合のみ判定処理を実行する
-- プレイヤーに一定距離まで近づいたら当たったと判定している
-    -判定に応じて、ダメージ処理と残り残機の判定も行う
-
-*/
-bool Player::checkEnemyBulletHit(EnemyBullet *enemyBullet,
-                                 EnemyMiniBullet *enemyMiniBullet)
-{
-	if (!mIsTakeDamage && !mIsDefeat)
-	{
-		// プレイヤーに一定距離まで近づいたら当たったと判定
-		if (checkHitEbltNomal(enemyBullet))
-		{
-			if (takeDamagePre())
-			{
-				return true;
-			}
-			return true;
-		}
-
-		// プレイヤーに一定距離まで近づいたら当たったと判定
-		if (checkHitEbltMini(enemyMiniBullet))
-		{
-			if (takeDamagePre())
-			{
-				return true;
-			}
-			return true;
-		}
-	}
-	return false;
-}
 
 /*
 @brief	各アイテムオブジェクトがプレイヤーへ当たったか判定を行う関数
@@ -415,36 +368,6 @@ int Player::checkItemObjectHit(Object *itemObject, int *score)
 		}
 	}
 	return 0;
-}
-
-bool Player::checkHitEbltNomal(EnemyBullet *enemyBullet)
-{
-	return enemyBullet->hitCheckPre(mX,mY,mWidth,mHeight);
-}
-
-bool Player::checkHitEbltMini(EnemyMiniBullet *enemyMiniBullet)
-{
-	return enemyMiniBullet->hitCheckPre(mX, mY, mWidth, mHeight);
-}
-
-bool Player::takeDamagePre()
-{
-
-	if (!mIsUnbeatable)
-	{
-		// ダメージ処理
-		mLife--;                          // HPを減らす
-		mIsActiveLifeIcon[mLife] = false; // 表示アイコン用のフラグをfalse
-		mIsTakeDamage = true;             // ダメージフラグをtrue
-		PlaySoundMem(Data::getInstance()->mPlayerDamageSoundEffectHandle,
-		             DX_PLAYTYPE_BACK, TRUE); // ダメージSEの再生
-	}
-
-	if (mLife <= 0) // 撃破判定
-	{
-		mIsDefeat = true; // 撃破フラグのtrue
-		return true;
-	}
 }
 
 void Player::takeDamage()

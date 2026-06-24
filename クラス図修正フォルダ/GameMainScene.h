@@ -3,6 +3,7 @@
 
 #include "basicScene.h"
 #include "BulletManager.h"
+#include "MinionEnemyManager.h"
 // --- フェード演出 ---
 #define FADE_OUT_SPEED (3)
 #define REDBG_FADEOUT_COUNT_MAX (3)
@@ -178,12 +179,12 @@ enum STAGE // ステージパターン　
 	TEST_STAGE,
 };
 
-enum ENEMY_POP_PATTERN // 雑魚敵出現パターン　
-{
-	NOMAL_ENEMY,
-	TRACE_ENEMY,
-	CHARGE_ENEMY,
-};
+//enum ENEMY_POP_PATTERN // 雑魚敵出現パターン　
+//{
+//	NOMAL_ENEMY,
+//	TRACE_ENEMY,
+//	CHARGE_ENEMY,
+//};
 
 class GameMainScene : public BasicScene
 {
@@ -198,40 +199,15 @@ class GameMainScene : public BasicScene
 	//---各クラスポインタ---
 	// キャラ
 	Player *mPlayer;                              // プレイヤー
-	Enemy *mEnemies[MAX_ENEMY_COUNT];             // 雑魚敵
-	ChargeEnemy *mChargeEnemies[MAX_ENEMY_COUNT]; // チャージ攻撃敵
-	TraceEnemy *mTraceEnemies[MAX_ENEMY_COUNT];   // 追従敵
 	BossEnemy *mBoss;                             // ボス敵
-	// 弾
+	// 管理関数
 	BulletManager *mBulletManager;	//弾管理クラス
-	EnemyBullet *mEnemyBullets[MAX_BULLET_NUMBER];         // 敵通常弾
-	EnemyMiniBullet *mEnemyMiniBullets[MAX_BULLET_NUMBER]; // 敵ミニ弾
-	Bullet *mBullets[MAX_BULLET_NUMBER];                   // プレイヤー弾
-	MissileBullet *mMissileBullets[MAX_BULLET_NUMBER]; // プレイヤーミサイル弾
-	SpecialBullet *mSpecialBullets[MAX_BULLET_NUMBER]; // プレイヤースペシャル弾
-	HomingBullet *mHomingBullets[MAX_BULLET_NUMBER]; // プレイヤーホーミング弾
-	// アイテム
+	MinionEnemyManager *mMinionEnemyManager;//雑魚敵管理クラス
 	Object *mItemObjects[MAX_BULLET_NUMBER]; // アイテム、オブジェクト
 	// エフェクト
 	Explosion *mExplosions[MAX_BULLET_NUMBER]; // 爆発エフェクト
 	Effect *mEffects[MAX_BULLET_NUMBER];       // 強化エフェクト
 
-	//----------------------
-
-	//---雑魚敵に関わる変数---
-
-	int mEnemyNumber;   // 雑魚敵の数
-	int mEnemyPopCount; // 雑魚敵の出現カウント
-
-	int mTraceEnemyNumber;   // 追従敵数
-	int mTraceEnemyPopCount; // 追従敵出現カウント
-
-	int mChargeEnemyNumber;   // チャージ攻撃敵数
-	int mChargeEnemyPopCount; // チャージ攻撃敵出現カウント
-
-	ENEMY_POP_PATTERN mEnemyPopPattern; // ノーマルステージの雑魚パターン　
-
-	//------------------------
 
 	//---ボス敵の演出に関わる変数---
 
@@ -261,29 +237,6 @@ class GameMainScene : public BasicScene
 
 	//----------------------------
 
-	//---敵に関わる関数---
-
-	bool checkAllEnemyDefeat();       // 雑魚敵が全部死んだか
-	bool checkAllTraceEnemyDefeat();  // 全部死んだか
-	bool checkAllChargeEnemyDefeat(); // 全部死んだか
-	/// <summary>
-	///  <para>ENEMYPOP(９０) フレームで雑魚敵を出現</para>
-	///  <para>出現場所　画面上部２か所　（POPLEFT、0）or (POPRIGHT, 0）</para>
-	/// </summary>
-	void popEnemy();
-	/// <summary>
-	///  <para>ENEMYPOP(９０) フレームで追従敵を出現</para>
-	/// <para> 出現場所　画面上部２か所　（POPLEFT、0）or (POPRIGHT, 0）</para>
-	/// </summary>
-	void popTraceEnemy();
-
-	/// <summary>
-	///  <para>ENEMYPOP(９０) フレームでチャージ攻撃敵を出現</para>
-	/// <para> 出現場所　画面上部２か所　（POPLEFT、0）or (POPRIGHT, 0）</para>
-	/// </summary>
-	void popChargeEnemy();
-
-	//--------------------
 
 	//---弾発射に関する関数---
 
@@ -295,11 +248,6 @@ class GameMainScene : public BasicScene
 	/// <param name="shotPower=ショットパワー"></param>
 	void shotPlayerBullet(int playerX, int playerY, int shotPower);
 
-	/// <summary>
-	/// 敵弾発射関数
-	/// </summary>
-	/// <param name="enemy=Enemyクラスのポインタ"></param>
-	void shotEnemyBullet(Enemy *enemy);
 
 	/// <summary>
 	/// 追従敵弾発射関数
@@ -336,9 +284,6 @@ class GameMainScene : public BasicScene
 	int checkPlayerDefeat();        // 負け判定
 
 	//------------------
-	// 仮作成
-	// 雑魚敵のヒット判定後の処理、げきはとエフェクト
-	void MinionHitFuncPre(Enemy *enemys);
 };
 
 #endif // !__GAMEMAINSCENE_H__

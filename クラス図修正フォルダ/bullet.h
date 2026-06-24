@@ -39,11 +39,8 @@ class Bullet
 	virtual void action();
 	virtual void draw();
 	virtual void start();
-	virtual bool setBullet(int setPositionX, int setPositionY,
-	                       int setAngle); // 弾の設置
 	bool hitCheck(Character *class_p);    // 弾の当たり判定
 	//現状の当たり判定関数に組み込んでみるための仮関数
-	bool hitCheckPre(int x, int y, int w, int h); // 弾の当たり判定
 	double mX;                         // X座標
 	double mY;               // Y座標
 	double mVectorX;         // Xベクトル

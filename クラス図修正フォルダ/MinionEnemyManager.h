@@ -1,4 +1,7 @@
-#pragma once
+#ifndef __MINIONENEMYMANAGER_H__
+#define __MINIONENEMYMANAGER_H__
+
+
 #include "DxLib.h"
 #include "define.h"
 #include "deta.h"
@@ -7,30 +10,23 @@
 #include "Traceenemy.h"
 #include "EffectManager.h"
 #include "ItemObjectManager.h"
+#include "BulletManager.h"
 
-//enum ENEMY_POP_PATTERN 
-//{
-//  NOMAL_ENEMY,
-//  TRACE_ENEMY,
-//  CHARGE_ENEMY,
-//};
+enum ENEMY_POP_PATTERN 
+{
+  NOMAL_ENEMY,
+  TRACE_ENEMY,
+  CHARGE_ENEMY,
+};
 
 
 class MinionEnemyManager {
 public:
   MinionEnemyManager();
   ~MinionEnemyManager();
-  void action();
+  void action(Player *player_p, int *score);
   void draw();
   void start();
-
-  bool takeDamageMinionEnemy(EffectManager* effectManager_p, int* score,
-                  ItemObjectManager* itemobjectManager_p); // ダメージ処理
-  //void shotMinionEnemyBullet(BulletManager* bulletManager_p,EffectManager* effectManager_p,
-  //                      ItemObjectManager* itemObjectManager_p); // 弾発射関数
-
-
-
   Enemy *mEnemies[MAX_ENEMY_COUNT];             // 雑魚敵
   ChargeEnemy *mChargeEnemies[MAX_ENEMY_COUNT]; // チャージ攻撃敵
   TraceEnemy *mTraceEnemies[MAX_ENEMY_COUNT];   // 追従敵
@@ -46,21 +42,23 @@ public:
   int mChargeEnemyNumber;   // チャージ攻撃敵数
   int mChargeEnemyPopCount; // チャージ攻撃敵出現カウント
 
-  //ENEMY_POP_PATTERN mEnemyPopPattern; //雑魚出現パターン　
+  ENEMY_POP_PATTERN mEnemyPopPattern; //雑魚出現パターン　
 
-  //---各雑魚敵出現関数---
+  ////---各雑魚敵出現関数---
   void popEnemy();
   void popTraceEnemy();
   void popChargeEnemy();
-  //---
-  // 
-  //---各雑魚敵の撃破確認関数---
-  bool checkAllEnemyDefeat();       //通常敵が全部死んだか
+  ////---
+  //// 
+  ////---各雑魚敵の撃破確認関数---
+  bool checkAllEnemyDefeat(); // 通常敵が全部死んだか
   bool checkAllTraceEnemyDefeat();  //追従敵が全部死んだか
   bool checkAllChargeEnemyDefeat(); //チャージ敵が全部死んだか
-  //---
+  ////---
 
-  void MinionEnemyPop(); // 雑魚敵の出現パターン管理関数
+  bool MinionEnemyPop(); // 雑魚敵の出現パターン管理関数
 
 private:
 };
+
+#endif // !__MINIONENEMYMANAGER_H__

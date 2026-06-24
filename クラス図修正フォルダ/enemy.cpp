@@ -74,7 +74,8 @@ void Enemy::action(int *score)
 	{
 		return;
 	}
-	takeDamage(score);//ダメージ処理
+	takeDamage(score); // ダメージ処理
+	//shotEnemyBullet(bulletManager_p);
 	mMoveCount++; // 移動カウントの更新
 	// 通常ステージの処理
 	if (!mIsBossStage)
@@ -358,41 +359,6 @@ void Enemy::pop(int popPositionX, int popPositionY, int number,
 - 本関数は、継承先の敵クラスでも共通の出現処理として使用される
 - ヒットの有無を外部で判定できるように、返り値は bool 型としている
 */
-bool Enemy::checkPlayerBulletHit(Bullet *bullet, MissileBullet *missileBullet,
-                                 SpecialBullet *specialBullet,
-                                 HomingBullet *homingBullet, int *score)
-{
-	// 通常弾の判定
-
-	if (checkHitPbltPre(bullet))
-	{
-		takeDamagePre(score);
-		return true;
-	}
-
-	// ミサイル弾の判定
-	// 敵とミサイル弾の位置を計算して弾が一定範囲内なら当たり判定を返す
-	if (checkHitPbltPre(missileBullet))
-	{
-		takeDamagePre(score);
-		return true;
-	}
-	// スペシャル弾の判定
-	if (checkHitPbltPre(specialBullet))
-	{
-		takeDamagePre(score);
-		return true;
-	}
-
-	// ホーミング弾の判定
-	if (checkHitPbltPre(homingBullet))
-	{
-		takeDamagePre(score);
-		return true;
-	}
-
-	return false;
-}
 
 /*
 @brief	撃破SEを再生する関数。hitPlayerBullet関数で使用
@@ -408,41 +374,6 @@ void Enemy::playSoundEffect()
 	             DX_PLAYTYPE_BACK, TRUE);
 }
 
-bool Enemy::checkHitPbltPre(Bullet *bullet)
-{
-	// 通常弾の判定
-	if (!mIsActive)
-	{
-		return false;
-	}
-	return bullet->hitCheckPre(mX, mY, mWidth, mHeight);
-}
-
-void Enemy::takeDamagePre(int *score)
-{
-	// 無敵フラグ(Unbeatable)がfalseの場合はダメージ処理・スコア加算・を行う
-	if (mIsInvincible)
-	{
-		return;
-	}
-	*score += (int)HIT_SCORE;
-	if (!mIsTakeDamage)
-	{
-		mIsTakeDamage = true;
-		mIsDamageCoolDown = true;
-	}
-
-	mHitPoint -= ENEMY_TAKE_DAMAGE;
-	// HPが０以下の場合は撃破処理（スコア加算・SE再生・フラグ更新）を行う
-	if (mHitPoint <= 0)
-	{
-		mIsDefeat = true;
-		*score += (int)ENEMY_SCORE;
-		playSoundEffect();
-		mIsActive = false;
-	}
-}
-
 void Enemy::takeDamage(int *score)
 {
 	if (!mIsTakeDamage)
@@ -456,7 +387,7 @@ void Enemy::takeDamage(int *score)
 		mIsDamageCoolDown = true;
 		mHitPoint -= ENEMY_TAKE_DAMAGE;
 	}
-		mIsTakeDamage = false;
+	mIsTakeDamage = false;
 	// HPが０以下の場合は撃破処理（スコア加算・SE再生・フラグ更新）を行う
 	if (mHitPoint <= 0)
 	{
@@ -464,5 +395,45 @@ void Enemy::takeDamage(int *score)
 		*score += (int)ENEMY_SCORE;
 		playSoundEffect();
 		mIsActive = false;
+	}
+}
+
+void Enemy::shotEnemyBullet(BulletManager *bulletManager_p)
+{
+	if (!mIsActive)
+	{
+		return;
+	}
+	mShotCount++; // 発射カウントの更新
+	// 60フレームから100フレームの間で10フレーム間隔で処理を実行(計5回)
+	if (mShotCount >= ENEMY_SHOT_START_FRAME &&
+	    mShotCount % 10 == 0 &&
+	    mShotCount <= ENEMY_SHOT_STOP_FRAME)
+	{
+		// カウントをそのまま角度に変換(60～100)
+		// 修正案。ローカル変数に変換せずそのまま代入
+		int setAngle = mShotCount;
+		// 弾の設置、発射エフェクト、発射SEの再生
+
+		bulletManager_p->setBullet((int)mX, (int)mY, setAngle,
+		                          ENEMY_NOMAL, true);
+
+		// フラグのたっていないものを探し、1つだけsetef関数実行
+		//for (int i = 0; i < MAX_BULLET_NUMBER; i++)
+		//{
+		//	// 発射エフェクトの表示
+		//	if (mEffects[i]->setEffect(&(mX), &(mY), SHOT_EF))
+		//	{
+		//		break;
+		//	}
+		//}
+		// 発射SEの再生
+		PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+		             DX_PLAYTYPE_BACK, TRUE);
+	}
+	// カウントをリセット160で1巡
+	if (mShotCount > ENEMY_SHOT_INTERVALS)
+	{
+		mShotCount = 0;
 	}
 }
