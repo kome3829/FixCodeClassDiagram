@@ -1,4 +1,5 @@
 ﻿#include "chargeEnemy.h"
+#include "BulletManager.h"
 /*
 @brief	コンストラクタ
 
@@ -66,13 +67,16 @@ ChargeEnemy::~ChargeEnemy()
 - 他雑魚敵と違いボスステージでの移動パターンはボス攻撃と合わせた動きにしている
 
 */
-void ChargeEnemy::action(int *score)
+void ChargeEnemy::action(int *score, BulletManager *bulletManager,
+                         Player *player, EffectManager *effectManager,
+                         ItemObjectManager *itemObject)
 {
 	if (!mIsActive)
 	{
 		return;
 	}
-	takeDamage(score); // ダメージ処理
+	takeDamage(score, effectManager, itemObject,player);                // ダメージ処理
+	shotChargeEnemyBullet(bulletManager, player, effectManager); // 弾発射処理
 	mMoveCount++;      // 移動カウントの更新
 	                   // 通常ステージの処理
 	if (!mIsBossStage)
@@ -347,4 +351,209 @@ void ChargeEnemy::start()
 	mAlpha = MAX_ALPHA;
 	mArcMotionAngle = 0.0f;
 	mIsDamageCoolDown = false;
+}
+
+/*
+@brief	チャージ攻撃敵の弾発射を管理する関数
+
+@param[in]	chargeEnemy* Cen:チャージ攻撃する敵クラスのインスタンスポインタ
+
+@return		なし
+
+@note
+
+- 弾を発射する敵のフラグ(FLG)がtrueの場合のみ処理を実行する
+- chargeEnemyクラスメンバのshotCount変数でカウントし、処理を管理している
+- 発射パターンをステージ応じて切り替えている
+
+1. 通常のステージ
+    - 一定間隔でミニ弾の発射を繰り返している
+    - プレイヤーを狙うようにミニ弾を連続で発射している
+    - 発射するまでの間チャージエフェクト表示を行う
+
+2. ボスステージ
+    - ミニ弾の扇状の弾幕をプレイヤーを狙うように発射している
+        - 一定間隔まで発射しないチャージ時間を設けている
+        - 同時に３方向ミニ弾を発射している
+        - 発射を開始すると１８回連続でミニ弾の弾幕を発射する
+    - 通常弾の円状の弾幕を発射している
+        - 一定間隔まで発射しないチャージ時間を設けている
+        - 同時に10方向に通常弾を発射している
+        - チャージが終わると間隔を空けて３回の発射を行う
+    - 発射するまで間のチャージエフェクトとワープエフェクトの表示を行う
+    -無敵アイテムを発射開始時にドロップしている
+
+- 弾発射と同時に発射エフェクトの表示と発射SEの再生も行う
+@warning
+    - ボスステージではボスのチャージ攻撃と合わせて激しい攻撃を行う
+    - 救済として無敵アイテムをドロップしている
+
+@note　2重ループのfor分には変数ｊではなくkを使用している。iとjが見分けずらいので。３重の場合はlを使用
+
+*/
+void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
+                                        Player *player,
+                                        EffectManager *effectManager)
+{
+	if (!mIsActive)
+	{
+		return;
+	}
+	// 通常ステージの処理
+	if (!mIsBossStage)
+	{
+		mShotCount++; // 発射カウントの更新
+		// 40～120フレームは溜め演出
+		// 40フレームごとに処理を実行
+		if (mShotCount % CHARGE_EF_INTERVAL == 0 &&
+		    mShotCount <= CHARGE_EF_END)
+		{
+			effectManager->setEffect(&(mX), &(mY),CHARGE_EF);
+		}
+
+		// 120フレーム後なら発射処理
+		if (mShotCount >= CHARGE_ENEMY_SHOT_START_FRAME)
+		{
+			// 10フレームの間隔を空けて発射処理
+			if (mShotCount % CHARGE_ENEMY_SHOT_INTERVAL_FRAME == 0)
+			{
+				// プレイヤー狙いの角度を計算
+				double vectorTargetX = (player->mX - mX);
+				double vectorTargetY = (player->mY - mY);
+				double targetAngle = atan2(vectorTargetY, vectorTargetX);
+				double targetAngle_degPre = targetAngle * 180.0f / PI;
+
+				 bulletManager->setBullet(
+				     (int)mX, (int)mY, targetAngle_degPre,
+				                         BULLET_TYPE::ENEMY_MINI_ORANGE, false);
+
+				 			effectManager->setEffect(&(mX), &(mY), SHOT_EF);
+
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+			}
+		}
+	}
+
+	// ボスステージの処理
+	else
+	{
+		// 移動カウントが240フレームまでチャージエフェクトの表示
+		if (mMoveCount <= CHARGE_ENEMY_BOSS_CHARGE_END)
+		{
+			// エフェクト再生終了間隔と同じ感覚でエフェクトの表示を行う(40フレームごと)
+			if (mMoveCount % CHARGE_EF_INTERVAL == 0 &&
+			    mMoveCount >= CHARGE_EF_INTERVAL)
+			{
+				effectManager->setEffect(&(mX), &(mY), CHARGE_EF);
+			}
+		}
+
+		// 移動カウントが304フレームでワープのエフェクト表示
+		if (mMoveCount == CHARGE_ENEMY_BOSS_WARP_EF_FRAME)
+		{
+			// フラグのたっていないものを探し、1つだけsetef関数実行
+			for (int i = 0; i < MAX_BULLET_NUMBER; i++)
+			{
+				effectManager->setEffect(&(mX), &(mY), WARP_EF);
+			}
+		}
+		// ワープエフェクトの表示終了フレーム(330)から攻撃処理開始
+		if (mMoveCount > CHARGE_ENEMY_BOSS_ATTACK_START)
+		{
+			mShotCount++; // 発射カウント更新
+			// 攻撃開始から１４フレーム後救済措置無敵アイテムをドロップ左右に一個ずつ
+			if (mMoveCount == CHARGE_ENEMY_BOSS_ITEM_DROP_FRAME)
+			{
+				if (mNumber == SUMMON_LEFT)
+				{
+					// フラグのたっていないものを探し、1つだけset関数実行
+					//for (int i = 0; i < MAX_BULLET_NUMBER; i++)
+					//{
+					//	// 無敵アイテムを出現
+					//	if (mItemObjects[i]->setItemObject(
+					//	        ITEM_DROP_LEFT_X, ITEM_DROP_Y, 0, OBJECT_STAR,
+					//	        &(mPlayer->mX), &(mPlayer->mY)))
+					//	{
+					//		break;
+					//	}
+					//}
+				}
+				else if (mNumber == SUMMON_RIGHT)
+				{
+					// フラグのたっていないものを探し、1つだけset関数実行
+					//for (int i = 0; i < MAX_BULLET_NUMBER; i++)
+					//{
+					//	// 無敵アイテムを出現
+					//	if (mItemObjects[i]->setItemObject(
+					//	        ITEM_DROP_RIGHT_X, ITEM_DROP_Y, 0, OBJECT_STAR,
+					//	        &(mPlayer->mX), &(mPlayer->mY)))
+					//	{
+					//		break;
+					//	}
+					//}
+				}
+			}
+			// 50フレーム間隔で実行
+			if (mShotCount % CHARGE_ENEMY_RING_SHOT_INTERVAL == 0)
+			{
+				int ringShotAngle;
+				// 発射を10発分繰り返す。同時発射
+				// 円形の弾幕の発射
+				for (int i = 0; i < CHARGE_ENEMY_RING_BULLET_AMOUNT; i++)
+				{
+					// 36度毎に発射角度を変更するよう設定
+					ringShotAngle = i * CHARGE_ENEMY_RING_SHOT_ANGLE;
+
+					 bulletManager->setBullet(
+					     (int)mX, (int)mY,
+					     ringShotAngle, ENEMY_NOMAL, true);
+					effectManager->setEffect(&(mX), &(mY), SHOT_EF);
+
+				}
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+			}
+			// 発射カウントが80を超えたら実行
+			// プレイヤー狙いのミニ弾の発射
+			else if (mShotCount >= CHARGE_ENEMY_AIM_SHOT_START)
+			{
+				// 5フレーム間隔でミニ弾を発射
+				if (mShotCount % CHARGE_ENEMY_AIM_SHOT_INTERVAL ==
+				    0)
+				{
+					// 発射を3回繰り返す。同時に発射
+					// 扇状の弾幕を発射
+					for (int i = 0; i < CHARGE_ENEMY_AIM_BULLET_AMOUNT; i++)
+					{
+						// プレイヤー狙いの角度を計算
+						double vectorTargetX = (player->mX - mX);
+						double vectorTargetY = (player->mY - mY);
+						double targetAngle =
+						    atan2(vectorTargetY, vectorTargetX);
+
+						double targetAngle_degPre = targetAngle * 180.0f / PI;
+
+						 bulletManager->setBullet(
+						     (int)mX, (int)mY,
+						     targetAngle_degPre + 20 * i - 20,
+						     ENEMY_MINI_ORANGE, false);
+						effectManager->setEffect(&(mX), &(mY), SHOT_EF);
+
+					}
+					// 発射SEの再生
+					PlaySoundMem(
+					    Data::getInstance()->mEnemyShotSoundEffectHandle,
+					    DX_PLAYTYPE_BACK, TRUE);
+				}
+			}
+		}
+	}
+	// カウントのリセット、170フレームで1巡
+	if (mShotCount >= CHARGE_ENEMY_SHOT_RESET_FRAME)
+	{
+		mShotCount = 0;// カウントをリセット
+	}
 }

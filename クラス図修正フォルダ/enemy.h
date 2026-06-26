@@ -8,6 +8,11 @@
 #include "myLib/MyLib.h"
 #include "myLib/key.h"
 #include "Character.h"
+#include "player.h"
+#include "EffectManager.h"
+#include "ItemObjectManager.h"
+class BulletManager;//関数の引数利用のための前提宣言
+
 // --- 移動フレーム制御 ---
 #define MOVE_INTERVAL_FRAME (2)
 // --- 出現位置限界 ---
@@ -37,7 +42,9 @@ class Enemy : public Character
   public:
 	Enemy();
 	~Enemy();
-	virtual void action(int *score);
+	virtual void action(int *score, BulletManager *bulletManager,
+	                    EffectManager *effectManager,
+	                    ItemObjectManager *itemObjectManager, Player *player);
 	void draw();
 	void start();
 	void pop(int popPositionX, int popPositionY, int number,
@@ -63,12 +70,12 @@ class Enemy : public Character
 	double mArcMotionRadius; // 円運動　半径
 
 	//ダメージ処理
-	void takeDamage(int *score);
+	void takeDamage(int *score, EffectManager *effectManager,ItemObjectManager *itemObjectManager,Player *player);
 	/// <summary>
 	/// 敵弾発射関数
 	/// </summary>
 	/// <param name="enemy=Enemyクラスのポインタ"></param>
-	void shotEnemyBullet();
+	void shotEnemyBullet(BulletManager *bulletManager,EffectManager *effectManager);
 
   private:
 };

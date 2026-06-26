@@ -241,6 +241,9 @@ void Data::load()
 	mEffectAnimationHandleArray[WARP_EF] = LoadGraph("Animations/warp_320.png");
 	mEffectAnimationHandleArray[CHARGE_EF_BOSS] =
 	    LoadGraph("Animations/pipo-btleffect107i_2.png");
+	mEffectAnimationHandleArray[EXPLOSION_EF] =
+	    LoadGraph("Animations/Effect_p003.png");
+
 
 	// 動画の読み込み
 	mBackGroundMovieHandle = LoadGraph("movies/96621_1280x720.mp4");

@@ -221,51 +221,30 @@ void Object::start()
 	mItemObjectType = 0;
 	mIsActiveHomingMove = false;
 }
-
 /*
-@brief	アイテムドロップに必要な位置やフラグなどのパラメータ設定を行う関数
+@brief	パラメータ変数のリセットを行う関数
 
-@param[in]	int setPositionX			:出現させるのX座標
-@param[in]	int setPositionY			:出現させるのY座標
-@param[in]	int setAngle				:発射角度
-@param[in]	int itemObjectType			:アイテムの種類
-@param[in]	double* playerPositionX		:プレイヤー位置のｘ座標ポインタ
-@param[in]	double* playerPositionY		:プレイヤー位置のｙ座標ポインタ
+@param	なし
+@return		なし
 
-@return		実行状態:bool:実行した　true/実行してない false
-
-@note      
-
-- フラグ（flg）が true の場合は再設定を行わず false を返す
-- フラグ（flg）をtrueにしてaction関数及びdraw関数の処理を有効にしている
-- 引数で渡された位置や種類などをもとに各パラメータを設定する
-@warning
-- ドロップ中か判定できるように、返り値は bool 型としている
--　プレイヤーの位置変数は常に更新されるため、ポインタで直接参照している。
 */
-bool Object::setItemObject(int setPositionX, int setPositionY, int setAngle, int itemObjectType ,double* playerPositionX, double* playerPositionY)
+
+void Object::reset()
 {
-	if (mIsActive)
-	{
-		return false;
-	}
-	mX = setPositionX;
-	mY = setPositionY;
-	mPlayerX = playerPositionX;
-	mPlayerY = playerPositionY;
-	mMovementAngle = setAngle;
-	mItemObjectType = itemObjectType;
-	//経験値アイテムの場合、速度をを設定
-	if (itemObjectType == OBJECT_EXP)
-	{
-		//ラジアンに変換
-		double movementRadian = mMovementAngle / DEGREE_TO_RADIAN_DIVISOR * PI;
-		mVectorX = cos(movementRadian) * OBJECT_EXP_FAST_SPEED;
-		mVectorY = sin(movementRadian) * OBJECT_EXP_FAST_SPEED;
-	}
-	mIsActive = true;
-	return true;
+	mX = 0;
+	mY = 0;
+	mPlayerX = 0;
+	mPlayerY = 0;
+	mVectorX = OBJECT_VECTOR_X;
+	mVectorY = OBJECT_VECTOR_Y;
+	mMovementAngle = 0;
+	mEXPMoveCount = 0;
+	mIsActive = false;
+	mItemObjectType = 0;
+	mIsActiveHomingMove = false;
 }
+
+
 
 /*
 @brief	アイテムがプレイヤーを追従するか判定を行う関数

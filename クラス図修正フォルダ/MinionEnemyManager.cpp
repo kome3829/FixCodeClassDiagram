@@ -31,14 +31,20 @@ MinionEnemyManager::~MinionEnemyManager()
 	}
 }
 
-void MinionEnemyManager::action(Player *player_p, int *score )
+void MinionEnemyManager::action(Player *player_p, int *score,
+                                BulletManager *bulletManager,
+                                EffectManager *effectManager,
+                                ItemObjectManager *itemObjectManager
+                                )
 {
 	// 雑魚敵の更新処理
 	for (int i = 0; i < MAX_ENEMY_COUNT; i++)
 	{
-		mEnemies[i]->action(score);
-		mTraceEnemies[i]->action((int)player_p->mX, (int)player_p->mY, score);
-		mChargeEnemies[i]->action(score);
+		mEnemies[i]->action(score, bulletManager, effectManager,
+		                    itemObjectManager, player_p);
+		mTraceEnemies[i]->action((int)player_p->mX, (int)player_p->mY, score,bulletManager,effectManager,itemObjectManager,player_p);
+		mChargeEnemies[i]->action(score, bulletManager, player_p, effectManager,
+		                          itemObjectManager);
 	}
 }
 

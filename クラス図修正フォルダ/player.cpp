@@ -1,4 +1,5 @@
 ﻿#include "player.h"
+#include "BulletManager.h"
 /*
 @brief	コンストラクタ
 
@@ -14,7 +15,7 @@ Player::Player()
 	mY = SCREEN_CENTER_Y;
 	mWidth = PLAYER_HIT_RANGE;
 	mHeight = PLAYER_HIT_RANGE;
-
+	mIsActive = true;
 	mImageWidth = PLAYER_WIDTH;
 	mImageHeight = PLAYER_HEIGHT;
 	mSpeed = PLAYER_SPEED;
@@ -32,6 +33,14 @@ Player::Player()
 		mIsActiveLifeIcon[i] = TRUE;
 	}
 	mIsDamegeCoolDown = false;
+	mIsItemHit = false;
+
+	mNomalShotIntervalCount = 0;
+	mNomalShotInterval = PLAYER_NORMAL_SHOT_SPEED;
+	mMissileShotIntervalCount = 0;
+	mSpecialShotCount = 0;
+	mShotCount = 0;
+	mHitItemType = 0;
 }
 
 /*
@@ -69,13 +78,16 @@ Player::~Player()
 - 移動処理の分岐はせずに同時押し可能にすることで斜め移動も可能にしている
 - 遅い移動で細かい移動操作を行えるようにしている
 */
-void Player::action()
+void Player::action(BulletManager *bulletManager, EffectManager *effectManager,
+                    int *score)
 {
 	if (mIsDefeat)
 	{
 		return;
 	}
-	takeDamage();
+	takeDamage();                                   // ダメージ処理
+	shotPlayerBullet(bulletManager, effectManager); // 弾発射処理
+	applyItemeffect(score, effectManager);          // アイテム効果反映処理
 	// player操作
 	// 左移動
 	if (checkPushkey(KEY_INPUT_LEFT))
@@ -271,20 +283,226 @@ void Player::start()
 	mIsUnbeatable = false;
 	mUnbeatableCount = 0;
 	mUnbeatableGagePercent = PLAYER_UNBEATABLE_MAX_PERCENT;
+	mWidth = PLAYER_HIT_RANGE;
+	mHeight = PLAYER_HIT_RANGE;
+	mIsActive = true;
 
 	for (int i = 0; i < MAX_HP; i++)
 	{
 		mIsActiveLifeIcon[i] = TRUE;
 	}
 	mIsDamegeCoolDown = false;
+	mIsItemHit = false;
+
+	mNomalShotIntervalCount = 0;
+	mNomalShotInterval = PLAYER_NORMAL_SHOT_SPEED;
+	mMissileShotIntervalCount = 0;
+	mSpecialShotCount = 0;
+	mShotCount = 0;
+	mHitItemType = 0;
 }
 
+/*
+@brief	プレイヤーの弾発射を管理をする関数
 
+@param[in]	BulletManager *bulletManager		:弾管理クラスのポインタ
+@param[in]	EffectManager *effectManager		:エフェクト管理クラスのポインタ
+
+@return		なし
+
+@note
+
+      - スペースキーを押しっぱなしの場合、弾を連続で発射している
+      - 発射パターン変化時に強化SEの再生と強化エフェクトの表示を行う
+      - 次の変数でカウントを行い、処理を管理している
+        - shootdileycount			通常弾の発射間隔を管理
+        - shootmisailedileycount	ミサイル弾発射間隔を管理
+        - Scount　　				スペシャル弾の発射間隔を管理
+        - shotcount　				共通の発射間隔を管理
+      　
+      - ショットパワーに応じて発射パターンが強化されている
+
+        1. ショットパワー1500以下
+           - 一定間隔でプレイヤー通常弾の発射を繰り返す
+
+        2. ショットパワー1500以上
+           -  発射間隔を短くして一定間隔でプレイヤー通常弾の発射を繰り返す
+
+        3. ショットパワー3000以上
+           -  間隔を短くして一定間隔でプレイヤー通常弾の発射を繰り返す
+           - ミサイル弾の発射を追加
+             -左右同時に発射を繰り返している。
+
+        4. ショットパワー6000以上、　
+           - 間隔を短くして一定間隔でプレイヤー通常弾の発射を繰り返す
+           - ミサイル弾の発射を追加
+             - 左右同時に発射を繰り返している
+           - スペシャル弾の追加
+             - スペシャル弾の扇状の弾幕を一定間隔で繰り返し発射
+             - 5方向にスペシャル弾を同時に発射
+             - 5連続で弾幕を発射
+
+@note　2重ループのfor分には変数ｊではなくkを使用している。iとjが見分けずらいので。３重の場合はlを使用
+
+*/
+
+void Player::shotPlayerBullet(BulletManager *bulletManager,
+                              EffectManager *effectManager)
+{
+	// 発射カウントの更新
+	mShotCount++;
+	// 5フレーム間隔で処理を実行
+	if (mShotCount > PLAYER_NOMAL_SHOT_INTERVAL)
+	{
+		mShotCount = 0; // 発射カウントのリセット
+		// スペースキーを押されると発射
+		if (checkPushkey(KEY_INPUT_SPACE))
+		{
+			mNomalShotIntervalCount++; // 発射間隔カウントの更新
+			// 発射間隔カウントの2カウント間隔で実行(実質10フレーム
+			if (mNomalShotIntervalCount % mNomalShotInterval == 0)
+			{
+				mNomalShotIntervalCount = 0;
+				for (int i = 0; i < PLAYER_MISSILE_AMOUNT; i++)
+				{
+
+					bulletManager->setBullet(mX - FIRE_POINT_OFFSET_X +
+					                             i * (FIRE_POINT_OFFSET_X * 2),
+					                         mY + FIRE_POINT_OFFSET_Y,
+					                         PLAYER_NORMAL_SHOT_ANGLE,
+					                         BULLET_TYPE::PLAYER_NOMAL, false);
+				}
+			}
+			// shootPowarが1500超えたら発射間隔を短くする
+			if (mShotPower >= SHOT_POWER_GRADE1 &&
+			    mNomalShotInterval == PLAYER_NORMAL_SHOT_SPEED)
+			{
+				// 強化SEの再生
+				PlaySoundMem(Data::getInstance()->mPowerUpSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+				effectManager->setEffect(&(mX), &(mY), POWERUP_EF);
+
+				mNomalShotInterval =
+				    PLAYER_UPGRADE_SHOT_SPEED; // 発射間隔カウントの1カウント間隔で実行（実質5フレーム）
+			}
+
+			// shootPowarが３０００超えたらミサイル弾追加
+			// ミサイル発射フラグで1度だけ実行
+			if (mShotPower >= SHOT_POWER_GRADE2 &&
+			    mIsActiveMissileShot == false)
+			{
+				// 強化SEの再生
+				PlaySoundMem(Data::getInstance()->mPowerUpSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+				effectManager->setEffect(&(mX), &(mY), POWERUP_EF);
+
+				// ミサイル弾発射フラグをオン
+				mIsActiveMissileShot = true;
+			}
+			// ミサイル弾発射フラグがオンの場合
+			if (mIsActiveMissileShot)
+			{
+				// ミサイル弾発射カウントの更新
+				mMissileShotIntervalCount++;
+				if (mMissileShotIntervalCount % PLAYER_MISSILE_SHOT_INTERVAL ==
+				    0)
+				{
+					mMissileShotIntervalCount =
+					    0; // ミサイル弾発射カウントのリセット
+
+					// 2発分発射を繰り返す
+					// 左斜め上、右斜め上方向に向けて発射
+					for (int i = 0; i < PLAYER_MISSILE_AMOUNT; i++)
+					{
+
+						bulletManager->setBullet(
+						    mX - FIRE_POINT_OFFSET_X +
+						        i * (FIRE_POINT_OFFSET_X * 2),
+						    mY + FIRE_POINT_OFFSET_Y,
+						    i * PLAYER_MISSILE_ANGLE_STEP +
+						        PLAYER_MISSILE_START_ANGLE + TURN_AROUND_ANGLE,
+						    BULLET_TYPE::PLAYER_MISSILE, false);
+					}
+				}
+
+				// カウントのオーバフロー防止
+				if (mMissileShotIntervalCount >=
+				    PLAYER_MISSILE_SHOT_COUNTER_RESET)
+				{
+					mMissileShotIntervalCount = 0;
+				}
+			}
+			if (mShotPower == SHOT_POWER_GRADE3) // 一度だけ処理を実行させる
+			{
+				// 強化SEの再生
+				PlaySoundMem(Data::getInstance()->mPowerUpSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+				effectManager->setEffect(&(mX), &(mY), POWERUP_EF);
+			}
+
+			// shootPowarが６０００超えたらスペシャル使用可能
+			if (mShotPower >= SHOT_POWER_GRADE3)
+			{
+				// スペシャル弾発射カウントの更新
+				mSpecialShotCount++;
+
+				// 5カウントまで発射を繰り返す
+				// 発射間隔は実質25フレーム
+				if (mSpecialShotCount < PLAYER_SPECIAL_SHOT_ACTIVE_COUNT)
+				{
+					// 5発分発射を繰り返す。同時発射
+					// スペシャル弾の扇状の弾幕
+					for (int i = 0; i < PLAYER_SPECIAL_AMOUNT; i++)
+					{
+						bulletManager->setBullet(
+						    mX, mY,
+						    i * SPECIAL_BULLET_ANGLE_STEP
+						                + SPECIAL_BULLET_BASE_ANGLE -
+						        (SPECIAL_BULLET_ANGLE_STEP *
+						         SPECIAL_BULLET_SPREAD_COUNT) /
+						            CUT_HALF,
+						                         BULLET_TYPE::PLAYER_SPECIAL,
+						                         false);
+					}
+				}
+				// 10カウントでスペシャル弾発射カウントをリセット(実質50フレーム)
+				if (mSpecialShotCount > PLAYER_SPECIAL_SHOT_COUNTER_RESET)
+				{
+					mSpecialShotCount = 0;
+				}
+			}
+		}
+	}
+}
+
+void Player::takeDamage()
+{
+	if (!mIsTakeDamage) // ダメージ判定がないもしくはダメ無効の場合実行しない
+	{
+		return;
+	}
+	if (!mIsUnbeatable && !mIsDamegeCoolDown)
+	{
+		// ダメージ処理
+		mLife--;                          // HPを減らす
+		mIsActiveLifeIcon[mLife] = false; // 表示アイコン用のフラグをfalse
+		PlaySoundMem(Data::getInstance()->mPlayerDamageSoundEffectHandle,
+		             DX_PLAYTYPE_BACK, TRUE); // ダメージSEの再生
+		mIsTakeDamage = false;                // ダメージフラグをfalse
+		mIsDamegeCoolDown = true;             // ダメージ無効フラグをtrue
+	}
+	mIsTakeDamage = false; // ダメージフラグをfalse
+	if (mLife <= 0)        // 撃破判定
+	{
+		mIsDefeat = true; // 撃破フラグのtrue
+		mIsActive = false;
+	}
+}
 
 /*
-@brief	各アイテムオブジェクトがプレイヤーへ当たったか判定を行う関数
+@brief	各アイテムオブジェクトの効果反映処理を行う関数
 
-@param[in]	Object* itemObject :オブジェクトクラスのインスタンスポインタ
+@param[in]	EffectManager *effectManager :エフェクト管理クラスのポインタ
 @param[in]	int*    score		:ゲームスコアのポインタ
 
 @return		当たったアイテムの種類:int
@@ -293,10 +511,7 @@ void Player::start()
 @note  無敵アイテム　OBJECT_STAR 3
 @note
 
-- 当たったアイテムオブジェクトを示すため、返り値をint型としている
-- アイテムオブジェクトのフラグ(flg)がtrueの場合のみ処理を実行する
-- プレイヤーに一定距離まで近づいたら当たったと判定する
-- 当たった場合、アイテムオブジェクトに応じて処理を分岐する
+- アイテムオブジェクトに応じて処理を分岐する
 
     1. 経験値アイテム
         - ショットパワーを増やす
@@ -308,89 +523,62 @@ void Player::start()
     3. 無敵アイテム
         - 無敵にする
         - 無敵の場合は残り時間を最大値まで戻す
-
 */
-int Player::checkItemObjectHit(Object *itemObject, int *score)
+void Player::applyItemeffect(int *score, EffectManager *effectManager)
 {
-	if (itemObject->mIsActive &&
-	    abs((int)(itemObject->mX - mX)) < ITEM_OBJECT_WIDTH &&
-	    abs((int)(itemObject->mY - mY)) < ITEM_OBJECT_HEIGHT)
-	{
-		switch (itemObject->mItemObjectType)
-		{
-		case OBJECT_EXP: // 経験値アイテム
-			PlaySoundMem(Data::getInstance()->mEXPItemGetSoundEffectHandle,
-			             DX_PLAYTYPE_BACK, TRUE);    // アイテム獲得SEの再生
-			(score) += EXP_SCORE;                    // 経験値スコアの加算
-			mShotPower += SHOT_POWER_INCREASE_AMONT; // ショットパワーが加算
-			// 修正案。初期化関数を作成して、start関数での初期化を変更する
-			itemObject->start(); // ヒットしたアイテムオブジェクトの初期化
-
-			break;
-
-		case OBJECT_LIFE: // 回復アイテム
-			PlaySoundMem(Data::getInstance()->mLifeItemGetSoundEffectHandle,
-			             DX_PLAYTYPE_BACK, TRUE); // アイテム獲得SEの再生
-			// 修正案。初期化関数を作成して、start関数での初期化を変更する
-			itemObject->start();   // ヒットしたアイテムオブジェクトの初期化
-			(score) += LIFE_SCORE; // アイテム獲得スコアの加算
-			// 最大の場合効果なし
-			if (mLife != MAX_HP)
-			{
-				// HPを1つ回復
-				mIsActiveLifeIcon[mLife] = true; // 表示アイコン用のフラグをtrue
-				mLife++;
-			}
-			return OBJECT_LIFE;
-			break;
-
-		case OBJECT_STAR: // 無敵アイテム
-			PlaySoundMem(
-			    Data::getInstance()->mUnbeatableItemGetSoundEffectHandle,
-			    DX_PLAYTYPE_BACK, TRUE); // アイテム獲得SEの再生
-			// 修正案。初期化関数を作成して、start関数での初期化を変更する
-			itemObject->start();   // ヒットしたアイテムオブジェクトの初期化
-			(score) += STAR_SCORE; // アイテム獲得スコアの加算
-			// 無敵中の場合、効果時間を最大値にリセット
-			if (!mIsUnbeatable)
-			{
-				mIsUnbeatable = true;
-			}
-			else
-			{
-				mUnbeatableCount = 0;
-			}
-			return OBJECT_STAR;
-			break;
-
-		default:
-			break;
-		}
-	}
-	return 0;
-}
-
-void Player::takeDamage()
-{
-	if (!mIsTakeDamage ) // ダメージ判定がないもしくはダメ無効の場合実行しない
+	if (!mIsItemHit)
 	{
 		return;
 	}
-	if (!mIsUnbeatable &&!mIsDamegeCoolDown)
+	switch (mHitItemType)
 	{
-		// ダメージ処理
-		mLife--;                          // HPを減らす
-		mIsActiveLifeIcon[mLife] = false; // 表示アイコン用のフラグをfalse
-		PlaySoundMem(Data::getInstance()->mPlayerDamageSoundEffectHandle,
-		             DX_PLAYTYPE_BACK, TRUE); // ダメージSEの再生
-		mIsTakeDamage = false;                // ダメージフラグをfalse
-		mIsDamegeCoolDown = true;//ダメージ無効フラグをtrue
-	}
-		mIsTakeDamage = false; // ダメージフラグをfalse
-	if (mLife <= 0) // 撃破判定
-	{
-		mIsDefeat = true; // 撃破フラグのtrue
-	}
+	case OBJECT_EXP: // 経験値アイテム
+		PlaySoundMem(Data::getInstance()->mEXPItemGetSoundEffectHandle,
+		             DX_PLAYTYPE_BACK, TRUE); // アイテム獲得SEの再生
 
+		(score) += EXP_SCORE;                    // 経験値スコアの加算
+		mShotPower += SHOT_POWER_INCREASE_AMONT; // ショットパワーが加算
 
+		break;
+
+	case OBJECT_LIFE: // 回復アイテム
+		PlaySoundMem(Data::getInstance()->mLifeItemGetSoundEffectHandle,
+		             DX_PLAYTYPE_BACK, TRUE); // アイテム獲得SEの再生
+
+		effectManager->setEffect(&(mX), &(mY), LIFE_EF); // 獲得エフェクトの再生
+
+		(score) += LIFE_SCORE; // アイテム獲得スコアの加算
+		// 最大の場合効果なし
+		if (mLife != MAX_HP)
+		{
+			// HPを1つ回復
+			mIsActiveLifeIcon[mLife] = true; // 表示アイコン用のフラグをtrue
+			mLife++;
+		}
+		break;
+
+	case OBJECT_STAR: // 無敵アイテム
+		PlaySoundMem(Data::getInstance()->mUnbeatableItemGetSoundEffectHandle,
+		             DX_PLAYTYPE_BACK, TRUE); // アイテム獲得SEの再生
+
+		effectManager->setEffect(&(mX), &(mY), STAR_EF); // 獲得エフェクトの再生
+
+		(score) += STAR_SCORE; // アイテム獲得スコアの加算
+		// 無敵中の場合、効果時間を最大値にリセット
+		if (!mIsUnbeatable)
+		{
+			mIsUnbeatable = true;
+		}
+		else
+		{
+			mUnbeatableCount = 0;
+		}
+		break;
+
+	default:
+		break;
+	}
+	// アイテムヒット判定をfalse。ヒットアイテム種類のリセット。
+	mIsItemHit = false;
+	mHitItemType = 0;
 }

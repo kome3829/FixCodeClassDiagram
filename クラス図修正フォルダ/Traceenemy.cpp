@@ -1,4 +1,5 @@
 ﻿#include "Traceenemy.h"
+#include "BulletManager.h"
 /*
 @brief	コンストラクタ
 
@@ -67,13 +68,17 @@ TraceEnemy::~TraceEnemy()
     - 指定位置に移動後、一定カウント内までに倒されなかった場合、画面外へ移動する
 
 */
-void TraceEnemy::action(int playerX, int playerY, int *score)
+void TraceEnemy::action(int playerX, int playerY, int *score,
+                        BulletManager *bulletManager,
+                        EffectManager *effectManager,
+                        ItemObjectManager *itemObject, Player *player)
 {
 	if (!mIsActive)
 	{
 		return;
 	}
-	takeDamage(score); // ダメージ処理
+	takeDamage(score, effectManager, itemObject, player); // ダメージ処理
+	shotTraceEnemyBullet(bulletManager, effectManager); // 弾発射処理
 	mMoveCount++;      // 移動カウントの更新
 
 	if (!mIsBossStage)
@@ -281,4 +286,59 @@ void TraceEnemy::start()
 	mIsReachedBossPosition = false;
 	mIsInvincible = false;
 	mIsDamageCoolDown = false;
+}
+/*
+@brief	追従する敵の弾発射を管理する関数
+
+@param[in]	BulletManager *bulletManager:弾管理クラスのポインタ
+
+@return		なし
+
+@note      弾を発射する敵のフラグ(FLG)がtrueの場合のみ処理を実行する
+@note
+traceEnemyクラスメンバのshotCount変数でカウントし、一定間隔で弾の発射を繰り返している
+@note      ４方向から同時に弾を発射する
+@note      角度を変えながら、薙ぎ払うように連続で発射している
+@note      弾発射と同時に発射エフェクト表示と発射SEの再生も行う
+
+@note　2重ループのfor分には変数ｊではなくkを使用している。iとjが見分けずらいので。３重の場合はlを使用
+
+*/
+void TraceEnemy::shotTraceEnemyBullet(BulletManager *bulletManager,
+                                      EffectManager *effectManager)
+{
+	if (!mIsActive)
+	{
+		return;
+	}
+	mShotCount++; // 発射カウントの更新
+
+	// 60フレームから100フレームの間で10フレーム間隔で処理を実行(計5回)
+	if (mShotCount >= TRACE_ENEMY_SHOT_START_FRAME &&
+	    mShotCount % TRACE_ENEMY_SHOT_INTERVAL_FRAME == 0 &&
+	    mShotCount <= TRACE_ENEMY_SHOT_END_FRAME)
+	{
+		// 4方向に同時に発射
+		for (int i = 0; i < TRACE_ENEMY_SHOT_WAY_COUNT; i++)
+		{
+			// ループ回数から発射角度９０度ずつを変更
+			int setAngleDistance = (i + 1) * TRACE_ENEMY_SHOT_BASE_ANGLE;
+
+			bulletManager->setBullet(
+			    (int)mX, (int)mY,
+			    setAngleDistance + mShotCount -
+			        TRACE_ENEMY_SHOT_START_FRAME,
+			    ENEMY_NOMAL, true);
+
+			effectManager->setEffect(&(mX), &(mY), SHOT_EF);
+		}
+		// 発射SEの再生
+		PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+		             DX_PLAYTYPE_BACK, TRUE);
+	}
+	// カウントのリセット、180フレームで1巡
+	if (mShotCount >= TRACE_ENEMY_SHOT_RESET_FRAME)
+	{
+		mShotCount = 0;
+	}
 }

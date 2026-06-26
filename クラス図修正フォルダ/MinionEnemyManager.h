@@ -1,13 +1,14 @@
 ﻿#ifndef __MINIONENEMYMANAGER_H__
 #define __MINIONENEMYMANAGER_H__
 
-#include "BulletManager.h"
 #include "DxLib.h"
 #include "Traceenemy.h"
 #include "chargeEnemy.h"
 #include "define.h"
 #include "deta.h"
 #include "enemy.h"
+#include "player.h"
+#include "EffectManager.h"
 
 enum ENEMY_POP_PATTERN
 {
@@ -21,7 +22,7 @@ class MinionEnemyManager
   public:
 	MinionEnemyManager();
 	~MinionEnemyManager();
-	void action(Player *player_p, int *score);
+	void action(Player *player_p, int *score, BulletManager *bulletManager,EffectManager *effectManager,ItemObjectManager *itemObjectManager);
 	void draw();
 	void start();
 	Enemy *mEnemies[MAX_ENEMY_COUNT];             // 雑魚敵

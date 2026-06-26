@@ -11,13 +11,6 @@
 #include"bossEnemy.h"
 #include"chargeEnemy.h"
 #include"bullet.h"
-#include"missileBullet.h"
-#include "specialBullet.h"
-#include "enemybullet.h"
-#include "HomingBullet.h"
-#include"enemyMiniBullet.h"
-#include"object.h"
-#include"explosion.h"
 #include"efect.h"
 class BasicScene
 {

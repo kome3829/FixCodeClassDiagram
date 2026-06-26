@@ -1,5 +1,6 @@
 ﻿#include "bossEnemy.h"
-
+#include "BulletManager.h"
+#include "EffectManager.h"
 /*
 @brief	コンストラクタ
 
@@ -13,7 +14,6 @@
 
 BossEnemy::BossEnemy()
 {
-	mBossEffect = new Effect();
 	mX = MAX_SCREEN_WIDTH / CUT_HALF;
 	mY = 0;
 	mWidth = ENEMY_BOSS_WIDTH;
@@ -82,7 +82,10 @@ BossEnemy::~BossEnemy()
 - 余裕のある行動から、激しい行動までを体力応じて行動パターンを作成した
 - 行動処理を分岐させるために必要なHP計算をはじめに行う
 */
-void BossEnemy::action(int *score)
+void BossEnemy::action(int *score, BulletManager *bulletManager,
+                       EffectManager *effectManager,
+                       ItemObjectManager *itemObjectManager,
+                       MinionEnemyManager *minionEnemyManager, Player *player)
 {
 	// HP計算
 	if (mHitPoint > 0)
@@ -94,7 +97,9 @@ void BossEnemy::action(int *score)
 		mBossHitPointBarRightEnd = BOSS_HP_BER_MAXWIDTH * mBossHitPointPercent /
 		                           BOSS_ENEMY_MAX_HP_PERCENT;
 	}
-	takeDamage(score);//ダメージ処理
+	takeDamage(score); // ダメージ処理
+	shotBossEnemyBullet(bulletManager, effectManager, itemObjectManager,
+	                    minionEnemyManager, player);
 	// boss動き、体力応じて分岐
 	// 分岐の値はわかりやすいため、ラベル適宜で置き換えずそのままにしている
 	if (mIsActive && mIsDefeat == false)
@@ -121,7 +126,7 @@ void BossEnemy::action(int *score)
 		else if (mBossHitPointPercent < BOSS_HP_PER_PHASE2_END &&
 		         mBossHitPointPercent > BOSS_HP_PER_PHASE3_END)
 		{
-			warpMoveFourPoint();
+			warpMoveFourPoint(effectManager);
 		}
 		else if (mBossHitPointPercent == BOSS_HP_PER_PHASE3_END)
 		{
@@ -130,7 +135,7 @@ void BossEnemy::action(int *score)
 		else if (mBossHitPointPercent < BOSS_HP_PER_PHASE3_END &&
 		         mBossHitPointPercent > BOSS_HP_PER_DEFEAT)
 		{
-			warpAndAttackMove();
+			warpAndAttackMove(effectManager);
 		}
 		else if (mBossHitPointPercent == BOSS_HP_PER_DEFEAT)
 		{
@@ -207,7 +212,6 @@ void BossEnemy::draw()
 				          Data::getInstance()->mBossImageHandle, TRUE);
 			}
 		}
-		mBossEffect->playEffectAnimation(); // エフェクトの再生表示
 	}
 }
 
@@ -233,7 +237,6 @@ void BossEnemy::start()
 	mVectorY = BOSS_ENEMY_VECTOR_Y;
 	mSpeed = BOSS_ENEMY_SPD;
 	mIsReachedStartPosition = false;
-	// HP = 0;
 	mIsActive = false;
 	mMoveCount = 0;
 	mIsDefeat = false;
@@ -539,7 +542,7 @@ void BossEnemy::patrolMoveFourPoint()
 @warning
 - ボス敵の急な位置の変化でプレイヤーを脅かす
 */
-void BossEnemy::warpMoveFourPoint()
+void BossEnemy::warpMoveFourPoint(EffectManager *effectManager)
 {
 	mMoveCount++; // 移動カウントの更新
 	// 0～75フレーム間は左へ移動
@@ -577,9 +580,9 @@ void BossEnemy::warpMoveFourPoint()
 		// ワープ演出開始
 		if (mMoveCount == WARP_TRIGGER_FRAME_BOSS)
 		{
-			mBossEffect->mAlpha = ALPHA_MAX;           // 透過度の設定
-			mBossEffect->setEffect(&mX, &mY, WARP_EF); // ワープエフェクトを表示
-			mVectorY = BOSS_ENEMY_WARP_VECTOR_Y;       // y軸の速度を変更
+			effectManager->setEffect(&mX, &mY,
+			                         WARP_EF);   // ワープエフェクトを表示
+			mVectorY = BOSS_ENEMY_WARP_VECTOR_Y; // y軸の速度を変更
 		}
 		// ワープ演出
 		// 演出開始カウントを過ぎているかつ、
@@ -660,7 +663,7 @@ void BossEnemy::warpMoveFourPoint()
 - これまでの移動パターンを組み合わせて、より難易度を難しくする
 - 行動パターンを2つ用意することで更に難しくする
 */
-void BossEnemy::warpAndAttackMove()
+void BossEnemy::warpAndAttackMove(EffectManager *effectManager)
 {
 	if (mMoveCount <= CHARGE_END_FRAME_BOSS) // 240fまでチャージフェーズ
 	{
@@ -677,8 +680,7 @@ void BossEnemy::warpAndAttackMove()
 		if (mMoveCount % CHARGE_EFFECT_INTERVAL == 0 &&
 		    mMoveCount >= CHARGE_EFFECT_INTERVAL)
 		{
-			mBossEffect->setEffect(&mX, &mY,
-			                       CHARGE_EF_BOSS); // チャージエフェクトの表示
+			effectManager->setEffect(&mX, &mY, CHARGE_EF_BOSS);
 		}
 		// 発射カウントのリセット
 		mShotBulletCount = 0;
@@ -704,9 +706,9 @@ void BossEnemy::warpAndAttackMove()
 		// ワープ開始。エフェクト表示
 		if (mMoveCount == WARP1_TRIGGER_FRAME)
 		{
-			mBossEffect->mAlpha = ALPHA_MAX;           // 透過度の設定
-			mBossEffect->setEffect(&mX, &mY, WARP_EF); // ワープエフェクトの表示
-			mVectorY = BOSS_ENEMY_WARP_VECTOR_Y;       // y軸の速度を変更
+			effectManager->setEffect(&mX, &mY,
+			                         WARP_EF);   // ワープエフェクトの表示
+			mVectorY = BOSS_ENEMY_WARP_VECTOR_Y; // y軸の速度を変更
 		}
 		// ワープ演出
 		// 演出開始カウントを過ぎているかつ、
@@ -751,9 +753,9 @@ void BossEnemy::warpAndAttackMove()
 		// 674フレーム目で実行
 		if (mMoveCount == WARP2_TRIGGER_FRAME)
 		{
-			mBossEffect->mAlpha = ALPHA_MAX; // エフェクトのアルファ値の設定
-			mBossEffect->setEffect(&mX, &mY, WARP_EF); // ワープエフェクトの表示
-			mVectorY = BOSS_ENEMY_WARP_VECTOR_Y;       // y軸の速度を変更
+			effectManager->setEffect(&mX, &mY,
+			                         WARP_EF);   // ワープエフェクトの表示
+			mVectorY = BOSS_ENEMY_WARP_VECTOR_Y; // y軸の速度を変更
 		}
 		// ワープ演出
 		// 演出開始カウントを過ぎているかつ、
@@ -1007,7 +1009,6 @@ void BossEnemy::settingNextWarpAndAttackMove()
 	}
 }
 
-
 void BossEnemy::takeDamage(int *score)
 {
 	if (!mIsTakeDamage)
@@ -1017,7 +1018,7 @@ void BossEnemy::takeDamage(int *score)
 	// HPが０以上かつ無敵フラグ(Unbeatable)がfalseの場合はHPを減らす
 	if (mHitPoint > 0)
 	{
-		if (!mIsUnbeatable &&!mIsDamageCoolDown)
+		if (!mIsUnbeatable && !mIsDamageCoolDown)
 		{
 			mHitPoint -= ENEMY_TAKE_DAMAGE;
 			*score += HIT_SCORE; // ヒットスコアの加算
@@ -1029,5 +1030,399 @@ void BossEnemy::takeDamage(int *score)
 	if (mHitPoint <= 0)
 	{
 		mIsDefeat = true;
+	}
+}
+/*
+@brief	ボス敵の弾発射の管理を行う関数
+
+@param[in]	BulletManager *bulletManager:弾管理クラスのポインタ
+@param[in]	EffectManager *effectManager:エフェクト管理クラスのポインタ
+@param[in]	ItemObjectManager *itemObjectManager:アイテム管理クラスのポインタ
+@return		なし
+
+@note
+
+- ボスのフラグ(FLG)がtrueで撃破フラグ(Defeat)がfalseの場合のみ、処理を実行する
+-
+bossEnemyクラスメンバのbossShootCountmini変数及びFrameCount変数でカウントし、処理を管理している
+- 発射時に発射SEの再生をしている
+- 発射パターンの切り替え時には、アイテムのドロップと爆破エフェクト表示を行う
+
+-
+HPによって発射を４パターンに分岐している。段々と激しい発射パターンに変化し最後は救済アイテムがないと突破は難しい
+
+1. HP100%～75%、
+    - ミニ弾の円状の弾幕を一定間隔で発射するのを繰り返している
+    - 同時に12方向へミニ弾を発射
+
+2. HP74%～50%、　
+    - ミニ弾の円状の弾幕を一定間隔で発射するのを繰り返している
+    - 同時に12方向へミニ弾を発射
+    - 発射開始すると4連属でミニ弾の弾幕を発射
+    - 発射間隔は前の発射パターンよりも短くなっている
+
+3. HP49%～25%、　
+    - ミニ弾と通常弾の2種類の弾を発射する
+        - ミニ弾の円状の弾幕を一定間隔で発射するのを繰り返している
+            - 同時に12方向へミニ弾を発射
+            - 発射開始すると4連属でミニ弾の弾幕を発射
+            - 発射間隔は前の発射パターンよりも短くなっている
+        - 通常弾の円状の弾幕を発射するのを繰り返している
+            - 発射された弾は徐々に減速
+            - ミニ弾の弾幕よりも発射間隔は長い
+            - 30方向へ同時に通常弾を発射
+
+4. HP24%～0%,　　
+    - ミニ弾と通常弾の2種類の弾を発射する
+        - ミニ弾の円状の弾幕の発射を絶え間なく繰り返している
+            - 一定間隔でミニ弾の弾幕の発射角度をずらしている
+            - 同時に12方向へミニ弾を発射
+        - 通常弾の円状の弾幕を発射するのを繰り返している
+            - 発射された弾は徐々に減速
+            - ミニ弾の弾幕よりも発射間隔は長い
+            - 30方向へ同時に通常弾を発射
+    - 三種の雑魚敵を召喚している
+    - ボスが倒された場合、召喚した敵は初期状態へ戻している
+
+@note　2重ループのfor分には変数ｊではなくkを使用している。iとjが見分けずらいので。３重の場合はlを使用
+
+*/
+void BossEnemy::shotBossEnemyBullet(BulletManager *bulletManager,
+                                    EffectManager *effectManager,
+                                    ItemObjectManager *itemObjectManager,
+                                    MinionEnemyManager *minionEnemyManager,
+                                    Player *player)
+{
+	if (mIsActive && mIsDefeat == false)
+	{
+		mShotMiniBulletCount++; // ミニ弾の発射カウントの更新
+
+		// HP100%～75%
+		if (mBossHitPointPercent <= BOSS_HP_PER_MAX &&
+		    mBossHitPointPercent > BOSS_HP_PER_PHASE1_END)
+		{
+			// 30Fでミニ弾を発射
+			if (mShotMiniBulletCount >= BOSS_MINI_SHOT_INTERVAL_FRAME)
+			{
+				int miniBulletAngle;
+				// 発射を12発分繰り返す。同時発射
+				// 円形の弾幕
+				for (int i = 0; i < BOSS_MINI_SHOT_AMOUNT; i++)
+				{
+					// 30毎に発射角度を変更
+					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
+
+					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
+					                         ENEMY_MINI_YELLOW, false);
+				}
+				// 発射カウントのリセット
+				mShotMiniBulletCount = 0;
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+			}
+		}
+
+		// HP75%
+		else if (mBossHitPointPercent == BOSS_HP_PER_PHASE1_END)
+		{
+			// 一度だけ処理を実行させる
+			if (mIsExecuteProcess[SECOND_EXECUTE] == FALSE)
+			{
+				// フラグの切り替え
+				mIsExecuteProcess[SECOND_EXECUTE] = TRUE;
+				// アイテムドロップ
+				itemObjectManager->dropItem((int)mX, (int)mY, OBJECT_EXP,
+				                            player);
+				itemObjectManager->dropItem((int)mX + DROP_OFFSET_X, (int)mY,
+				                            OBJECT_STAR, player);
+				itemObjectManager->dropItem((int)mX, (int)mY, OBJECT_LIFE,
+				                            player);
+				// 行動切り替え時SEの再生
+				playSoundEffect();
+
+				// 爆破エフェクトの表示
+				// 重ならないようにループ回数によって位置を変更
+
+				effectManager->setEffect(&(mX), &(mY), EXPLOSION_EF);
+
+				//// 爆破エフェクト表示を4個分繰り返す
+				// for (int i = 0; i < BOSS_EXPLOSION_COUNT; i++)
+				//{
+				//	mExplosionX =
+				//	    mX + BOSS_EXPLOSION_START_X + i * BOSS_EXPLOSION_STEP_X;
+				//	mExplosionY = mY + BOSS_EXPLOSION_OFFSET_Y;
+
+				//	// 爆破エフェクトの表示
+				//	// 重ならないようにループ回数によって位置を変更
+
+				//	effectManager->setEffect(&(mExplosionX), &(mExplosionY),
+				//	                         EXPLOSION_EF);
+				//}
+				// 発射カウントのリセット
+				mShotBulletCount = 0;
+				mShotMiniBulletCount = 0;
+			}
+		}
+
+		// HP74%～50%
+		else if (mBossHitPointPercent < BOSS_HP_PER_PHASE1_END &&
+		         mBossHitPointPercent > BOSS_HP_PER_PHASE2_END)
+		{
+			// 30フレーム間隔でミニ弾発射カウントをリセット
+			if (mShotMiniBulletCount > BOSS_MINI_BURST_RESET_FRAME)
+			{
+				mShotMiniBulletCount = 0;
+			}
+			// ミニ弾発射カウントが15以内に4フレーム間隔で発射を実行(計4回
+			if (mShotMiniBulletCount < BOSS_MINI_BURST_ACTIVE_FRAME &&
+			    mShotMiniBulletCount % BOSS_MINI_BURST_INTERVAL_FRAME == 0)
+			{
+				int miniBulletAngle;
+				// 発射を12発分繰り返す。同時発射
+				// 円形の弾幕
+				for (int i = 0; i < BOSS_MINI_SHOT_AMOUNT; i++)
+				{
+					// 30度毎に発射角度を変更
+					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
+
+					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
+					                         ENEMY_MINI_YELLOW, false);
+				}
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+			}
+		}
+
+		// HP50%
+		else if (mBossHitPointPercent == BOSS_HP_PER_PHASE2_END)
+		{
+			// 一度だけ処理を実行させる
+			if (mIsDropExperiencePoint == FALSE)
+			{
+				// アイテムのドロップ
+				itemObjectManager->dropItem((int)mX, (int)mY, OBJECT_EXP,
+				                            player);
+				itemObjectManager->dropItem((int)mX + DROP_OFFSET_X, (int)mY,
+				                            OBJECT_STAR, player);
+				itemObjectManager->dropItem((int)mX, (int)mY, OBJECT_LIFE,
+				                            player);
+				// フラグの切り替え
+				mIsDropExperiencePoint = TRUE;
+				// 行動切り替え時SEの再生
+				playSoundEffect();
+
+				// 爆破エフェクトの表示
+				// 重ならないようにループ回数によって位置を変更
+
+				effectManager->setEffect(&(mX), &(mY), EXPLOSION_EF);
+				// 発射カウントをリセット
+				mShotBulletCount = 0;
+				mShotMiniBulletCount = 0;
+			}
+		}
+
+		// HP49%～25%
+		else if (mBossHitPointPercent < BOSS_HP_PER_PHASE2_END &&
+		         mBossHitPointPercent > BOSS_HP_PER_PHASE3_END)
+		{
+			// 30フレーム間隔でミニ弾発射カウントをリセット
+			if (mShotMiniBulletCount > BOSS_MINI_BURST_RESET_FRAME)
+			{
+				mShotMiniBulletCount = 0;
+			}
+
+			// ミニ弾発射カウントが15以内に4フレーム間隔で発射を実行(計4回
+			if (mShotMiniBulletCount < BOSS_MINI_BURST_ACTIVE_FRAME &&
+			    mShotMiniBulletCount % BOSS_MINI_BURST_INTERVAL_FRAME == 0)
+			{
+				int miniBulletAngle;
+
+				// 発射を12発分繰り返す。同時発射
+				// ミニ弾の円形の弾幕
+				for (int i = 0; i < BOSS_MINI_SHOT_AMOUNT; i++)
+				{
+					// 30度毎に発射角度を変更
+					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
+
+					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
+					                         ENEMY_MINI_YELLOW, false);
+				}
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+			}
+			// 弾発射カウント更新
+			mShotBulletCount++;
+			// 120フレーム間隔で発射を実行
+			if (mShotBulletCount >= BOSS_NOMAL_SHOT_INTERVAL_FRAME)
+			{
+				int ringBulletAngle;
+				// 発射を30発分繰り返す。同時発射
+				// 通常弾の円形の弾幕
+				for (int i = 0; i < BOSS_NOMAL_SHOT_AMOUNT; i++)
+				{
+					// 12度毎に角度を変更
+					ringBulletAngle = i * BOSS_NOMAL_SHOT_ANGLE_STEP;
+
+					bulletManager->setBullet((int)mX, (int)mY, ringBulletAngle,
+					                         ENEMY_NOMAL, true);
+				}
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+				mShotBulletCount = 0; // 発射カウントのリセット
+			}
+		}
+
+		// HP25%
+		else if (mBossHitPointPercent == BOSS_HP_PER_PHASE3_END)
+		{
+			// 一度だけ実行させる処理
+			if (mIsExecuteProcess[THIRD_EXECUTE] == FALSE)
+			{
+				// アイテムのドロップ
+				itemObjectManager->dropItem((int)mX, (int)mY, OBJECT_EXP,
+				                            player);
+				itemObjectManager->dropItem((int)mX + DROP_OFFSET_X, (int)mY,
+				                            OBJECT_STAR, player);
+				itemObjectManager->dropItem((int)mX, (int)mY, OBJECT_LIFE,
+				                            player);
+				// 行動切り替え時SEの再生
+				playSoundEffect();
+
+				// 爆破エフェクトの表示
+				// 重ならないようにループ回数によって位置を変更
+
+				effectManager->setEffect(&(mX), &(mY),
+				                         EXPLOSION_EF);
+
+				// カウントのリセット、フラグの切り替え
+				mIsExecuteProcess[THIRD_EXECUTE] = TRUE;
+				mShotBulletCount = 0;
+				mShotMiniBulletCount = 0;
+			}
+		}
+
+		// HP24%～0%
+		else if (mBossHitPointPercent < BOSS_HP_PER_PHASE3_END &&
+		         mBossHitPointPercent > BOSS_HP_PER_DEFEAT)
+		{
+			// 弾発射カウントの更新
+			mShotBulletCount++;
+			// 30フレーム間隔でミニ弾発射カウントをリセット
+			if (mShotMiniBulletCount > BOSS_MINI_BURST_RESET_FRAME)
+			{
+				mShotMiniBulletCount = 0;
+			}
+			// 15F間隔で発射角度を変更
+			// 4フレーム間隔で発射
+			if (mShotMiniBulletCount < BOSS_MINI_BURST_ACTIVE_FRAME &&
+			    mShotMiniBulletCount % BOSS_MINI_BURST_INTERVAL_FRAME == 0)
+			{
+				int miniBulletAngle;
+				// 発射を12発分繰り返す。同時発射
+				// ミニ弾の円形の弾幕
+				for (int i = 0; i < BOSS_MINI_SHOT_AMOUNT; i++)
+				{
+					// 30度毎に発射角度を変更
+					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
+
+					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
+					                         ENEMY_MINI_YELLOW, false);
+				}
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+			}
+			// 15フレーム毎に発射角度をずらす
+			// 4フレーム間隔で発射
+			else if (mShotMiniBulletCount % BOSS_MINI_BURST_INTERVAL_FRAME == 0)
+			{
+				int miniBulletAngle;
+				// 発射を12発分繰り返す。同時発射
+				// ミニ弾の円形の弾幕
+				for (int i = 0; i < BOSS_MINI_SHOT_AMOUNT; i++)
+				{
+					// 30度毎に発射角度を変更に加えて20度ずらす
+					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP +
+					                  BOSS_MINI_BURST_OFFSET_ANGLE;
+					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
+					                         ENEMY_MINI_YELLOW, false);
+				}
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+			}
+
+			// 120フレーム間隔で発射を実行
+			if (mShotBulletCount >= BOSS_NOMAL_SHOT_INTERVAL_FRAME)
+			{
+				int ringBulletAngle;
+				// 発射を30発分繰り返す。同時発射
+				// 通常弾の円形の弾幕
+				for (int i = 0; i < BOSS_NOMAL_SHOT_AMOUNT; i++)
+				{
+					// 12度毎に角度を変更
+					ringBulletAngle = i * BOSS_NOMAL_SHOT_ANGLE_STEP;
+					bulletManager->setBullet((int)mX, (int)mY, ringBulletAngle,
+					                         ENEMY_NOMAL, true);
+				}
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+				mShotBulletCount = 0; // 発射カウントのリセット
+			}
+			// 雑魚敵の召喚
+			if (mIsSummonEnemy) // 召喚フラグがtrueの場合(ボス敵の移動処理で切り替え)
+			{
+				// 修正、マジックナンバー
+				// 召喚する敵の初期化
+				minionEnemyManager->mChargeEnemies[SUMMON_LEFT]->start();
+				minionEnemyManager->mEnemies[SUMMON_LEFT]->start();
+				minionEnemyManager->mTraceEnemies[SUMMON_LEFT]->start();
+
+				minionEnemyManager->mChargeEnemies[SUMMON_RIGHT]->start();
+				minionEnemyManager->mEnemies[SUMMON_RIGHT]->start();
+				minionEnemyManager->mTraceEnemies[SUMMON_RIGHT]->start();
+
+				// 左側召喚
+				minionEnemyManager->mChargeEnemies[SUMMON_LEFT]->pop(
+				    SUMMON_LEFT_CHARGE_ENEMY_X, SUMMON_ENEMY_Y, SUMMON_LEFT,
+				    true);
+				minionEnemyManager->mEnemies[SUMMON_LEFT]->pop(
+				    SUMMON_LEFT_NOMAL_ENEMY_X, SUMMON_ENEMY_Y, SUMMON_LEFT,
+				    true);
+				minionEnemyManager->mTraceEnemies[SUMMON_LEFT]->pop(
+				    SUMMON_LEFT_TRACE_ENEMY_X, SUMMON_ENEMY_Y, SUMMON_LEFT,
+				    true);
+
+				// 右側召喚
+				minionEnemyManager->mChargeEnemies[SUMMON_RIGHT]->pop(
+				    SUMMON_RIGHT_CHARGE_ENEMY_X, SUMMON_ENEMY_Y, SUMMON_RIGHT,
+				    true);
+				minionEnemyManager->mEnemies[SUMMON_RIGHT]->pop(
+				    SUMMON_RIGHT_NOMAL_ENEMY_X, SUMMON_ENEMY_Y, SUMMON_RIGHT,
+				    true);
+				minionEnemyManager->mTraceEnemies[SUMMON_RIGHT]->pop(
+				    SUMMON_RIGHT_TRACE_ENEMY_X, SUMMON_ENEMY_Y, SUMMON_RIGHT,
+				    true);
+			}
+		}
+
+		// HP0%
+		else if (mBossHitPointPercent == BOSS_HP_PER_DEFEAT)
+		{
+			// 修正、マジックナンバー
+			// 召喚した敵の初期化
+			minionEnemyManager->mChargeEnemies[SUMMON_LEFT]->start();
+			minionEnemyManager->mEnemies[SUMMON_LEFT]->start();
+			minionEnemyManager->mTraceEnemies[SUMMON_LEFT]->start();
+
+			minionEnemyManager->mChargeEnemies[SUMMON_RIGHT]->start();
+			minionEnemyManager->mEnemies[SUMMON_RIGHT]->start();
+			minionEnemyManager->mTraceEnemies[SUMMON_RIGHT]->start();
+		}
 	}
 }

@@ -1,4 +1,6 @@
 ﻿#include "enemy.h"
+#include "BulletManager.h"
+
 /*
 @brief	コンストラクタ
 
@@ -68,14 +70,16 @@ Enemy::~Enemy()
 指定位置に移動後、一定カウント内までに倒されなかった場合、画面外へ移動する
 
 */
-void Enemy::action(int *score)
+void Enemy::action(int *score, BulletManager *bulletManager,
+                   EffectManager *effectManager,
+                   ItemObjectManager *itemObjectManager, Player *player)
 {
 	if (!mIsActive)
 	{
 		return;
 	}
-	takeDamage(score); // ダメージ処理
-	//shotEnemyBullet(bulletManager_p);
+	takeDamage(score, effectManager, itemObjectManager, player); // ダメージ処理
+	shotEnemyBullet(bulletManager, effectManager);
 	mMoveCount++; // 移動カウントの更新
 	// 通常ステージの処理
 	if (!mIsBossStage)
@@ -374,12 +378,15 @@ void Enemy::playSoundEffect()
 	             DX_PLAYTYPE_BACK, TRUE);
 }
 
-void Enemy::takeDamage(int *score)
+void Enemy::takeDamage(int *score, EffectManager *effectManager,
+                       ItemObjectManager *itemObjectManager, Player *player)
 {
 	if (!mIsTakeDamage)
 	{
 		return;
 	}
+	//ヒットエフェクトの表示
+	effectManager->setEffect(&(mX), &(mY), HIT_EF);
 	// 無敵フラグ(Unbeatable)がfalseの場合はダメージ処理・スコア加算・を行う
 	if (!mIsInvincible && !mIsDamageCoolDown)
 	{
@@ -395,10 +402,28 @@ void Enemy::takeDamage(int *score)
 		*score += (int)ENEMY_SCORE;
 		playSoundEffect();
 		mIsActive = false;
+		effectManager->setEffect(&(mX), &(mY), EXPLOSION_EF);
+		itemObjectManager->dropItem(mX, mY, OBJECT_EXP, player);
+		itemObjectManager->dropItem(mX, mY, OBJECT_LIFE, player);
+		itemObjectManager->dropItem(mX, mY, OBJECT_STAR, player);
+
 	}
 }
+/*
+@brief	通常敵の弾発射を管理する関数
 
-void Enemy::shotEnemyBullet()
+@param[in]	BulletManager *bulletManager:弾管理クラスのポインタ
+
+@return		なし
+
+@note      弾を発射する敵のフラグ(FLG)がtrueの場合のみ処理を実行する
+@note
+enemyクラスメンバのshotCount変数でカウントし、一定間隔で弾を発射を繰り返している
+@note      角度を変えながら、薙ぎ払うように連続で発射している
+@note      弾発射と同時に発射エフェクト表示と発射SEの再生も行う
+*/
+void Enemy::shotEnemyBullet(BulletManager *bulletManager,
+                            EffectManager *effectManager)
 {
 	if (!mIsActive)
 	{
@@ -415,18 +440,10 @@ void Enemy::shotEnemyBullet()
 		int setAngle = mShotCount;
 		// 弾の設置、発射エフェクト、発射SEの再生
 
-		//bulletManager_p->setBullet((int)mX, (int)mY, setAngle,
-		//                          ENEMY_NOMAL, true);
+		bulletManager->setBullet((int)mX, (int)mY, setAngle,
+		                          BULLET_TYPE::ENEMY_NOMAL, true);
 
-		// フラグのたっていないものを探し、1つだけsetef関数実行
-		//for (int i = 0; i < MAX_BULLET_NUMBER; i++)
-		//{
-		//	// 発射エフェクトの表示
-		//	if (mEffects[i]->setEffect(&(mX), &(mY), SHOT_EF))
-		//	{
-		//		break;
-		//	}
-		//}
+		effectManager->setEffect(&(mX), &(mY), SHOT_EF);
 		// 発射SEの再生
 		PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
 		             DX_PLAYTYPE_BACK, TRUE);

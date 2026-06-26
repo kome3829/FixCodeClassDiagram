@@ -10,7 +10,6 @@
 #include "myLib/key.h"
 
 // --- 敵弾速度 ---
-// --- 敵弾速度 ---
 #define ENEMY_BULLET_FAST_SPEED (3.0f)
 #define BOSS_BULLET_FAST_SPEED (4.0f)
 #define BOSS_BULLET_SPEEDDOWN_LIMIT (2.0f)
@@ -39,8 +38,9 @@ class Bullet
 	virtual void action();
 	virtual void draw();
 	virtual void start();
+
 	bool hitCheck(Character *class_p);    // 弾の当たり判定
-	//現状の当たり判定関数に組み込んでみるための仮関数
+
 	double mX;                         // X座標
 	double mY;               // Y座標
 	double mVectorX;         // Xベクトル
@@ -53,7 +53,6 @@ class Bullet
 	bool mIsActive; // 有効化判定
 	double mSpeed;  // 敵弾の移動速度
 	bool mIsBossEnemy; // ボス敵か判定
-
 
   private:
 };

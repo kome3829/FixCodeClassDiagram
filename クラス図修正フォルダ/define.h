@@ -16,6 +16,8 @@
 #define STAR_EF			(5)
 #define WARP_EF			(6)
 #define CHARGE_EF_BOSS	(7)
+#define EXPLOSION_EF    (8)
+#define EFFECT_TYPE_MAX (9)
 
 //画面サイズ
 #define MAX_SCREEN_WIDTH  (640)

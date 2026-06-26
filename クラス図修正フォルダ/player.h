@@ -9,6 +9,7 @@
 #include "myLib/key.h"
 #include "object.h"
 #include "Character.h"
+#include "EffectManager.h"
 // ヒットポイント
 #define MAX_HP (3)
 // ダメージ演出
@@ -36,23 +37,53 @@
 // 無敵時間表示バーのカラーコード
 #define ORANGE_COLLAR (0xffff00)
 
+// 発射管理
+#define PLAYER_NOMAL_SHOT_INTERVAL (5)
+
+// 通常弾
+#define PLAYER_NORMAL_SHOT_SPEED (2)
+#define PLAYER_UPGRADE_SHOT_SPEED (1)
+#define PLAYER_NORMAL_SHOT_ANGLE (-90)
+
+// ミサイル弾
+#define PLAYER_MISSILE_SHOT_INTERVAL (3) // 変数に代入から直接記述に変更
+#define PLAYER_MISSILE_AMOUNT (2)
+#define PLAYER_MISSILE_START_ANGLE (70)
+#define PLAYER_MISSILE_ANGLE_STEP (40)
+#define PLAYER_MISSILE_SHOT_COUNTER_RESET (1024)
+#define TURN_AROUND_ANGLE (180)
+
+// スペシャル弾
+#define PLAYER_SPECIAL_AMOUNT (5)
+#define PLAYER_SPECIAL_SHOT_ACTIVE_COUNT (5)
+#define PLAYER_SPECIAL_SHOT_COUNTER_RESET (10)
+
+#define SPECIAL_BULLET_ANGLE_STEP (30)
+#define SPECIAL_BULLET_BASE_ANGLE (-90)
+#define SPECIAL_BULLET_SPREAD_COUNT (4)
+
+// 発射位置ののオフセット
+#define FIRE_POINT_OFFSET_X (18)
+#define FIRE_POINT_OFFSET_Y (-5)
+
+
+class BulletManager;
+
 class Player : public Character
 {
   public:
 	Player();
 	~Player();
-	void action();
+	void action(BulletManager *bulletManager, EffectManager *effectManager,
+	            int *score);
 	void draw();
 	void start();
-
-	int checkItemObjectHit(Object *itemObject,
-	                       int *score); // アイテムオブジェクトの当たり判定
-
-
 	int mImageWidth;  // 画像の横サイズ
 	int mImageHeight; // 画像の縦サイズ
 
 	bool mIsDamegeCoolDown;//ダメージ処理の無効化
+	bool mIsItemHit;//アイテムヒット判定
+	int mHitItemType;//当たったアイテムの種類
 
 	bool mIsActiveMissileShot;        // ミサイル弾有効化判定
 	double mSpeed;                    // 移動速度
@@ -65,10 +96,22 @@ class Player : public Character
 	int mUnbeatableCount;             // 無敵時間カウント
 	double mUnbeatableGagePercent; // 無敵時間ゲージの表示範囲割合
 
+		//---プレイヤーの発射に関する変数---
+	int mShotCount;          // プレイヤー発射カウント
+	int mNomalShotIntervalCount;   // 通常弾発射間隔カウント
+	int mNomalShotInterval;        // 通常弾発射間隔
+	int mMissileShotIntervalCount; // ミサイル発射間隔カウント
+	int mSpecialShotCount;         // スペシャル弾発射カウント
   private:
-	// 仮作成当たり判定とダメージ処理を分離するため
-	// 当たり判定
+	/// <summary>
+	/// プレイヤー弾発射関数
+	/// </summary>
+	void shotPlayerBullet(BulletManager *bulletManager,
+	                      EffectManager *effectManager);
+	// ダメージ処理
 	void takeDamage();
+	//アイテム効果反映処理
+	void applyItemeffect(int *score, EffectManager *effectManager);
 };
 
 #endif // !__PLAYER_H__

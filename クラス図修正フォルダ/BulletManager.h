@@ -3,13 +3,14 @@
 
 #include "DxLib.h"
 #include "bossEnemy.h"
-#include "bullet.h"
+#include "Bullet.h"
 #include "define.h"
 #include "deta.h"
 #include "math.h"
 #include "player.h"
 #include "Character.h"
 
+class MinionEnemyManager;
 
 class BulletManager {
 public:
@@ -18,9 +19,8 @@ public:
    void action();
    void draw();
    void start();
-   //void checHit(Player *player_p, BossEnemy *bossEnemy_p,
-   //              MinionEnemyManager *minionEnemyManager_p);
-   void checHit(Player *player_p, BossEnemy *bossEnemy_p);
+   void checHit(Player *player_p, BossEnemy *bossEnemy_p,
+                 MinionEnemyManager *minionEnemyManager_p);
 
    void setBullet(int setPositionX, int setPositionY, int setAngle,
 	              BULLET_TYPE bulletType, bool isBossEnemy);
@@ -28,8 +28,8 @@ public:
 
 
 private:
-  void checkHitMinionEnemyPre( Character *crass_p,
-	                     Bullet *mBullets);
+  void checkHitMinionEnemyPre(  MinionEnemyManager *minionEnemyManager,
+	                     Bullet *bullet);
 
   //各弾のパラメータ
   static constexpr int mBulletWidthList//弾の横幅サイズの配列

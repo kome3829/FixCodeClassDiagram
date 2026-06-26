@@ -1,5 +1,4 @@
-﻿#include "bullet.h"
-
+﻿#include"Bullet.h"
 /*
 @brief	コンストラクタ
 

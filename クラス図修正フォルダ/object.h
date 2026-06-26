@@ -21,8 +21,7 @@ public:
 	void action();
 	void draw();
 	void start();
-
-	bool setItemObject(int setPositionX, int setPositionY, int setAngle, int itemObjectType, double* playerPositionX, double* playerPositionY);	//アイテムオブジェクトの設置
+	void reset();//リセット関数
 	void judgeHomingMoveEneble();	//吸い付き有効化判定
 
 	double mX;					//X座標
