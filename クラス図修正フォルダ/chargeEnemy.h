@@ -2,7 +2,7 @@
 
 #define __CHARGEENEMY_H__
 
-#include "enemy.h"
+#include "Enemy.h"
 // --- 円運動開始 ---
 #define ARC_MOVE_START_FRAME        (331)
 // --- チャージ後無敵 ---
@@ -32,6 +32,12 @@
 #define CHARGE_ENEMY_AIM_SHOT_INTERVAL (5)
 #define CHARGE_ENEMY_AIM_BULLET_AMOUNT (3)
 
+// --- 救済アイテム出現位置 ---
+
+#define ITEM_DROP_LEFT_X (100)
+#define ITEM_DROP_RIGHT_X (500)
+#define ITEM_DROP_Y (240)
+
 class ChargeEnemy : public Enemy
 {
 public:
@@ -47,7 +53,7 @@ public:
 	 /// </summary>
 	 /// <param name="chargeEnemy=ChargeEnemyクラスのポインタ"></param>
 	 void shotChargeEnemyBullet(BulletManager *bulletManager, Player *player,
-	                            EffectManager *effectManager);
+	                            EffectManager *effectManager, ItemObjectManager *itemObjectManager);
 
    private:
 

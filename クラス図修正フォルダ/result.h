@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "basicScene.h"
+#include "BasicScene.h"
 #include"define.h"
-#include"deta.h"
+#include"Deta.h"
 #define RED_COLOR			(0xff0000)//タイトルテキストのカラーコード
 #define WHITE_COLOR         (0xffffff)//操作説明テキストのカラーコード
 #define GRAY_COLOR			(0x7d7d7d)//テキストウィンドウのカラーコード

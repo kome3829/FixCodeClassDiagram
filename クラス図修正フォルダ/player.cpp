@@ -1,4 +1,4 @@
-﻿#include "player.h"
+﻿#include "Player.h"
 #include "BulletManager.h"
 /*
 @brief	コンストラクタ
@@ -370,7 +370,7 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 					                             i * (FIRE_POINT_OFFSET_X * 2),
 					                         mY + FIRE_POINT_OFFSET_Y,
 					                         PLAYER_NORMAL_SHOT_ANGLE,
-					                         BULLET_TYPE::PLAYER_NOMAL, false);
+					                         BULLET_TYPE::PLAYER_NOMAL, false,true);
 				}
 			}
 			// shootPowarが1500超えたら発射間隔を短くする
@@ -421,7 +421,7 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 						    mY + FIRE_POINT_OFFSET_Y,
 						    i * PLAYER_MISSILE_ANGLE_STEP +
 						        PLAYER_MISSILE_START_ANGLE + TURN_AROUND_ANGLE,
-						    BULLET_TYPE::PLAYER_MISSILE, false);
+						    BULLET_TYPE::PLAYER_MISSILE, false, true);
 					}
 				}
 
@@ -461,8 +461,7 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 						        (SPECIAL_BULLET_ANGLE_STEP *
 						         SPECIAL_BULLET_SPREAD_COUNT) /
 						            CUT_HALF,
-						                         BULLET_TYPE::PLAYER_SPECIAL,
-						                         false);
+						                         BULLET_TYPE::PLAYER_SPECIAL, false, true);
 					}
 				}
 				// 10カウントでスペシャル弾発射カウントをリセット(実質50フレーム)

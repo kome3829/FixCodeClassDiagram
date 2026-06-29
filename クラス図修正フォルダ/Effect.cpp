@@ -1,4 +1,4 @@
-﻿#include "efect.h"
+﻿#include "Effect.h"
 /*
 @brief	コンストラクタ
 
@@ -10,23 +10,23 @@
 */
 Effect::Effect()
 {
-	 mX=0;
-	 mY=0;
-	 mCurrentPlayFrameNumber=0;
-	 mSpriteFrameX=0;
-	 mSpriteFrameY=0;
-	 mFrameCount=0;
-	 mWidth= 0;
-	 mHeight= 0;
-	 mEffectType = 0;
-	 mIsPlay=false;
-     mPlayFrameMax = 0;
-	 mSpriteFrameMax = 0;
-	 mAlpha = MAX_ALPHA;
-     for (int i = 0;i < MAX_TEBLE_FRAME; i++)
-     {
-         mPlayFrameTable[i] = 0;
-     }
+	mX = 0;
+	mY = 0;
+	mCurrentPlayFrameNumber = 0;
+	mSpriteFrameX = 0;
+	mSpriteFrameY = 0;
+	mFrameCount = 0;
+	mWidth = 0;
+	mHeight = 0;
+	mEffectType = 0;
+	mIsPlay = false;
+	mPlayFrameMax = 0;
+	mSpriteFrameMax = 0;
+	mAlpha = MAX_ALPHA;
+	for (int i = 0; i < MAX_TEBLE_FRAME; i++)
+	{
+		mPlayFrameTable[i] = 0;
+	}
 }
 
 /*
@@ -73,7 +73,8 @@ void Effect::start()
 @return		なし
 
 @note     再生フラグ（Playcheck）が true の場合のみ処理を実行する
-@note     アニメーションカウントを更新し、テーブルに基づいて表示するフレームを決定する
+@note
+アニメーションカウントを更新し、テーブルに基づいて表示するフレームを決定する
 @note     指定された位置に画像を描画する
 @note     アニメーションが終了すると、start 関数を呼び出して状態を初期化する
 */
@@ -92,15 +93,10 @@ void Effect::playEffectAnimation()
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, mAlpha);
 		// 現在座標を中心にして該当コマを描画する
 		DrawRectGraph(
-			 (int)(*mX) - mWidth / CUT_HALF,
-             (int)(*mY) - mHeight / CUT_HALF,
-			mWidth * mSpriteFrameX,                
-			mHeight * mSpriteFrameY,                
-			mWidth, mHeight,                   
-			Data::getInstance()->mEffectAnimationHandleArray[mEffectType], 
-			true,                   
-			FALSE
-		);
+		    (int)(*mX) - mWidth / CUT_HALF, (int)(*mY) - mHeight / CUT_HALF,
+		    mWidth * mSpriteFrameX, mHeight * mSpriteFrameY, mWidth, mHeight,
+		    Data::getInstance()->mEffectAnimationHandleArray[mEffectType], true,
+		    FALSE);
 		// 描画ブレンド設定を通常状態に戻す
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		// 次のフレームへ進める
@@ -112,5 +108,3 @@ void Effect::playEffectAnimation()
 		}
 	}
 }
-
-

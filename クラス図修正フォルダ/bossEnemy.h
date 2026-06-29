@@ -2,7 +2,7 @@
 #define __BOSSENEMY_H__
 
 #include "MinionEnemyManager.h"
-#include "enemy.h"
+#include "Enemy.h"
 // HP
 #define BOSS_ENEMY_MAX_HP_PERCENT (100)
 #define BOSS_HP_BER_MAXWIDTH (315)

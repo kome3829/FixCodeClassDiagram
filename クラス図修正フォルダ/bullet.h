@@ -4,7 +4,7 @@
 #include "Character.h"
 #include "DxLib.h"
 #include "define.h"
-#include "deta.h"
+#include "Deta.h"
 #include "math.h"
 #include "myLib/MyLib.h"
 #include "myLib/key.h"
@@ -39,7 +39,7 @@ class Bullet
 	virtual void draw();
 	virtual void start();
 
-	bool hitCheck(Character *class_p);    // 弾の当たり判定
+	void hitCheck(Character *class_p);    // 弾の当たり判定
 
 	double mX;                         // X座標
 	double mY;               // Y座標
@@ -53,6 +53,7 @@ class Bullet
 	bool mIsActive; // 有効化判定
 	double mSpeed;  // 敵弾の移動速度
 	bool mIsBossEnemy; // ボス敵か判定
+	bool mIsPlayerBullet;//プレイヤーが発射した弾なのか判定
 
   private:
 };

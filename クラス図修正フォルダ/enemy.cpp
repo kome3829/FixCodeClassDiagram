@@ -1,4 +1,4 @@
-﻿#include "enemy.h"
+﻿#include "Enemy.h"
 #include "BulletManager.h"
 
 /*
@@ -34,6 +34,7 @@ Enemy::Enemy()
 	mIsReachedBossPosition = false;
 	mIsInvincible = false;
 	mIsDamageCoolDown = false;
+	mIsWarp = false;
 }
 
 /*
@@ -56,7 +57,7 @@ Enemy::~Enemy()
 
 @note
 
-  - フラグ（FLG）が true の場合のみ処理を実行する
+  - フラグ（mIsActive）が true の場合のみ処理を実行する
   - MoveCount を用いて移動タイミングや動作を制御している
   - 画面外に出た場合は敵を消滅させる
   - ステージの種類に応じて移動処理を分岐する
@@ -225,8 +226,8 @@ void Enemy::action(int *score, BulletManager *bulletManager,
 
 @note
   - ゲームシーンの描画ループ内で実行される、敵の描画処理を行う関数
-  - フラグ（FLG）が true の場合のみ処理を実行する
-  - ダメージフラグ（dmgFlg）が true
+  - フラグ（mIsActive）が true の場合のみ処理を実行する
+  - ダメージフラグ（mIsDamageCoolDown）が true
 の場合は、一定時間ダメージ用の敵画像を表示する
   - なにもなければは通常の敵画像を表示する
 
@@ -288,23 +289,22 @@ void Enemy::start()
 	mIsReachedBossPosition = false;
 	mIsInvincible = false;
 	mIsDamageCoolDown = false;
+	mIsWarp = false;
 }
 
 /*
 @brief	敵を出現させるための初期設定を行う関数
 
-@param[in]	int 	popPositionX			:出現させるX座標
-@param[in]	int 	popPositionY			:出現させるy座標
-@param[in]	int 	number		:敵個体の判別番号
-@param[in]	bool 	isBossStage	:ボスステージ判別フラグ
+@param[in]	int 	popPositionX:出現させるX座標
+@param[in]	int 	popPositionY:出現させるy座標
+@param[in]	int 	number:敵個体の判別番号
+@param[in]	bool 	isBossStage:ボスステージ判別フラグ
 
 @return		なし
 
-@note     フラグ（FLG）を true にすることで、action 関数および draw
-関数の処理対象となる
+@note     フラグ(mIsActive)をtrueにしてaction関数及び敵クラスの関数の処理を有効にしている
 @note     引数で位置、敵の番号、ボスステージかどうかを指定できる
-@note
-ボスステージフラグ（BOSS_STAGE）に応じて、位置・番号・体力などのパラメータ設定処理を切り替える
+@note     ボスステージフラグ（BOSS_STAGE）に応じて、位置・番号・体力などのパラメータ設定処理を切り替える
 @warning
 - 本関数は、継承先の敵クラスでも共通の出現処理として使用される
 */
@@ -339,32 +339,6 @@ void Enemy::pop(int popPositionX, int popPositionY, int number,
 }
 
 /*
-@brief	敵とプレイヤー弾との当たり判定を行う関数
-
-@param[in]	Bullet* 		bullet			:通常弾クラスのインスタンスポインタ
-@param[in]	MissileBullet* 	missileBullet
-:ミサイル弾クラスのインスタンスポインタ
-@param[in]	SpecialBullet* 	specialBullet
-:スペシャル弾クラスのインスタンスポインタ
-@param[in]	HomingBullet* 	homingBullet
-:ホーミング弾クラスのインスタンスポインタ
-@param[in]	int* 			score	:ゲームスコアのポインタ
-
-@return		ヒット判定:bool :当たった　true/当たってない　false
-
-@note
-
-  - フラグ（FLG）および各プレイヤー弾のフラグ（flg）が true
-の場合のみ処理を実行する
-  - プレイヤー弾の種類に応じて処理を分岐し、それぞれ当たり判定を行う
-  - 敵と弾の位置の差をもとに一定範囲内に入った場合、ヒットと判定する
-  - ヒット判定に応じて、ダメージ処理と撃破判定を行う
-@warning
-- 本関数は、継承先の敵クラスでも共通の出現処理として使用される
-- ヒットの有無を外部で判定できるように、返り値は bool 型としている
-*/
-
-/*
 @brief	撃破SEを再生する関数。hitPlayerBullet関数で使用
 
 @param	なし
@@ -378,23 +352,44 @@ void Enemy::playSoundEffect()
 	             DX_PLAYTYPE_BACK, TRUE);
 }
 
+/*
+@brief	ダメージ処理を行う関数
+
+@param[in]	int *score:ゲームスコアのポインタ
+@param[in]	EffectManager *effectManager:エフェクト管理クラスのポインタ
+@param[in]	ItemObjectManager *itemObjectManager:アイテム管理クラスのポインタ
+@param[in]	Player *player:プレイヤークラスのポインタ
+
+@return		ヒット判定:bool :当たった　true/当たってない　false
+
+@note
+
+  - フラグ（mIsTakeDamage）が trueの場合のみ処理を実行する
+  - ヒットエフェクトの表示
+  - スコア加算
+  - ヒットポイントの減算
+  -
+HPが０以下の場合は撃破処理（スコア加算・SE再生・フラグ更新・撃破エフェクト表示）を行う
+@warning
+- 本関数は、継承先の敵クラスでも共通処理として使用される
+*/
 void Enemy::takeDamage(int *score, EffectManager *effectManager,
                        ItemObjectManager *itemObjectManager, Player *player)
 {
-	if (!mIsTakeDamage)
+	if (!mIsTakeDamage) // 有効化されていない場合処理は実行しない
 	{
 		return;
 	}
-	//ヒットエフェクトの表示
+	// ヒットエフェクトの表示
 	effectManager->setEffect(&(mX), &(mY), HIT_EF);
-	// 無敵フラグ(Unbeatable)がfalseの場合はダメージ処理・スコア加算・を行う
+	// 無敵フラグ(mIsInvincible)がfalseかつダメージ処理のインターバル中でない場合はダメージ処理・スコア加算・を行う
 	if (!mIsInvincible && !mIsDamageCoolDown)
 	{
 		*score += (int)HIT_SCORE;
 		mIsDamageCoolDown = true;
 		mHitPoint -= ENEMY_TAKE_DAMAGE;
 	}
-	mIsTakeDamage = false;
+	mIsTakeDamage = false; // ダメージ判定をfalse
 	// HPが０以下の場合は撃破処理（スコア加算・SE再生・フラグ更新）を行う
 	if (mHitPoint <= 0)
 	{
@@ -406,33 +401,30 @@ void Enemy::takeDamage(int *score, EffectManager *effectManager,
 		itemObjectManager->dropItem(mX, mY, OBJECT_EXP, player);
 		itemObjectManager->dropItem(mX, mY, OBJECT_LIFE, player);
 		itemObjectManager->dropItem(mX, mY, OBJECT_STAR, player);
-
 	}
 }
 /*
 @brief	通常敵の弾発射を管理する関数
 
 @param[in]	BulletManager *bulletManager:弾管理クラスのポインタ
-
+@param[in]	EffectManager *effectManager:エフェクト管理クラスのポインタ
 @return		なし
 
-@note      弾を発射する敵のフラグ(FLG)がtrueの場合のみ処理を実行する
-@note
-enemyクラスメンバのshotCount変数でカウントし、一定間隔で弾を発射を繰り返している
+@note      弾を発射する敵の有効化フラグ(mIsActive)がtrueの場合のみ処理を実行する
+@note      shotCount変数でカウントし、一定間隔で弾を発射を繰り返している
 @note      角度を変えながら、薙ぎ払うように連続で発射している
 @note      弾発射と同時に発射エフェクト表示と発射SEの再生も行う
 */
 void Enemy::shotEnemyBullet(BulletManager *bulletManager,
                             EffectManager *effectManager)
 {
-	if (!mIsActive)
+	if (!mIsActive)//この敵が有効化されていない場合は処理を行わない。
 	{
 		return;
 	}
 	mShotCount++; // 発射カウントの更新
 	// 60フレームから100フレームの間で10フレーム間隔で処理を実行(計5回)
-	if (mShotCount >= ENEMY_SHOT_START_FRAME &&
-	    mShotCount % 10 == 0 &&
+	if (mShotCount >= ENEMY_SHOT_START_FRAME && mShotCount % 10 == 0 &&
 	    mShotCount <= ENEMY_SHOT_STOP_FRAME)
 	{
 		// カウントをそのまま角度に変換(60～100)
@@ -441,7 +433,7 @@ void Enemy::shotEnemyBullet(BulletManager *bulletManager,
 		// 弾の設置、発射エフェクト、発射SEの再生
 
 		bulletManager->setBullet((int)mX, (int)mY, setAngle,
-		                          BULLET_TYPE::ENEMY_NOMAL, true);
+		                         BULLET_TYPE::ENEMY_NOMAL, true, false);
 
 		effectManager->setEffect(&(mX), &(mY), SHOT_EF);
 		// 発射SEの再生

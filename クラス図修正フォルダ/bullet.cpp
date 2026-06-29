@@ -21,6 +21,7 @@ Bullet::Bullet()
 	mBulletType = PLAYER_NOMAL;
 	mIsBossEnemy = false;
 	mSpeed = ENEMY_BULLET_SPEED;
+	mIsPlayerBullet = true;
 }
 
 /*
@@ -40,8 +41,8 @@ Bullet::~Bullet()
 
 @param     	なし
 @return     なし
-@note		フラグ（flg）がtrueの場合のみ処理を実行する
-@note		位置(X,Y)に速度(Vx,Vy)を加算して、移動している
+@note		フラグ（mIsActive）がtrueの場合のみ処理を実行する
+@note		位置(mX,mY)に速度(mVectorX,mVectorY)を加算して、移動している
 @note		画面外へ行くとstart関数を実行して発射前の状態へ戻している
 */
 void Bullet::action()
@@ -59,18 +60,18 @@ void Bullet::action()
 		{
 			mSpeed *= BOSS_BULLET_SPEEDDOWN;
 		}
-		// 角度から速度（Vx,Vy）を計算して設定している
+		// 角度から速度（mVectorX,mVectorY）を計算して設定している
 		mVectorX = cos(moveRadian) * mSpeed;
 		mVectorY = sin(moveRadian) * mSpeed;
 
-		// 位置(X,Y)に速度(Vx,Vy)を加算して、移動している
+		// 位置(mX,mY)に速度(mVectorX,mVectorY)を加算して、移動している
 		mX += mVectorX;
 		mY += mVectorY;
 
 	}
 	else
 	{
-		// 位置(X,Y)に速度(Vx,Vy)を加算して、移動している
+		// 位置(mX,mY)に速度(mVectorX,mVectorY)を加算して、移動している
 		mX += mVectorX;
 		mY += mVectorY;
 	}
@@ -86,12 +87,11 @@ void Bullet::action()
 /*
 @brief	描画ループで実行する描画処理を行う関数
 
-@param[in]	なし
+@param	なし
 @return		なし
 
-@note	フラグ(flg)がtrueの場合のみ処理を実行する
-@note	通常弾の画像を2つ表示する
-@warning	迫力に欠けるため表示だけ2つにしている
+@note	フラグ(mIsActive)がtrueの場合のみ処理を実行する
+@note	種類に応じた画像を表示する
 
 
 */
@@ -110,7 +110,7 @@ void Bullet::draw()
 /*
 @brief	処理開始に必要なパラーメータの初期設定や処理を行う関数
 
-@param[in]	なし
+@param	なし
 @return		なし
 */
 void Bullet::start()
@@ -124,40 +124,23 @@ void Bullet::start()
 	mIsBossEnemy = false;
 	mSpeed = ENEMY_BULLET_SPEED;
 	mBulletType = PLAYER_NOMAL;
+	mIsPlayerBullet = true;
 }
 
-/*
-@brief	弾の発射に必要な位置や角度などの設定を行う関数
 
-@param[in]	int setpositionX:設定するx座標
-@param[in]	int setpositionY:設定するy座標
-@param[in]	int setAngle:設定する角度
-
-@return		実行の成否
-@note   実行時 ture/ 失敗時 false
-@note	フラグ（flg）が true の場合は再設定を行わず false を返す
-@note	フラグ(flg)をtrueにしてaction関数及びdraw関数の処理を有効にしている
-@note	引数で渡された位置・角度をもとに各パラメータを設定する
-@warning
-
-- すでに発射中かどうかを判定できるように、返り値は bool 型としている
-
--
-※角度から速度を設定するが、通常弾は画面上向きで発射するので角度の引数は使用していない
-*/
 /*
 @brief	弾の当たり判定を行う関数
 
 @param[in]	Character *class_p:当たり判定をとるクラスのポインタ
 
-@note	弾と当たり判定を行うクラスとの距離で距離で判定
+@note	弾と当たり判定を行うクラスとの距離で判定
 @note	引数でクラスポインタから座標とサイズを参照している
 */
-bool Bullet::hitCheck(Character *class_p)
+void Bullet::hitCheck(Character *class_p)
 {
 	if (!mIsActive||!class_p->mIsActive)
 	{
-		return false;
+		return ;
 	}
 	// 弾と当たり判定をとるクラスとの距離を計算
 	int distX = abs((int)(class_p->mX - mX));
@@ -176,8 +159,6 @@ bool Bullet::hitCheck(Character *class_p)
 		{
 			class_p->mIsTakeDamage = true; // ダメージ判定を有効
 		}
-		return true;
 	}
-	return false;
 }
 

@@ -2,7 +2,7 @@
 #include"math.h"
 #include"define.h"
 #include "DxLib.h"
-#include"deta.h"
+#include"Deta.h"
 
 // EXPアイテム
 #define OBJECT_EXP_FAST_SPEED       (8.0)

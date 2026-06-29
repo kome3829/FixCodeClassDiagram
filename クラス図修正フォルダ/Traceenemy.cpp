@@ -30,6 +30,7 @@ TraceEnemy::TraceEnemy()
 	mIsReachedBossPosition = false;
 	mIsInvincible = false;
 	mIsDamageCoolDown = false;
+	mIsWarp = false;
 }
 
 /*
@@ -54,14 +55,14 @@ TraceEnemy::~TraceEnemy()
 
 @note
 
-- フラグ(FLG)がtrueの場合のみ処理を実行する
+- フラグ(mIsActive)がtrueの場合のみ処理を実行する
 - MoveCount を用いて移動タイミングや動作を制御している
 - ステージに応じて処理を分岐している
 
 1. 通常ステージ
     - 出現してからy=100の位置までは降下移動をする
     - 降下移動後はプレイヤーを追いかける移動をする
-    - 画面外へ行くとフラグ(FLG)をfalseにし撃破フラグ(Defeat)をtrueにする
+    - 画面外へ行くとフラグ(mIsActive)をfalseにし撃破フラグ(mIsDefeat)をtrueにする
 
 2. ボスステージ
     - ボスに召喚されて指定位置まで移動する
@@ -78,8 +79,8 @@ void TraceEnemy::action(int playerX, int playerY, int *score,
 		return;
 	}
 	takeDamage(score, effectManager, itemObject, player); // ダメージ処理
-	shotTraceEnemyBullet(bulletManager, effectManager); // 弾発射処理
-	mMoveCount++;      // 移動カウントの更新
+	shotTraceEnemyBullet(bulletManager, effectManager);   // 弾発射処理
+	mMoveCount++;                                         // 移動カウントの更新
 
 	if (!mIsBossStage)
 	{
@@ -221,8 +222,8 @@ void TraceEnemy::action(int playerX, int playerY, int *score,
 @param	なし
 @return		なし
 
-@note      フラグ(FLG)がtrueの場合のみ処理を実行する
-@note      ダメージフラグ(dmgFlg)がtrueの場合はダメージ用の画像を表示する
+@note      フラグ(mIsActive)がtrueの場合のみ処理を実行する
+@note      ダメージフラグ(mIsDamageCoolDown)がtrueの場合はダメージ用の画像を表示する
 @note      なにもなければ、通常の追従敵の画像を表示する
 
 */
@@ -286,28 +287,26 @@ void TraceEnemy::start()
 	mIsReachedBossPosition = false;
 	mIsInvincible = false;
 	mIsDamageCoolDown = false;
+	mIsWarp = false;
 }
 /*
 @brief	追従する敵の弾発射を管理する関数
 
 @param[in]	BulletManager *bulletManager:弾管理クラスのポインタ
-
+@param[in]	EffectManager *effectManager:エフェクト管理クラスのポインタ
 @return		なし
 
-@note      弾を発射する敵のフラグ(FLG)がtrueの場合のみ処理を実行する
-@note
-traceEnemyクラスメンバのshotCount変数でカウントし、一定間隔で弾の発射を繰り返している
+@note      弾を発射する敵の有効化フラグ(mIsActive)がtrueの場合のみ処理を実行する
+@note      shotCount変数でカウントし、一定間隔で弾の発射を繰り返している
 @note      ４方向から同時に弾を発射する
 @note      角度を変えながら、薙ぎ払うように連続で発射している
 @note      弾発射と同時に発射エフェクト表示と発射SEの再生も行う
-
-@note　2重ループのfor分には変数ｊではなくkを使用している。iとjが見分けずらいので。３重の場合はlを使用
 
 */
 void TraceEnemy::shotTraceEnemyBullet(BulletManager *bulletManager,
                                       EffectManager *effectManager)
 {
-	if (!mIsActive)
+	if (!mIsActive) // この敵が有効化されていない場合は処理を行わない。
 	{
 		return;
 	}
@@ -324,11 +323,10 @@ void TraceEnemy::shotTraceEnemyBullet(BulletManager *bulletManager,
 			// ループ回数から発射角度９０度ずつを変更
 			int setAngleDistance = (i + 1) * TRACE_ENEMY_SHOT_BASE_ANGLE;
 
-			bulletManager->setBullet(
-			    (int)mX, (int)mY,
-			    setAngleDistance + mShotCount -
-			        TRACE_ENEMY_SHOT_START_FRAME,
-			    ENEMY_NOMAL, true);
+			bulletManager->setBullet((int)mX, (int)mY,
+			                         setAngleDistance + mShotCount -
+			                             TRACE_ENEMY_SHOT_START_FRAME,
+			                         ENEMY_NOMAL, true, false);
 
 			effectManager->setEffect(&(mX), &(mY), SHOT_EF);
 		}

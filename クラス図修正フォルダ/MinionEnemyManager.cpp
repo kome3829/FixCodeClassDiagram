@@ -1,5 +1,14 @@
 ﻿#include "MinionEnemyManager.h"
+/*
+@brief	コンストラクタ
 
+@param	なし
+@return		なし
+
+@note     各雑魚敵クラスのインスタンスを生成している
+@note      各種初期設定。クラス生成の際に必要なパラメータはすべて設定する
+@note      ゴミ値が入らないように各変数を初期化を行う
+*/
 MinionEnemyManager::MinionEnemyManager()
 {
 	for (int i = 0; i < MAX_ENEMY_COUNT; i++)
@@ -16,6 +25,15 @@ MinionEnemyManager::MinionEnemyManager()
 	mChargeEnemyPopCount = 0;
 	mEnemyPopPattern = NOMAL_ENEMY;
 }
+/*
+@brief	デストラクタ
+
+@param	なし
+@return		なし
+
+@note
+インスタンス生成した 全ての雑魚敵クラスのdeleteを行い、メモリの開放を行う
+*/
 
 MinionEnemyManager::~MinionEnemyManager()
 {
@@ -30,7 +48,13 @@ MinionEnemyManager::~MinionEnemyManager()
 		mChargeEnemies[i] = nullptr;
 	}
 }
+/*
+@brief	メインループで実行する更新処理を行う関数
 
+@param     	なし
+@return     なし
+@note		生成した全ての雑魚敵クラスの更新処理を行う
+*/
 void MinionEnemyManager::action(Player *player_p, int *score,
                                 BulletManager *bulletManager,
                                 EffectManager *effectManager,
@@ -47,7 +71,15 @@ void MinionEnemyManager::action(Player *player_p, int *score,
 		                          itemObjectManager);
 	}
 }
+/*
+@brief	描画ループで実行する描画処理を行う関数
 
+@param	なし
+@return		なし
+
+@note	生成した全ての雑魚敵クラスの描画処理を行う
+
+*/
 void MinionEnemyManager::draw()
 {
 	// 雑魚敵の表示処理
@@ -58,7 +90,14 @@ void MinionEnemyManager::draw()
 		mChargeEnemies[i]->draw();
 	}
 }
+/*
+@brief	処理開始に必要なパラーメータの初期設定や処理を行う関数
 
+@param	なし
+@return		なし
+@note	生成した全ての雑魚敵クラスの初期設定や処理を行う
+
+*/
 void MinionEnemyManager::start()
 {
 	// 雑魚敵の表示処理
@@ -78,12 +117,7 @@ void MinionEnemyManager::start()
 	mEnemyPopPattern = NOMAL_ENEMY;
 }
 
-//bool MinionEnemyManager::takeDamageMinionEnemy(
-//    EffectManager *effectManager_p, int *score,
-//    ItemObjectManager *itemobjectManager_p)
-//{
-//	return false;
-//}
+
 
 /*
 @brief	通常敵の出現を管理する関数
@@ -302,6 +336,18 @@ bool MinionEnemyManager::checkAllChargeEnemyDefeat()
 	return true;
 }
 
+/*
+@brief	雑魚敵の出現パターンを管理を行う
+
+@param	なし
+@return		なし
+@note	撃破判定関数の実行によって出現パターンを切り替えている
+@note   出現パターン(mEnemyPattern)に応じて処理を分岐している
+        1. CHARGE　チャージ攻撃敵を出現
+        2. NOMAL　 通常敵を出現
+        3. TRACE	 追従敵とチャージ敵を出現
+
+*/
 bool MinionEnemyManager::MinionEnemyPop()
 {
 	switch (mEnemyPopPattern) // 出現パターンで切り替え
@@ -310,8 +356,6 @@ bool MinionEnemyManager::MinionEnemyPop()
 		// チャージ敵の出現処理
 		popChargeEnemy();
 		// 全ての敵の撃破確認。撃破が確認できると次の出現パターン
-		// 出現数(CenemyNumber)が最大値かつ全出現敵撃破判定関数がtrue
-
 		if (checkAllChargeEnemyDefeat())
 		{
 			// 出現パターンを変更、チャージ敵出現数カウントの初期化
@@ -331,7 +375,6 @@ bool MinionEnemyManager::MinionEnemyPop()
 		// 通常敵の出現処理
 		popEnemy();
 		// 全ての敵の撃破確認。撃破が確認できると次の出現パターン
-		// 出現数(enemyNumber)が最大値かつ全出現敵撃破判定関数がtrue
 		if (checkAllEnemyDefeat())
 		{
 			mEnemyPopPattern = CHARGE_ENEMY; // 出現パターンを変更
@@ -345,8 +388,6 @@ bool MinionEnemyManager::MinionEnemyPop()
 		popTraceEnemy();
 
 		// 全ての敵の撃破確認。撃破が確認できるとボス出現演出
-		// 出現数(CenemyNumber,TenemyNumber)が最大値かつ全出現敵撃破判定関数がtrue
-
 		if (checkAllTraceEnemyDefeat() && checkAllChargeEnemyDefeat())
 		{
 			return true;

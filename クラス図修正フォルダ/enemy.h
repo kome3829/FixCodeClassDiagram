@@ -1,17 +1,17 @@
 ﻿#ifndef __ENEMY_H__
 #define __ENEMY_H__
 
-#include "math.h"
-#include "DxLib.h"
-#include "define.h"
-#include "deta.h"
-#include "myLib/MyLib.h"
-#include "myLib/key.h"
 #include "Character.h"
-#include "player.h"
+#include "Deta.h"
+#include "DxLib.h"
 #include "EffectManager.h"
 #include "ItemObjectManager.h"
-class BulletManager;//関数の引数利用のための前提宣言
+#include "Player.h"
+#include "define.h"
+#include "math.h"
+#include "myLib/MyLib.h"
+#include "myLib/key.h"
+class BulletManager; // 関数の引数利用のための前提宣言
 
 // --- 移動フレーム制御 ---
 #define MOVE_INTERVAL_FRAME (2)
@@ -49,37 +49,35 @@ class Enemy : public Character
 	void start();
 	void pop(int popPositionX, int popPositionY, int number,
 	         bool isBossStage); // 出現処理
-	void playSoundEffect();                        // 死亡SEの再生
+	void playSoundEffect();     // 死亡SEの再生
 
-	int mNumber;                  // 識別用番号
-	double mVectorX;              // Xベクトル
-	double mVectorY;              // Yベクトル
-	int mHitPoint;                // 体力
+	int mNumber;     // 識別用番号
+	double mVectorX; // Xベクトル
+	double mVectorY; // Yベクトル
+	int mHitPoint;   // 体力
 
-	bool mIsDamageCoolDown;		//ダメージ無効判定
+	bool mIsDamageCoolDown;       // ダメージ無効判定
 	int mMoveCount;               // 移動カウント
 	bool mIsDefeat;               // 撃破判定
 	int mShotCount;               // 発射カウント
 	int mDamageDisplayCount;      // ダメージ表示カウント
 	bool mIsReachedStartPosition; // 追従敵の登場移動判定
 	bool mIsBossStage;            // ボスステージ判定
-	bool mIsReachedBossPosition; // ボスステージの移動位置についたか判定
-	bool mIsInvincible; // 無敵判定　ボス戦のチャージ敵のみ使用
-	int mAlpha;         // 画像のα値
-	double mArcMotionAngle;  // 円運動　角度
-	double mArcMotionRadius; // 円運動　半径
+	bool mIsReachedBossPosition;  // ボスステージの移動位置についたか判定
+	bool mIsInvincible;           // 無敵判定　ボス戦のチャージ敵のみ使用
+	int mAlpha;                   // 画像のα値
+	double mArcMotionAngle;       // 円運動　角度
+	double mArcMotionRadius;      // 円運動　半径
 
-	//ダメージ処理
-	void takeDamage(int *score, EffectManager *effectManager,ItemObjectManager *itemObjectManager,Player *player);
-	/// <summary>
-	/// 敵弾発射関数
-	/// </summary>
-	/// <param name="enemy=Enemyクラスのポインタ"></param>
-	void shotEnemyBullet(BulletManager *bulletManager,EffectManager *effectManager);
+	bool mIsWarp;	//ワープ最中か判定
+
+	// ダメージ処理
+	void takeDamage(int *score, EffectManager *effectManager,
+	                ItemObjectManager *itemObjectManager, Player *player);
+	// 通常敵弾発射関数
+	void shotEnemyBullet(BulletManager *bulletManager,
+	                     EffectManager *effectManager);
 
   private:
 };
 #endif // !__ENEMY_H__
-
-
-

@@ -1,4 +1,4 @@
-﻿#include "bossEnemy.h"
+﻿#include "BossEnemy.h"
 #include "BulletManager.h"
 #include "EffectManager.h"
 /*
@@ -50,6 +50,8 @@ BossEnemy::BossEnemy()
 		mIsExecuteProcess[i] = FALSE;
 	}
 	mMoveTargetAngle = 0;
+	mIsWarp = false;
+	mIsTakeDamage = false;
 }
 
 /*
@@ -172,45 +174,52 @@ void BossEnemy::action(int *score, BulletManager *bulletManager,
 */
 void BossEnemy::draw()
 {
-	if (mIsActive)
+	if (!mIsActive)
 	{
-		// 撃破された場合
-		if (mIsDefeat)
+		return;
+	}
+	// 撃破された場合
+	if (mIsDefeat)
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, mAlpha);
+		DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
+		          Data::getInstance()->mBossImageHandle,
+		          TRUE);                           // 透過度を反映させた画像表示
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // 透過度のリセット
+	}
+	else if (mIsWarp)//ワープ演出中の場合
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, mAlpha);
+		DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
+		          Data::getInstance()->mBossDamageImageHandle,
+		          TRUE);                           // ダメージ用画像の表示
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // 透過度のリセット
+
+	}
+	else
+	{
+		// ダメージを受けた場合
+		if (mIsDamageCoolDown)
 		{
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, mAlpha);
 			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
-			          Data::getInstance()->mBossImageHandle,
-			          TRUE); // 透過度を反映させた画像表示
+			          Data::getInstance()->mBossDamageImageHandle,
+			          TRUE);                           // ダメージ用画像の表示
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // 透過度のリセット
+
+			// カウントを行い、ダメージ画像の表示フレームを制限する
+			mDamageDisplayCount++;
+			if (mDamageDisplayCount > DAMAGE_COUNT_LIMIT)
+			{
+				mIsDamageCoolDown = false;
+				mDamageDisplayCount = 0;
+			}
 		}
 		else
 		{
-			// ダメージを受けた場合
-			if (mIsDamageCoolDown)
-			{
-				// 修正案。ダメージ時のアルファブレンドは要らない可能性があるかも
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, mAlpha);
-				DrawGraph((int)mX - mWidth / CUT_HALF,
-				          (int)mY - mHeight / CUT_HALF,
-				          Data::getInstance()->mBossDamageImageHandle,
-				          TRUE); // ダメージ用画像の表示
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // 透過度のリセット
-
-				// カウントを行い、ダメージ画像の表示フレームを制限する
-				mDamageDisplayCount++;
-				if (mDamageDisplayCount > DAMAGE_COUNT_LIMIT)
-				{
-					mIsDamageCoolDown = false;
-					mDamageDisplayCount = 0;
-				}
-			}
-			else
-			{
-				// 通常表示
-				DrawGraph((int)mX - mWidth / CUT_HALF,
-				          (int)mY - mHeight / CUT_HALF,
-				          Data::getInstance()->mBossImageHandle, TRUE);
-			}
+			// 通常表示
+			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
+			          Data::getInstance()->mBossImageHandle, TRUE);
 		}
 	}
 }
@@ -261,6 +270,8 @@ void BossEnemy::start()
 	{
 		mIsExecuteProcess[i] = FALSE;
 	}
+	mIsWarp = false;
+	mIsTakeDamage = false;
 }
 
 /*
@@ -573,7 +584,7 @@ void BossEnemy::warpMoveFourPoint(EffectManager *effectManager)
 	else if (mMoveCount <= MOVE_PHASE4_END && mMoveCount > MOVE_PHASE3_END)
 	{
 		// ダメージ画像を表示するため,ダメージフラグをtrue
-		mIsTakeDamage = true;
+		mIsWarp = true;
 		// 弾の発射カウントのリセット
 		mShotBulletCount = 0;
 		mShotMiniBulletCount = 0;
@@ -635,6 +646,7 @@ void BossEnemy::warpMoveFourPoint(EffectManager *effectManager)
 		mShotBulletCount = 0;
 		mShotMiniBulletCount = 0;
 		mMoveCount = 0;
+		mIsWarp = false;
 		mAlpha = ALPHA_MAX;
 	}
 }
@@ -699,7 +711,7 @@ void BossEnemy::warpAndAttackMove(EffectManager *effectManager)
 	         mMoveCount <= WARP1_END_FRAME) // 281f～330fの間でワープ
 	{
 		// ダメージ画像を表示するため,ダメージフラグをtrue
-		mIsTakeDamage = true;
+		mIsWarp = true;
 		// 弾の発射カウントのリセット
 		mShotBulletCount = 0;
 		mShotMiniBulletCount = 0;
@@ -729,6 +741,8 @@ void BossEnemy::warpAndAttackMove(EffectManager *effectManager)
 		mY = BOSS_WARP_TOP_POINT_Y;
 		// 透過度の設定
 		mAlpha = ALPHA_MAX;
+		mIsWarp = false;
+
 	}
 	// 330f～600fの間では攻撃中なので移動処理はなし
 	// 600f～700fの間もう一度ワープの準備
@@ -747,7 +761,7 @@ void BossEnemy::warpAndAttackMove(EffectManager *effectManager)
 		if (mMoveCount > WARP2_DAMAGE_START_FRAME)
 		{
 			// ダメージ画像を表示するため,ダメージフラグをtrue
-			mIsTakeDamage = true;
+			mIsWarp = true;
 		}
 		// ワープ開始
 		// 674フレーム目で実行
@@ -806,6 +820,8 @@ void BossEnemy::warpAndAttackMove(EffectManager *effectManager)
 		}
 		// アルファ値の初期化
 		mAlpha = ALPHA_MAX;
+		mIsWarp = false;
+
 	}
 	// ワープ後、その位置で左右移動
 	// ワープから40フレームの間行動しない
@@ -1113,7 +1129,7 @@ void BossEnemy::shotBossEnemyBullet(BulletManager *bulletManager,
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 
 					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
-					                         ENEMY_MINI_YELLOW, false);
+					                         ENEMY_MINI_YELLOW, false, false);
 				}
 				// 発射カウントのリセット
 				mShotMiniBulletCount = 0;
@@ -1187,7 +1203,7 @@ void BossEnemy::shotBossEnemyBullet(BulletManager *bulletManager,
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 
 					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
-					                         ENEMY_MINI_YELLOW, false);
+					                         ENEMY_MINI_YELLOW, false, false);
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
@@ -1247,7 +1263,7 @@ void BossEnemy::shotBossEnemyBullet(BulletManager *bulletManager,
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 
 					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
-					                         ENEMY_MINI_YELLOW, false);
+					                         ENEMY_MINI_YELLOW, false, false);
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
@@ -1267,7 +1283,7 @@ void BossEnemy::shotBossEnemyBullet(BulletManager *bulletManager,
 					ringBulletAngle = i * BOSS_NOMAL_SHOT_ANGLE_STEP;
 
 					bulletManager->setBullet((int)mX, (int)mY, ringBulletAngle,
-					                         ENEMY_NOMAL, true);
+					                         ENEMY_NOMAL, true, false);
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
@@ -1295,8 +1311,7 @@ void BossEnemy::shotBossEnemyBullet(BulletManager *bulletManager,
 				// 爆破エフェクトの表示
 				// 重ならないようにループ回数によって位置を変更
 
-				effectManager->setEffect(&(mX), &(mY),
-				                         EXPLOSION_EF);
+				effectManager->setEffect(&(mX), &(mY), EXPLOSION_EF);
 
 				// カウントのリセット、フラグの切り替え
 				mIsExecuteProcess[THIRD_EXECUTE] = TRUE;
@@ -1330,7 +1345,7 @@ void BossEnemy::shotBossEnemyBullet(BulletManager *bulletManager,
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP;
 
 					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
-					                         ENEMY_MINI_YELLOW, false);
+					                         ENEMY_MINI_YELLOW, false, false);
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
@@ -1349,7 +1364,7 @@ void BossEnemy::shotBossEnemyBullet(BulletManager *bulletManager,
 					miniBulletAngle = i * BOSS_MINI_SHOT_ANGLE_STEP +
 					                  BOSS_MINI_BURST_OFFSET_ANGLE;
 					bulletManager->setBullet((int)mX, (int)mY, miniBulletAngle,
-					                         ENEMY_MINI_YELLOW, false);
+					                         ENEMY_MINI_YELLOW, false, false);
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
@@ -1367,7 +1382,7 @@ void BossEnemy::shotBossEnemyBullet(BulletManager *bulletManager,
 					// 12度毎に角度を変更
 					ringBulletAngle = i * BOSS_NOMAL_SHOT_ANGLE_STEP;
 					bulletManager->setBullet((int)mX, (int)mY, ringBulletAngle,
-					                         ENEMY_NOMAL, true);
+					                         ENEMY_NOMAL, true, false);
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,

@@ -1,4 +1,4 @@
-﻿#include "result.h"
+﻿#include "Result.h"
 /*
 @brief	コンストラクタ
 

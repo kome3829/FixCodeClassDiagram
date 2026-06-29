@@ -186,11 +186,10 @@ int GameMainScene::action()
 	switch (mStageType)
 	{
 	case TEST_STAGE:
-		// PopCenemy();
 		break;
 
 	case NOMAL_STAGE: // 雑魚敵ステージ
-		if (mMinionEnemyManager->MinionEnemyPop())
+		if (mMinionEnemyManager->MinionEnemyPop())//雑魚敵出現管理関数の呼び出し。処理を完了するとtrue
 		{
 			mIsBossAlert = true;
 		}
@@ -220,7 +219,7 @@ int GameMainScene::action()
 		break;
 
 	case BOSS_STAGE: // ボスステージ
-
+		mPlayer->mIsUnbeatable = true;
 		// ボス撃破の判定、撃破演出処理
 		if (mBoss->mIsDefeat)
 		{
@@ -377,10 +376,6 @@ void GameMainScene::start()
 	mItemObjectManager->start();
 
 }
-
-
-
-
 
 /*
 @brief	ボス撃破演出を行う関数

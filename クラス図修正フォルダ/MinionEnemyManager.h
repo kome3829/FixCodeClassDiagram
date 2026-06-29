@@ -3,11 +3,11 @@
 
 #include "DxLib.h"
 #include "Traceenemy.h"
-#include "chargeEnemy.h"
+#include "ChargeEnemy.h"
 #include "define.h"
-#include "deta.h"
-#include "enemy.h"
-#include "player.h"
+#include "Deta.h"
+#include "Enemy.h"
+#include "Player.h"
 #include "EffectManager.h"
 
 enum ENEMY_POP_PATTERN

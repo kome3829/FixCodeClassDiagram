@@ -1,4 +1,4 @@
-﻿#include "deta.h"
+﻿#include "Deta.h"
 /*
 @brief	コンストラクタ
 

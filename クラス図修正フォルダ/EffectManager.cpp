@@ -1,5 +1,13 @@
 ﻿#include "EffectManager.h"
+/*
+@brief	コンストラクタ
 
+@param	なし
+@return		なし
+
+@note      エフェクトクラスのインスタンスを生成している
+
+*/
 EffectManager::EffectManager()
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER;i++)
@@ -7,7 +15,15 @@ EffectManager::EffectManager()
 		mEffects[i] = new Effect();
 	}
 }
+/*
+@brief	デストラクタ
 
+@param	なし
+@return		なし
+
+@note
+インスタンス生成した エフェクトクラスのdeleteを行い、メモリの開放を行う
+*/
 EffectManager::~EffectManager()
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -17,7 +33,14 @@ EffectManager::~EffectManager()
 
 	}
 }
+/*
+@brief	処理開始に必要なパラーメータの初期設定や処理を行う関数
 
+@param	なし
+@return		なし
+@note	生成した全てのエフェクトクラスの初期設定や処理を行う
+
+*/
 void EffectManager::start()
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -26,6 +49,14 @@ void EffectManager::start()
 	}
 }
 
+/*
+@brief	エフェクトアニメーションの更新および描画処理を行う関数
+
+@param		なし
+@return		なし
+
+@note     生成した全てのエフェクトクラスの更新および描画処理を行う
+*/
 void EffectManager::playEffectAnimation()
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -43,12 +74,10 @@ void EffectManager::playEffectAnimation()
 @return		なし
 
 @note     引数で渡された位置と種類をもとに、対象のエフェクトを設定する
-@note     再生フラグ（mIsPlay）が true
-の場合は、すでに再生中のため設定を行わない
+@note     再生フラグ（mIsPlay）が trueの場合は、すでに再生中のため設定を行わない
 @note
 エフェクトの種類応じて処理を分岐して、サイズ・フレーム数・アニメーションテーブルなどのパラメータを設定する
-@note     設定後、再生フラグ（mIsPlay）を true
-にし、アニメーション再生を開始する状態にする
+@note     設定後、再生フラグ（mIsPlay）を trueにし、アニメーション再生を開始する状態にする
 @warning
 - 位置変数は常に更新されるためぽいんたで直接参照している
 
@@ -142,6 +171,7 @@ void EffectManager::setEffect(double *setPositionX, double *setPositionY,
 void EffectManager::setParameter(Effect *effect, const int playFrameTable[],
                                  int effectType)
 {
+	//各パラメータの設定
 	effect->mWidth = mEffectWidthList[effectType];
 	effect->mHeight = mEffectHightList[effectType];
 	effect->mSpriteFrameMax = mEffectSpriteFrameMaxList[effectType];

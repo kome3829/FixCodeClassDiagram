@@ -1,11 +1,11 @@
 ﻿#ifndef __GAMEMAINSCENE_H__
 #define __GAMEMAINSCENE_H__
 
-#include "basicScene.h"
+#include "BasicScene.h"
 #include "BulletManager.h"
-#include "MinionEnemyManager.h"
 #include "EffectManager.h"
 #include "ItemObjectManager.h"
+#include "MinionEnemyManager.h"
 // --- フェード演出 ---
 #define FADE_OUT_SPEED (3)
 #define REDBG_FADEOUT_COUNT_MAX (3)
@@ -71,12 +71,12 @@ enum STAGE // ステージパターン　
 	TEST_STAGE,
 };
 
-//enum ENEMY_POP_PATTERN // 雑魚敵出現パターン　
+// enum ENEMY_POP_PATTERN // 雑魚敵出現パターン　
 //{
 //	NOMAL_ENEMY,
 //	TRACE_ENEMY,
 //	CHARGE_ENEMY,
-//};
+// };
 
 class GameMainScene : public BasicScene
 {
@@ -90,25 +90,23 @@ class GameMainScene : public BasicScene
   private:
 	//---各クラスポインタ---
 	// キャラ
-	Player *mPlayer;                              // プレイヤー
-	BossEnemy *mBoss;                             // ボス敵
+	Player *mPlayer;  // プレイヤー
+	BossEnemy *mBoss; // ボス敵
 	// 管理関数
-	BulletManager *mBulletManager;	//弾管理クラス
-	MinionEnemyManager *mMinionEnemyManager;//雑魚敵管理クラス
-	EffectManager *mEffectManager;//エフェクト管理クラス
-	ItemObjectManager *mItemObjectManager;//アイテムオブジェクト管理クラス
-
+	BulletManager *mBulletManager;           // 弾管理クラス
+	MinionEnemyManager *mMinionEnemyManager; // 雑魚敵管理クラス
+	EffectManager *mEffectManager;           // エフェクト管理クラス
+	ItemObjectManager *mItemObjectManager; // アイテムオブジェクト管理クラス
 
 	//---ボス敵の演出に関わる変数---
 
-	int mRedBGFadeOutCount; // ボス出現演出回数カウント
-	int mBossExploEFCount;  // 爆発エフェクト再生回数カウント
+	int mRedBGFadeOutCount;        // ボス出現演出回数カウント
+	int mBossExploEFCount;         // 爆発エフェクト再生回数カウント
 	int mBossExploEFIntervalCount; // 爆発エフェクト再生間隔カウント
-	bool mIsBossAlert; // ボスアラート演出+ダメージ演出判定　赤背景
-	int mRedBGAlpha; // 赤背景　透過度
+	bool mIsBossAlert;             // ボスアラート演出+ダメージ演出判定　赤背景
+	int mRedBGAlpha;               // 赤背景　透過度
 	double randomExplositionPositionX; // 撃破爆発演出X座標
 	double randomExplositionPositionY; // 撃破爆発演出Y座標
-
 
 	//------------------------------
 	//---ゲーム進行に関わる変数---

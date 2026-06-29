@@ -4,14 +4,15 @@
 #include"myLib/key.h"
 #include "math.h"
 #include "define.h"
-#include "deta.h"
-#include "player.h"
-#include "enemy.h"
+#include "Deta.h"
+#include "Player.h"
+#include "Enemy.h"
 #include"Traceenemy.h"
-#include"bossEnemy.h"
-#include"chargeEnemy.h"
-#include"bullet.h"
-#include"efect.h"
+#include"BossEnemy.h"
+#include"ChargeEnemy.h"
+#include"Bullet.h"
+#include "Effect.h"
+
 class BasicScene
 {
 public:

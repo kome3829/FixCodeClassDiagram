@@ -1,4 +1,4 @@
-﻿#include "chargeEnemy.h"
+﻿#include "ChargeEnemy.h"
 #include "BulletManager.h"
 /*
 @brief	コンストラクタ
@@ -31,6 +31,7 @@ ChargeEnemy::ChargeEnemy()
 	mAlpha = MAX_ALPHA;
 	mArcMotionAngle = 0.0f;
 	mIsDamageCoolDown = false;
+	mIsWarp = false;
 }
 
 /*
@@ -50,7 +51,7 @@ ChargeEnemy::~ChargeEnemy()
 
 @param     	なし
 @return     なし
-@note		フラグ（flg）がtrueの場合のみ処理を実行する
+@note		フラグ（mIsActive）がtrueの場合のみ処理を実行する
 @note		画面外でのフラグを管理
 @note		ステージに応じて、移動処理を分岐している
 
@@ -69,16 +70,17 @@ ChargeEnemy::~ChargeEnemy()
 */
 void ChargeEnemy::action(int *score, BulletManager *bulletManager,
                          Player *player, EffectManager *effectManager,
-                         ItemObjectManager *itemObject)
+                         ItemObjectManager *itemObjectManager)
 {
 	if (!mIsActive)
 	{
 		return;
 	}
-	takeDamage(score, effectManager, itemObject,player);                // ダメージ処理
-	shotChargeEnemyBullet(bulletManager, player, effectManager); // 弾発射処理
-	mMoveCount++;      // 移動カウントの更新
-	                   // 通常ステージの処理
+	takeDamage(score, effectManager, itemObjectManager, player); // ダメージ処理
+	shotChargeEnemyBullet(bulletManager, player, effectManager,
+	                      itemObjectManager); // 弾発射処理
+	mMoveCount++;                             // 移動カウントの更新
+	                                          // 通常ステージの処理
 	if (!mIsBossStage)
 	{
 		if (mMoveCount % MOVE_INTERVAL_FRAME == 0) // ２フレームに一回移動
@@ -222,8 +224,8 @@ void ChargeEnemy::action(int *score, BulletManager *bulletManager,
 		// ワープ移動(280～330フレームの間)
 		else if (mMoveCount > WARP_START_FRAME && mMoveCount <= WARP_END_FRAME)
 		{
-			// ダメージ用画像を表示するため、ダメージフラグをtrue
-			mIsTakeDamage = true;
+			// ダメージ用画像を表示するため、ワープフラグをtrue
+			mIsWarp = true;
 
 			// ワープ演出の開始(304フレーム時)
 			if (mMoveCount == WARP_TRIGGER_FRAME)
@@ -242,6 +244,7 @@ void ChargeEnemy::action(int *score, BulletManager *bulletManager,
 		// 円運動開始フレーム(331フレーム)
 		if (mMoveCount == ARC_MOVE_START_FRAME)
 		{
+			mIsWarp = false;//ワープ最中フラグをfalseに
 			if (mNumber == SUMMON_LEFT) // 左側
 			{
 				// ワープ移動
@@ -287,39 +290,52 @@ void ChargeEnemy::action(int *score, BulletManager *bulletManager,
 @param[in]	なし
 @return		なし
 
-@note	フラグ(flg)がtrueの場合のみ処理を実行する
-@note	ダメージフラグ(dmgFlg)がtrueの場合はダメージ用の画像を表示する
+@note	フラグ(mIsActive)がtrueの場合のみ処理を実行する
+@note
+ダメージフラグ(mIsDamageCoolDown)がtrueの場合はダメージ用の画像を表示する
 @note	なにもなければ、通常のチャージ攻撃敵の画像を表示する
 */
 void ChargeEnemy::draw()
 {
-	if (mIsActive)
+	if (!mIsActive)
 	{
-		if (mIsDamageCoolDown)
-		{
-			mDamageDisplayCount++; // ダメージ表示カウントの更新
+		return;
+	}
+	if (mIsDamageCoolDown)
+	{
+		mDamageDisplayCount++; // ダメージ表示カウントの更新
 
-			// ワープ移動の演出のため、アルファ値の設定
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, mAlpha);
-			// ダメージ画像の表示
-			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
-			          Data::getInstance()->mEnemyDamageImageHandle, TRUE);
-			// アルファ値のリセット
-			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-			// ダメージ画像表示フレームを制限
-			if (mDamageDisplayCount > DAMAGE_COUNT_LIMIT)
-			{
-				// ダメージフラグ、カウントのリセット
-				mIsDamageCoolDown = false;
-				mDamageDisplayCount = 0;
-			}
-		}
-		else
+		// ワープ移動の演出のため、アルファ値の設定
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, mAlpha);
+		// ダメージ画像の表示
+		DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
+		          Data::getInstance()->mEnemyDamageImageHandle, TRUE);
+		// アルファ値のリセット
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		// ダメージ画像表示フレームを制限
+		if (mDamageDisplayCount > DAMAGE_COUNT_LIMIT)
 		{
-			// 通常画像の表示
-			DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
-			          Data::getInstance()->mChargeEnemyImageHandle, TRUE);
+			// ダメージフラグ、カウントのリセット
+			mIsDamageCoolDown = false;
+			mDamageDisplayCount = 0;
 		}
+	}
+	else if (mIsWarp)
+	{
+		// ワープ移動の演出のため、アルファ値の設定
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, mAlpha);
+		// ダメージ画像の表示
+		DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
+		          Data::getInstance()->mEnemyDamageImageHandle, TRUE);
+		// アルファ値のリセット
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+
+	else
+	{
+		// 通常画像の表示
+		DrawGraph((int)mX - mWidth / CUT_HALF, (int)mY - mHeight / CUT_HALF,
+		          Data::getInstance()->mChargeEnemyImageHandle, TRUE);
 	}
 }
 
@@ -351,19 +367,21 @@ void ChargeEnemy::start()
 	mAlpha = MAX_ALPHA;
 	mArcMotionAngle = 0.0f;
 	mIsDamageCoolDown = false;
+	mIsWarp = false;
 }
 
 /*
 @brief	チャージ攻撃敵の弾発射を管理する関数
 
-@param[in]	chargeEnemy* Cen:チャージ攻撃する敵クラスのインスタンスポインタ
-
+@param[in]	BulletManager *bulletManager:弾管理クラスのポインタ
+@param[in]	Player *player:プレイヤークラスのポインタ
+@param[in]	EffectManager *effectManager:エフェクト管理クラスのポインタ
 @return		なし
 
 @note
 
-- 弾を発射する敵のフラグ(FLG)がtrueの場合のみ処理を実行する
-- chargeEnemyクラスメンバのshotCount変数でカウントし、処理を管理している
+- 弾を発射する敵のフラグ(mIsActive)がtrueの場合のみ処理を実行する
+- shotCount変数でカウントし、処理を管理している
 - 発射パターンをステージ応じて切り替えている
 
 1. 通常のステージ
@@ -388,12 +406,12 @@ void ChargeEnemy::start()
     - ボスステージではボスのチャージ攻撃と合わせて激しい攻撃を行う
     - 救済として無敵アイテムをドロップしている
 
-@note　2重ループのfor分には変数ｊではなくkを使用している。iとjが見分けずらいので。３重の場合はlを使用
 
 */
 void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
                                         Player *player,
-                                        EffectManager *effectManager)
+                                        EffectManager *effectManager,
+                                        ItemObjectManager *itemObjectManager)
 {
 	if (!mIsActive)
 	{
@@ -405,10 +423,9 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 		mShotCount++; // 発射カウントの更新
 		// 40～120フレームは溜め演出
 		// 40フレームごとに処理を実行
-		if (mShotCount % CHARGE_EF_INTERVAL == 0 &&
-		    mShotCount <= CHARGE_EF_END)
+		if (mShotCount % CHARGE_EF_INTERVAL == 0 && mShotCount <= CHARGE_EF_END)
 		{
-			effectManager->setEffect(&(mX), &(mY),CHARGE_EF);
+			effectManager->setEffect(&(mX), &(mY), CHARGE_EF);
 		}
 
 		// 120フレーム後なら発射処理
@@ -423,11 +440,11 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 				double targetAngle = atan2(vectorTargetY, vectorTargetX);
 				double targetAngle_degPre = targetAngle * 180.0f / PI;
 
-				 bulletManager->setBullet(
-				     (int)mX, (int)mY, targetAngle_degPre,
-				                         BULLET_TYPE::ENEMY_MINI_ORANGE, false);
+				bulletManager->setBullet((int)mX, (int)mY, targetAngle_degPre,
+				                         BULLET_TYPE::ENEMY_MINI_ORANGE, false,
+				                         false);
 
-				 			effectManager->setEffect(&(mX), &(mY), SHOT_EF);
+				effectManager->setEffect(&(mX), &(mY), SHOT_EF);
 
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
@@ -453,11 +470,7 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 		// 移動カウントが304フレームでワープのエフェクト表示
 		if (mMoveCount == CHARGE_ENEMY_BOSS_WARP_EF_FRAME)
 		{
-			// フラグのたっていないものを探し、1つだけsetef関数実行
-			for (int i = 0; i < MAX_BULLET_NUMBER; i++)
-			{
-				effectManager->setEffect(&(mX), &(mY), WARP_EF);
-			}
+			effectManager->setEffect(&(mX), &(mY), WARP_EF);
 		}
 		// ワープエフェクトの表示終了フレーム(330)から攻撃処理開始
 		if (mMoveCount > CHARGE_ENEMY_BOSS_ATTACK_START)
@@ -468,31 +481,13 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 			{
 				if (mNumber == SUMMON_LEFT)
 				{
-					// フラグのたっていないものを探し、1つだけset関数実行
-					//for (int i = 0; i < MAX_BULLET_NUMBER; i++)
-					//{
-					//	// 無敵アイテムを出現
-					//	if (mItemObjects[i]->setItemObject(
-					//	        ITEM_DROP_LEFT_X, ITEM_DROP_Y, 0, OBJECT_STAR,
-					//	        &(mPlayer->mX), &(mPlayer->mY)))
-					//	{
-					//		break;
-					//	}
-					//}
+					itemObjectManager->setItemObject(
+					    ITEM_DROP_LEFT_X, ITEM_DROP_Y, 0, OBJECT_STAR, player);
 				}
 				else if (mNumber == SUMMON_RIGHT)
 				{
-					// フラグのたっていないものを探し、1つだけset関数実行
-					//for (int i = 0; i < MAX_BULLET_NUMBER; i++)
-					//{
-					//	// 無敵アイテムを出現
-					//	if (mItemObjects[i]->setItemObject(
-					//	        ITEM_DROP_RIGHT_X, ITEM_DROP_Y, 0, OBJECT_STAR,
-					//	        &(mPlayer->mX), &(mPlayer->mY)))
-					//	{
-					//		break;
-					//	}
-					//}
+					itemObjectManager->setItemObject(
+					    ITEM_DROP_RIGHT_X, ITEM_DROP_Y, 0, OBJECT_STAR, player);
 				}
 			}
 			// 50フレーム間隔で実行
@@ -506,11 +501,9 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 					// 36度毎に発射角度を変更するよう設定
 					ringShotAngle = i * CHARGE_ENEMY_RING_SHOT_ANGLE;
 
-					 bulletManager->setBullet(
-					     (int)mX, (int)mY,
-					     ringShotAngle, ENEMY_NOMAL, true);
+					bulletManager->setBullet((int)mX, (int)mY, ringShotAngle,
+					                         ENEMY_NOMAL, true, false);
 					effectManager->setEffect(&(mX), &(mY), SHOT_EF);
-
 				}
 				// 発射SEの再生
 				PlaySoundMem(Data::getInstance()->mEnemyShotSoundEffectHandle,
@@ -521,8 +514,7 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 			else if (mShotCount >= CHARGE_ENEMY_AIM_SHOT_START)
 			{
 				// 5フレーム間隔でミニ弾を発射
-				if (mShotCount % CHARGE_ENEMY_AIM_SHOT_INTERVAL ==
-				    0)
+				if (mShotCount % CHARGE_ENEMY_AIM_SHOT_INTERVAL == 0)
 				{
 					// 発射を3回繰り返す。同時に発射
 					// 扇状の弾幕を発射
@@ -536,12 +528,10 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 
 						double targetAngle_degPre = targetAngle * 180.0f / PI;
 
-						 bulletManager->setBullet(
-						     (int)mX, (int)mY,
-						     targetAngle_degPre + 20 * i - 20,
-						     ENEMY_MINI_ORANGE, false);
+						bulletManager->setBullet(
+						    (int)mX, (int)mY, targetAngle_degPre + 20 * i - 20,
+						    ENEMY_MINI_ORANGE, false, false);
 						effectManager->setEffect(&(mX), &(mY), SHOT_EF);
-
 					}
 					// 発射SEの再生
 					PlaySoundMem(
@@ -554,6 +544,6 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 	// カウントのリセット、170フレームで1巡
 	if (mShotCount >= CHARGE_ENEMY_SHOT_RESET_FRAME)
 	{
-		mShotCount = 0;// カウントをリセット
+		mShotCount = 0; // カウントをリセット
 	}
 }

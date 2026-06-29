@@ -3,11 +3,10 @@
 
 #include "DxLib.h"
 #include "define.h"
-#include "deta.h"
+#include "Deta.h"
 #include "math.h"
 #include "myLib/MyLib.h"
 #include "myLib/key.h"
-#include "object.h"
 #include "Character.h"
 #include "EffectManager.h"
 // ヒットポイント

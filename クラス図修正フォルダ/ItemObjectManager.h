@@ -3,10 +3,10 @@
 
 #include "DxLib.h"
 #include "define.h"
-#include "deta.h"
+#include "Deta.h"
 #include "math.h"
-#include "object.h"
-#include "player.h"
+#include "Object.h"
+#include "Player.h"
 // --- アイテムドロップ位置補正 ---
 #define DROP_OFFSET_X (20)
 // EXPアイテム拡散
@@ -24,22 +24,18 @@ class ItemObjectManager
 	void draw();
 	void start();
 
+	// アイテムオブジェクトの設置
 	void setItemObject(int setPositionX, int setPositionY, int setAngle,
 	                   int itemObjectType,
-	                   Player *player_p); // アイテムオブジェクトの設置
-	void hitCheck(Player *player_p); // オブジェクトクラスの当たり判定実行関数
+	                   Player *player_p); 
+	// オブジェクトクラスの当たり判定実行関数
+	void hitCheck(Player *player_p); 
 
 	Object *mItemObjects[MAX_BULLET_NUMBER]; // アイテムオブジェクト
 
-	/// <summary>
-	/// アイテムドロップ関数
-	/// </summary>
-	/// <param name="x=ドロップのX座標"></param>
-	/// <param name="y=ドロップのY座標"></param>
-	/// <param name="itemtype=アイテムの種類"></param>
-	///
+	// アイテムドロップ関数
 	void dropItem(int itemX, int itemY, int itemType,
-	              Player *player_p); // ドロップ関数
+	              Player *player_p); 
 
   private:
 };

@@ -1,10 +1,10 @@
 ﻿#ifndef __EFFECTMANAGER_H__
 #define __EFFECTMANAGER_H__
 
+#include "Deta.h"
 #include "DxLib.h"
+#include "Effect.h"
 #include "define.h"
-#include "deta.h"
-#include "efect.h"
 
 // --- POWER UP ---
 #define POWER_UP_EF_WIDTH (150)
@@ -61,12 +61,16 @@ class EffectManager
 	EffectManager();
 	~EffectManager();
 	void start();
-	void playEffectAnimation(); // エフェクトアニメーション再生
+	// エフェクトアニメーション再生
+	void playEffectAnimation(); 
+	// エフェクトアニメーションの設置
 	void setEffect(double *setPositionX, double *setPositionY,
-	               int effectType); // エフェクトアニメーションの設置
+	               int effectType); 
+	//パラメータの設定
 	void setParameter(Effect *effect, const int playFrameTable[],
 	                  int effectType);
-	Effect *mEffects[MAX_BULLET_NUMBER]; // エフェクトクラス
+	// エフェクトクラス
+	Effect *mEffects[MAX_BULLET_NUMBER]; 
 
   private:
 	// 各弾のパラメータ
