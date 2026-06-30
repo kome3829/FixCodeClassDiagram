@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿#ifndef __EFFECT_H__
+#define __EFFECT_H__
+
 #include "Deta.h"
 #include "define.h"
 
@@ -33,3 +35,5 @@ class Effect
 	    [MAX_TEBLE_FRAME]; // エフェクトアニメーションのフレーム再生順のテーブル
   private:
 };
+
+#endif // !__EFFECT_H__

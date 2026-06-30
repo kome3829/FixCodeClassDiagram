@@ -41,29 +41,29 @@ Object::~Object()
 @param	なし
 @return		なし
 
-@note   
+@note
 - オブジェクトを追従させるか判定を行う
-- フラグ(flg)がtrueの場合のみ処理を実行する
-- 画面外へ行くとフラグ(flg)をfalseにして無効にする
-- アイテムの種類（type）に応じて処理を分岐している
+- フラグ(mIsActive)がtrueの場合のみ処理を実行する
+- 画面外へ行くとフラグ(mIsActive)をfalseにして無効にする
+- アイテムの種類（mItemObjectType）に応じて処理を分岐している
 
 1. OBJECT_EXP
-	- 経験値アイテムの移動処理を行う
-	- count変数を用いて移動タイミングや動作を制御している
-	- 敵から出現する時の移動
-	- 出現後プレイヤーに吸い付いてくる移動
+    - 経験値アイテムの移動処理を行う
+    - count変数を用いて移動タイミングや動作を制御している
+    - 敵から出現する時の移動
+    - 出現後プレイヤーに吸い付いてくる移動
 
 2. OBJECT_LIFE
-	- 回復アイテムの移動処理を行う
-	- 追従フラグ(homing_on)を用いて動作を制御している
-	- 徐々に降下していく移動
-	- プレイヤーに吸い付いてくる移動
+    - 回復アイテムの移動処理を行う
+    - 追従フラグ(homing_on)を用いて動作を制御している
+    - 徐々に降下していく移動
+    - プレイヤーに吸い付いてくる移動
 
 3. OBJECT_STAR
-	- 無敵アイテムの移動処理を行う
-	- 追従フラグ(homing_on)を用いて動作を制御している
-	- 徐々に降下していく移動
-	- プレイヤーに吸い付いてくる移動
+    - 無敵アイテムの移動処理を行う
+    - 追従フラグ(homing_on)を用いて動作を制御している
+    - 徐々に降下していく移動
+    - プレイヤーに吸い付いてくる移動
 @warning
 - 各アイテムの吸い付き移動はプレイヤーが取りやすいように追加した
 */
@@ -75,80 +75,80 @@ void Object::action()
 	{
 		switch (mItemObjectType)
 		{
-		case OBJECT_EXP://経験値アイテム
+		case OBJECT_EXP: // 経験値アイテム
 
-			mEXPMoveCount++;//カウント更新
-			//30フレーム後ホーミング開始
+			mEXPMoveCount++; // カウント更新
+			// 30フレーム後ホーミング開始
 			if (mEXPMoveCount >= OBJECT_EXP_HOMING_START_FRAME)
 			{
-				//逆三角関数(atan2)を使用し、なす角を計算
+				// 逆三角関数(atan2)を使用し、なす角を計算
 				double vectorTargetX = (*mPlayerX - mX);
 				double vectorTargetY = (*mPlayerY - mY);
 
 				double targetAngle = atan2(vectorTargetY, vectorTargetX);
-				//角度から速度を計算
+				// 角度から速度を計算
 				mVectorX = cos(targetAngle) * OBJECT_ITEM_HOMING_SPEED;
 				mVectorY = sin(targetAngle) * OBJECT_ITEM_HOMING_SPEED;
-				//位置(mX,mY)に速度(mVectorX,mVectorY)を加算して、移動している
+				// 位置(mX,mY)に速度(mVectorX,mVectorY)を加算して、移動している
 				mX += mVectorX;
 				mY += mVectorY;
 			}
-			//設定された速度に従い移動
-			//敵から飛び出てくるような速度をset関数時に設定
+			// 設定された速度に従い移動
+			// 敵から飛び出てくるような速度をset関数時に設定
 			else
 			{
-				//位置(mX,Ym)に速度(mVectorX,mVectorY)を加算して、移動している
+				// 位置(mX,Ym)に速度(mVectorX,mVectorY)を加算して、移動している
 				mX += mVectorX;
 				mY += mVectorY;
-				//徐々に減速
+				// 徐々に減速
 				mVectorX *= OBJECT_EXP_SPEEDDOWN;
 				mVectorY *= OBJECT_EXP_SPEEDDOWN;
 			}
 			break;
 
-		case OBJECT_LIFE://回復アイテム
+		case OBJECT_LIFE: // 回復アイテム
 
-			//追従移動
+			// 追従移動
 			if (mIsActiveHomingMove)
 			{
-				//逆三角関数(atan2)を使用し、なす角を計算
+				// 逆三角関数(atan2)を使用し、なす角を計算
 				double vectorTargetX = (*mPlayerX - mX);
 				double vectorTargetY = (*mPlayerY - mY);
 				double targetAngle = atan2(vectorTargetY, vectorTargetX);
-				//角度から速度を計算
+				// 角度から速度を計算
 				mVectorX = cos(targetAngle) * OBJECT_ITEM_HOMING_SPEED;
 				mVectorY = sin(targetAngle) * OBJECT_ITEM_HOMING_SPEED;
-				//位置(mX,mY)に速度(mVectorX,mVectorY)を加算して、移動している
+				// 位置(mX,mY)に速度(mVectorX,mVectorY)を加算して、移動している
 				mX += mVectorX;
 				mY += mVectorY;
 			}
 			else
 			{
-				//降下移動
+				// 降下移動
 				mY += mVectorY;
 			}
 			break;
 
-		case OBJECT_STAR://無敵アイテム
+		case OBJECT_STAR: // 無敵アイテム
 
-			//追従移動
+			// 追従移動
 			if (mIsActiveHomingMove)
 			{
-				//逆三角関数(atan2)を使用し、なす角を計算
-				//プレイヤー狙いの角度を計算
+				// 逆三角関数(atan2)を使用し、なす角を計算
+				// プレイヤー狙いの角度を計算
 				double vectorTargetX = (*mPlayerX - mX);
 				double vectorTargetY = (*mPlayerY - mY);
 				double targetAngle = atan2(vectorTargetY, vectorTargetX);
-				//角度から速度を計算
+				// 角度から速度を計算
 				mVectorX = cos(targetAngle) * OBJECT_ITEM_HOMING_SPEED;
 				mVectorY = sin(targetAngle) * OBJECT_ITEM_HOMING_SPEED;
-				//位置(mX,mY)に速度(mVectorX,mVectorY)を加算して、移動している
+				// 位置(mX,mY)に速度(mVectorX,mVectorY)を加算して、移動している
 				mX += mVectorX;
 				mY += mVectorY;
 			}
 			else
 			{
-				//降下移動
+				// 降下移動
 				mY += mVectorY;
 			}
 			break;
@@ -156,11 +156,11 @@ void Object::action()
 		default:
 			break;
 		}
-		//画面外なら消える処理
+		// 画面外なら消える処理
 		if (mX >= MAX_SCREEN_WIDTH + OBJECT_OUTSIDE_MARGIN ||
-			mX <= 0 - OBJECT_OUTSIDE_MARGIN ||
-			mY >= MAX_SCREEN_HEIGHT + OBJECT_OUTSIDE_MARGIN ||
-			mY <= 0 - OBJECT_OUTSIDE_MARGIN)
+		    mX <= 0 - OBJECT_OUTSIDE_MARGIN ||
+		    mY >= MAX_SCREEN_HEIGHT + OBJECT_OUTSIDE_MARGIN ||
+		    mY <= 0 - OBJECT_OUTSIDE_MARGIN)
 		{
 			mIsActive = false;
 		}
@@ -173,25 +173,32 @@ void Object::action()
 @param	なし
 @return		なし
 
-@note      フラグ(flg)がtrueの場合のみ処理を実行する
-@note      アイテムの種類（type）に応じて画像表示を切り替えている
+@note      フラグ(mIsActive)がtrueの場合のみ処理を実行する
+@note      アイテムの種類（mItemObjectType）に応じて画像表示を切り替えている
 
 */
 void Object::draw()
 {
 	if (mIsActive)
 	{
-		//修正案。画像ハンドル変数をを配列にして、スイッチではなく1行で記述にできるのでは？
-		switch (mItemObjectType)//種類の応じて画像を表示
+		// 修正案。画像ハンドル変数をを配列にして、スイッチではなく1行で記述にできるのでは？
+		switch (mItemObjectType) // 種類の応じて画像を表示
 		{
-		case OBJECT_EXP://経験値アイテム
-			DrawGraph((int)mX - ITEM_OBJECT_WIDTH / CUT_HALF, (int)mY - ITEM_OBJECT_HEIGHT / CUT_HALF, Data::getInstance()->mExperiencePointsItemImageHandle, TRUE);
+		case OBJECT_EXP: // 経験値アイテム
+			DrawGraph((int)mX - ITEM_OBJECT_WIDTH / CUT_HALF,
+			          (int)mY - ITEM_OBJECT_HEIGHT / CUT_HALF,
+			          Data::getInstance()->mExperiencePointsItemImageHandle,
+			          TRUE);
 			break;
-		case OBJECT_LIFE://回復アイテム
-			DrawGraph((int)mX - ITEM_OBJECT_WIDTH / CUT_HALF, (int)mY - ITEM_OBJECT_HEIGHT / CUT_HALF, Data::getInstance()->mLifeItemImageHandle, TRUE);
+		case OBJECT_LIFE: // 回復アイテム
+			DrawGraph((int)mX - ITEM_OBJECT_WIDTH / CUT_HALF,
+			          (int)mY - ITEM_OBJECT_HEIGHT / CUT_HALF,
+			          Data::getInstance()->mLifeItemImageHandle, TRUE);
 			break;
-		case OBJECT_STAR://無敵アイテム
-			DrawGraph((int)mX - ITEM_OBJECT_WIDTH / CUT_HALF, (int)mY - ITEM_OBJECT_HEIGHT / CUT_HALF, Data::getInstance()->mUnbeatableItemImageHandle, TRUE);
+		case OBJECT_STAR: // 無敵アイテム
+			DrawGraph((int)mX - ITEM_OBJECT_WIDTH / CUT_HALF,
+			          (int)mY - ITEM_OBJECT_HEIGHT / CUT_HALF,
+			          Data::getInstance()->mUnbeatableItemImageHandle, TRUE);
 			break;
 
 		default:
@@ -244,31 +251,69 @@ void Object::reset()
 	mIsActiveHomingMove = false;
 }
 
-
-
 /*
 @brief	アイテムがプレイヤーを追従するか判定を行う関数
 
 @param[in]	なし
 @return		なし
 
-@note      
+@note
 
 - 次の条件をすべて満たしたときのみ処理を行う
-	- フラグ（flg）が true
-	- まだ追従していない（homing_on が false）
-	- プレイヤー位置のポインタが nullではない
-- プレイヤーに一定距離まで近づいたら追従フラグ（homing_on）を true にする
+    - フラグ（mIsActive）が true
+    - まだ追従していない（mIsActiveHomingMove が false）
+    - プレイヤー位置のポインタが nullではない
+- プレイヤーに一定距離まで近づいたら追従フラグ（mIsActiveHomingMove）を true
+にする
 
 */
 void Object::judgeHomingMoveEneble()
 {
-	if (mIsActive && !mIsActiveHomingMove&&mPlayerX!=nullptr && mPlayerY != nullptr)
+	if (mIsActive && !mIsActiveHomingMove && mPlayerX != nullptr &&
+	    mPlayerY != nullptr)
 	{
-		//プレイヤーに一定距離まで近づいたら追従フラグ（homing_on）を true にする
-		if (abs((int)(mX - *mPlayerX)) < OBJECT_HOMING_RANGE && abs((int)(mY - *mPlayerY)) < OBJECT_HOMING_RANGE)
+		// プレイヤーに一定距離まで近づいたら追従フラグ（homing_on）を true
+		// にする
+		if (abs((int)(mX - *mPlayerX)) < OBJECT_HOMING_RANGE &&
+		    abs((int)(mY - *mPlayerY)) < OBJECT_HOMING_RANGE)
 		{
 			mIsActiveHomingMove = true;
 		}
 	}
+}
+/*
+@brief	アイテムオブジェクトとプレイヤーの当たり判定を行う関数
+
+@param[in]	Player *player_p :プレイヤークラスのポインタ
+@return		bool: true/当たった : false/当たってない 
+@note
+
+- アイテムオブジェクトとプレイヤーのフラグ(mIsActive)がtrueの場合のみ処理を実行する
+- プレイヤーに一定距離まで近づいたら当たったと判定する
+
+*/
+bool Object::checkHit(Player *player_p)
+{
+	if (!player_p->mIsActive || !mIsActive)
+	{
+		return false;
+	}
+	// アイテムとプレイヤークラスとの距離を計算
+	int distX = abs((int)(player_p->mX - mX));
+	int distY = abs((int)(player_p->mY - mY));
+
+	// 一定距離まで近づいたら当たったと判定
+	if (distX < ITEM_OBJECT_WIDTH && distY < ITEM_OBJECT_HEIGHT)
+	{
+		if (!player_p->mIsItemHit) // ヒット判定中ではなければ
+		{
+			player_p->mIsItemHit = true; // プレイヤークラスのヒット判定を有効
+			player_p->mHitItemType =
+			    mItemObjectType; // ヒットしたアイテム種類をプレイヤークラスに伝達
+		}
+		// アイテムの無効化及びリセット
+		reset();
+		return true;
+	}
+	return false;
 }

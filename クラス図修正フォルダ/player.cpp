@@ -65,13 +65,13 @@ Player::~Player()
 
 - キーボード入力によってプレイヤーの移動処理を行う
     -
-左右上下キーの内、押されたキーに応じて、位置（ｘ,ｙ）を移動速度(spd)で加算、減算している
+左右上下キーの内、押されたキーに応じて、位置（mX,mY）を移動速度(mSpeed)で加算、減算している
     -
-シフトキーを同時に押すことで、移動速度(spd)を遅くする事できるようにしている
+シフトキーを同時に押すことで、移動速度(mSpeed)を遅くする事できるようにしている
 
 - 無敵時間の更新処理を行う
     -
-無敵時間のカウント(UnbeatableCount)と無敵フラグ（Unbeatable）でタイミングや動作を制御している
+無敵時間のカウント(mUnbeatableGagePercent)と無敵フラグ（mIsUnbeatable）でタイミングや動作を制御している
     - 無敵フラグに応じて、無敵時間表示ゲージ用の変数の計算処理を行う
 -ダメージ時の更新処理を行う
 @warning
@@ -87,7 +87,7 @@ void Player::action(BulletManager *bulletManager, EffectManager *effectManager,
 	}
 	takeDamage();                                   // ダメージ処理
 	shotPlayerBullet(bulletManager, effectManager); // 弾発射処理
-	applyItemeffect(score, effectManager);          // アイテム効果反映処理
+	applyItemEffect(score, effectManager);          // アイテム効果反映処理
 	// player操作
 	// 左移動
 	if (checkPushkey(KEY_INPUT_LEFT))
@@ -185,8 +185,8 @@ void Player::action(BulletManager *bulletManager, EffectManager *effectManager,
 
 @note
 
-- ダメージフラグ（damageFlg）がtrueの場合はダメージ用の画像を表示する
-- 無敵フラグ(Unbeatable)がtrueの場合は無敵用の画像を表示する
+- ダメージフラグ（mIsDamegeCoolDown）がtrueの場合はダメージ用の画像を表示する
+- 無敵フラグ(mIsUnbeatable)がtrueの場合は無敵用の画像を表示する
     - 残り無敵時間のタイマーゲージを表示する
 - なにもなければ通常の画像を表示する
 - プレイヤーの残り残機を表示する
@@ -315,10 +315,10 @@ void Player::start()
       - スペースキーを押しっぱなしの場合、弾を連続で発射している
       - 発射パターン変化時に強化SEの再生と強化エフェクトの表示を行う
       - 次の変数でカウントを行い、処理を管理している
-        - shootdileycount			通常弾の発射間隔を管理
-        - shootmisailedileycount	ミサイル弾発射間隔を管理
-        - Scount　　				スペシャル弾の発射間隔を管理
-        - shotcount　				共通の発射間隔を管理
+        - mNomalShotIntervalCount			通常弾の発射間隔を管理
+        - mMissileShotIntervalCount			ミサイル弾発射間隔を管理
+        - mSpecialShotCount　　				スペシャル弾の発射間隔を管理4
+        - mShotCount　						共通の発射間隔を管理
       　
       - ショットパワーに応じて発射パターンが強化されている
 
@@ -342,8 +342,6 @@ void Player::start()
              - 5方向にスペシャル弾を同時に発射
              - 5連続で弾幕を発射
 
-@note　2重ループのfor分には変数ｊではなくkを使用している。iとjが見分けずらいので。３重の場合はlを使用
-
 */
 
 void Player::shotPlayerBullet(BulletManager *bulletManager,
@@ -366,11 +364,11 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 				for (int i = 0; i < PLAYER_MISSILE_AMOUNT; i++)
 				{
 
-					bulletManager->setBullet(mX - FIRE_POINT_OFFSET_X +
-					                             i * (FIRE_POINT_OFFSET_X * 2),
-					                         mY + FIRE_POINT_OFFSET_Y,
-					                         PLAYER_NORMAL_SHOT_ANGLE,
-					                         BULLET_TYPE::PLAYER_NOMAL, false,true);
+					bulletManager->setBullet(
+					    (int)mX - FIRE_POINT_OFFSET_X +
+					        i * (FIRE_POINT_OFFSET_X * 2),
+					    (int)mY + FIRE_POINT_OFFSET_Y, PLAYER_NORMAL_SHOT_ANGLE,
+					    BULLET_TYPE::PLAYER_NOMAL, false, true);
 				}
 			}
 			// shootPowarが1500超えたら発射間隔を短くする
@@ -416,9 +414,9 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 					{
 
 						bulletManager->setBullet(
-						    mX - FIRE_POINT_OFFSET_X +
+						    (int)mX - FIRE_POINT_OFFSET_X +
 						        i * (FIRE_POINT_OFFSET_X * 2),
-						    mY + FIRE_POINT_OFFSET_Y,
+						    (int)mY + FIRE_POINT_OFFSET_Y,
 						    i * PLAYER_MISSILE_ANGLE_STEP +
 						        PLAYER_MISSILE_START_ANGLE + TURN_AROUND_ANGLE,
 						    BULLET_TYPE::PLAYER_MISSILE, false, true);
@@ -455,13 +453,13 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 					for (int i = 0; i < PLAYER_SPECIAL_AMOUNT; i++)
 					{
 						bulletManager->setBullet(
-						    mX, mY,
-						    i * SPECIAL_BULLET_ANGLE_STEP
-						                + SPECIAL_BULLET_BASE_ANGLE -
+						    (int)mX, (int)mY,
+						    i * SPECIAL_BULLET_ANGLE_STEP +
+						        SPECIAL_BULLET_BASE_ANGLE -
 						        (SPECIAL_BULLET_ANGLE_STEP *
 						         SPECIAL_BULLET_SPREAD_COUNT) /
 						            CUT_HALF,
-						                         BULLET_TYPE::PLAYER_SPECIAL, false, true);
+						    BULLET_TYPE::PLAYER_SPECIAL, false, true);
 					}
 				}
 				// 10カウントでスペシャル弾発射カウントをリセット(実質50フレーム)
@@ -473,25 +471,40 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 		}
 	}
 }
+/*
+@brief	ダメージ処理を行う関数
 
+@param	なし
+
+@return	なし
+@note
+- ダメージフラグ（mIsTakeDamage）がfalseの場合処理を実行しない
+- 加えて無敵フラグ(mIsUnbeatable)とダメージ処理インターバルフラグ（mIsDamegeCoolDown）がfalseの場合は処理を実行する
+  - ダメージSEの再生
+  - ヒットポイントの減算
+mLifeが０以下の場合は撃破処理（フラグ更新）を行う
+
+*/
 void Player::takeDamage()
 {
-	if (!mIsTakeDamage) // ダメージ判定がないもしくはダメ無効の場合実行しない
+	if (!mIsTakeDamage) // ダメージ判定がない場合実行しない
 	{
 		return;
 	}
-	if (!mIsUnbeatable && !mIsDamegeCoolDown)
-	{
-		// ダメージ処理
-		mLife--;                          // HPを減らす
-		mIsActiveLifeIcon[mLife] = false; // 表示アイコン用のフラグをfalse
-		PlaySoundMem(Data::getInstance()->mPlayerDamageSoundEffectHandle,
-		             DX_PLAYTYPE_BACK, TRUE); // ダメージSEの再生
-		mIsTakeDamage = false;                // ダメージフラグをfalse
-		mIsDamegeCoolDown = true;             // ダメージ無効フラグをtrue
-	}
 	mIsTakeDamage = false; // ダメージフラグをfalse
-	if (mLife <= 0)        // 撃破判定
+	if (mIsUnbeatable ||
+	    mIsDamegeCoolDown) // ダメ処理インタバール中もしくは無敵の場合もダメージ処理は実行しない
+	{
+		return;
+	}
+	// ダメージ処理
+	mLife--;                          // HPを減らす
+	mIsActiveLifeIcon[mLife] = false; // 表示アイコン用のフラグをfalse
+	PlaySoundMem(Data::getInstance()->mPlayerDamageSoundEffectHandle,
+	             DX_PLAYTYPE_BACK, TRUE); // ダメージSEの再生
+	mIsDamegeCoolDown = true;             // ダメージ無効フラグをtrue
+
+	if (mLife <= 0) // 撃破判定
 	{
 		mIsDefeat = true; // 撃破フラグのtrue
 		mIsActive = false;
@@ -523,7 +536,7 @@ void Player::takeDamage()
         - 無敵にする
         - 無敵の場合は残り時間を最大値まで戻す
 */
-void Player::applyItemeffect(int *score, EffectManager *effectManager)
+void Player::applyItemEffect(int *score, EffectManager *effectManager)
 {
 	if (!mIsItemHit)
 	{

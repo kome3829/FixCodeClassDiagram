@@ -9,6 +9,17 @@
 #include "Enemy.h"
 #include "Player.h"
 #include "EffectManager.h"
+// --- 出現座標 ---
+#define CHARGE_ENEMY_POP_LEFT_X (-20)
+#define CHARGE_ENEMY_POP_RIGHT_X (660)
+#define CHARGE_ENEMY_POP_Y (0)
+// --- 敵出現間隔 ---
+#define ENEMY_POP_DIVISOR (3)
+// --- チャージ敵出現タイミング ---
+#define CHARGE_ENEMY_POP_INTERVAL_FRAME (30)
+#define CHARGE_ENEMY_POP_END_COUNT                                             \
+	(ENEMY_POP_FRAME + CHARGE_ENEMY_POP_INTERVAL_FRAME * 6 - 10)
+
 
 enum ENEMY_POP_PATTERN
 {
@@ -54,7 +65,7 @@ class MinionEnemyManager
 	bool checkAllChargeEnemyDefeat(); // チャージ敵が全部死んだか
 	////---
 
-	bool MinionEnemyPop(); // 雑魚敵の出現パターン管理関数
+	bool minionEnemyPop(); // 雑魚敵の出現パターン管理関数
 
   private:
 };

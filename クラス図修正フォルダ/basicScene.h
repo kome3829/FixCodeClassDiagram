@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿#ifndef __BASICSCENE_H__
+#define __BASICSCENE_H__
+
 #include "DxLib.h"
 #include"myLib/MyLib.h"
 #include"myLib/key.h"
@@ -87,4 +89,4 @@ public:
 private:
 
 };
-
+#endif // !__BASICSCENE_H__

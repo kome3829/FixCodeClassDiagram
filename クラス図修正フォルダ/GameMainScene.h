@@ -71,12 +71,6 @@ enum STAGE // ステージパターン　
 	TEST_STAGE,
 };
 
-// enum ENEMY_POP_PATTERN // 雑魚敵出現パターン　
-//{
-//	NOMAL_ENEMY,
-//	TRACE_ENEMY,
-//	CHARGE_ENEMY,
-// };
 
 class GameMainScene : public BasicScene
 {
@@ -105,8 +99,8 @@ class GameMainScene : public BasicScene
 	int mBossExploEFIntervalCount; // 爆発エフェクト再生間隔カウント
 	bool mIsBossAlert;             // ボスアラート演出+ダメージ演出判定　赤背景
 	int mRedBGAlpha;               // 赤背景　透過度
-	double randomExplositionPositionX; // 撃破爆発演出X座標
-	double randomExplositionPositionY; // 撃破爆発演出Y座標
+	double mRandomExplositionPositionX; // 撃破爆発演出X座標
+	double mRandomExplositionPositionY; // 撃破爆発演出Y座標
 
 	//------------------------------
 	//---ゲーム進行に関わる変数---

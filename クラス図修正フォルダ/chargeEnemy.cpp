@@ -244,7 +244,7 @@ void ChargeEnemy::action(int *score, BulletManager *bulletManager,
 		// 円運動開始フレーム(331フレーム)
 		if (mMoveCount == ARC_MOVE_START_FRAME)
 		{
-			mIsWarp = false;//ワープ最中フラグをfalseに
+			mIsWarp = false;            // ワープ最中フラグをfalseに
 			if (mNumber == SUMMON_LEFT) // 左側
 			{
 				// ワープ移動
@@ -381,7 +381,7 @@ void ChargeEnemy::start()
 @note
 
 - 弾を発射する敵のフラグ(mIsActive)がtrueの場合のみ処理を実行する
-- shotCount変数でカウントし、処理を管理している
+- mShotCount変数でカウントし、処理を管理している
 - 発射パターンをステージ応じて切り替えている
 
 1. 通常のステージ
@@ -438,9 +438,10 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 				double vectorTargetX = (player->mX - mX);
 				double vectorTargetY = (player->mY - mY);
 				double targetAngle = atan2(vectorTargetY, vectorTargetX);
-				double targetAngle_degPre = targetAngle * 180.0f / PI;
+				int targetAngle_Degree =
+				    (int)(targetAngle * DEGREE_TO_RADIAN_DIVISOR / PI);
 
-				bulletManager->setBullet((int)mX, (int)mY, targetAngle_degPre,
+				bulletManager->setBullet((int)mX, (int)mY, targetAngle_Degree,
 				                         BULLET_TYPE::ENEMY_MINI_ORANGE, false,
 				                         false);
 
@@ -526,10 +527,13 @@ void ChargeEnemy::shotChargeEnemyBullet(BulletManager *bulletManager,
 						double targetAngle =
 						    atan2(vectorTargetY, vectorTargetX);
 
-						double targetAngle_degPre = targetAngle * 180.0f / PI;
+						int targetAngle_Degree =
+						    (int)(targetAngle * DEGREE_TO_RADIAN_DIVISOR / PI);
 
 						bulletManager->setBullet(
-						    (int)mX, (int)mY, targetAngle_degPre + 20 * i - 20,
+						    (int)mX, (int)mY,
+						    targetAngle_Degree + CHARGE_ENEMY_ANGLE_STEP * i -
+						        CHARGE_ENEMY_ANGLE_STEP,
 						    ENEMY_MINI_ORANGE, false, false);
 						effectManager->setEffect(&(mX), &(mY), SHOT_EF);
 					}

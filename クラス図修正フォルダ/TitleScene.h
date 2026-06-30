@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿#ifndef __TITLESCENE_H__
+#define __TITLESCENE_H__
+
 #include "BasicScene.h"
 class TitleScene : public BasicScene
 {
@@ -14,3 +16,5 @@ public:
 private:
 
 };
+
+#endif // !__TITLESCENE_H__

@@ -56,7 +56,7 @@ TraceEnemy::~TraceEnemy()
 @note
 
 - フラグ(mIsActive)がtrueの場合のみ処理を実行する
-- MoveCount を用いて移動タイミングや動作を制御している
+- mMoveCount を用いて移動タイミングや動作を制御している
 - ステージに応じて処理を分岐している
 
 1. 通常ステージ
@@ -297,7 +297,7 @@ void TraceEnemy::start()
 @return		なし
 
 @note      弾を発射する敵の有効化フラグ(mIsActive)がtrueの場合のみ処理を実行する
-@note      shotCount変数でカウントし、一定間隔で弾の発射を繰り返している
+@note      mShotCount変数でカウントし、一定間隔で弾の発射を繰り返している
 @note      ４方向から同時に弾を発射する
 @note      角度を変えながら、薙ぎ払うように連続で発射している
 @note      弾発射と同時に発射エフェクト表示と発射SEの再生も行う

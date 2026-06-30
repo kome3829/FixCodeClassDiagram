@@ -1,9 +1,11 @@
-﻿#pragma once
+﻿#ifndef __OBJECT_H__
+#define __OBJECT_H__
+
 #include"math.h"
 #include"define.h"
 #include "DxLib.h"
 #include"Deta.h"
-
+#include"Player.h"
 // EXPアイテム
 #define OBJECT_EXP_FAST_SPEED       (8.0)
 #define OBJECT_EXP_HOMING_START_FRAME      (30)
@@ -23,11 +25,12 @@ public:
 	void start();
 	void reset();//リセット関数
 	void judgeHomingMoveEneble();	//吸い付き有効化判定
-
-	double mX;					//X座標
+	// 当たり判定関数
+	bool checkHit(Player *player_p);
+	double mX;                  // X座標
 	double mY;					//Y座標
-	double* mPlayerX;			//プレイヤーのX座標。ポインタの理由は常に更新されれている変数のため直接参照する必要がある。
-	double* mPlayerY;			//プレイヤーのY座標。ポインタの理由は常に更新されれている変数のため直接参照する必要がある。
+	double* mPlayerX;			//プレイヤーのX座標ポインタ。直接参照する必要があるため。
+	double* mPlayerY;			//プレイヤーのY座標ポインタ。直接参照する必要があるため。
 	int mItemObjectType;			//オブジェクトの種類
 	double mVectorX;			//Xベクトル
 	double mVectorY;			//Yベクトル
@@ -40,3 +43,4 @@ public:
 private:
 
 };
+#endif // !__OBJECT_H__

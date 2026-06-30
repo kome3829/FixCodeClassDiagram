@@ -20,7 +20,7 @@ void drawCenterString(int drawCentarPositionX, int drawCentarPositionY,  char* s
 {
 	int stringLength;
 	int stringWidth;
-	stringLength = strlen(string);//文字列の長さの取得
+	stringLength = (int)strlen(string);//文字列の長さの取得
 	stringWidth = GetDrawStringWidth(string, stringLength);//文字列の幅を取得
 	DrawString(drawCentarPositionX - HALF(stringWidth), drawCentarPositionY - HALF(gFontSize), string, color);
 }

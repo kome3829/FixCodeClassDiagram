@@ -79,7 +79,7 @@ void EffectManager::playEffectAnimation()
 エフェクトの種類応じて処理を分岐して、サイズ・フレーム数・アニメーションテーブルなどのパラメータを設定する
 @note     設定後、再生フラグ（mIsPlay）を trueにし、アニメーション再生を開始する状態にする
 @warning
-- 位置変数は常に更新されるためぽいんたで直接参照している
+- 位置変数はポインタで直接参照している
 
 */
 void EffectManager::setEffect(double *setPositionX, double *setPositionY,

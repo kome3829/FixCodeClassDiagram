@@ -136,7 +136,7 @@ void MinionEnemyManager::popEnemy()
 {
 	mEnemyPopCount++; // 出現カウントの更新
 	                  // 出現数カウントが最大数ではなく、出現カウントが90の場合
-	if (mEnemyPopCount == ENEMY_POP_FRAME / 3 &&
+	if (mEnemyPopCount == ENEMY_POP_FRAME / ENEMY_POP_DIVISOR &&
 	    mEnemyNumber != MAX_ENEMY_COUNT)
 	{
 		// 左右交互に出現
@@ -174,7 +174,7 @@ void MinionEnemyManager::popTraceEnemy()
 {
 	mTraceEnemyPopCount++; // 出現カウントの更新
 	                       // 出現数カウントが最大数ではなく、出現カウントが90の場合
-	if (mTraceEnemyPopCount == ENEMY_POP_FRAME / 3 &&
+	if (mTraceEnemyPopCount == ENEMY_POP_FRAME / ENEMY_POP_DIVISOR &&
 	    mTraceEnemyNumber != MAX_ENEMY_COUNT)
 	{
 		// 左右交互に出現
@@ -217,26 +217,31 @@ void MinionEnemyManager::popChargeEnemy()
 	// 出現カウントが270以上かつ
 	// 出現間隔がぴったりの場合(30カウント毎)
 	if (mChargeEnemyPopCount >= ENEMY_POP_FRAME &&
-	    mChargeEnemyPopCount % 30 == 0 && mChargeEnemyNumber != MAX_ENEMY_COUNT)
+	    mChargeEnemyPopCount % CHARGE_ENEMY_POP_INTERVAL_FRAME == 0 &&
+	    mChargeEnemyNumber != MAX_ENEMY_COUNT)
 	{
 		// 左右交互に出現
 		// 出現数カウントが奇数or偶数で判定
 		// 出現数カウントの処理は1つにまとめられそう
 		if (mChargeEnemyNumber % EVEN_NUMBER == 0)
 		{
-			mChargeEnemies[mChargeEnemyNumber]->pop(-20, 0, mChargeEnemyNumber,
+			mChargeEnemies[mChargeEnemyNumber]->start();
+			mChargeEnemies[mChargeEnemyNumber]->pop(CHARGE_ENEMY_POP_LEFT_X, 0,
+			                                        mChargeEnemyNumber,
 			                                        false); // 敵を出現
 			mChargeEnemyNumber++;                           // 出現数をカウント
 		}
 		else
 		{
-			mChargeEnemies[mChargeEnemyNumber]->pop(660, 0, mChargeEnemyNumber,
+			mChargeEnemies[mChargeEnemyNumber]->start();
+			mChargeEnemies[mChargeEnemyNumber]->pop(CHARGE_ENEMY_POP_RIGHT_X, 0,
+			                                        mChargeEnemyNumber,
 			                                        false); // 敵を出現
 			mChargeEnemyNumber++;                           // 出現数をカウント
 		}
 	}
 	// 出現6体分のカウントが進んだ場合（449カウント以上）
-	if (mChargeEnemyPopCount >= 270 + 180 - 10)
+	if (mChargeEnemyPopCount >= CHARGE_ENEMY_POP_END_COUNT)
 		mChargeEnemyPopCount = 0; // 出現カウントをリセット
 }
 /*
@@ -348,7 +353,7 @@ bool MinionEnemyManager::checkAllChargeEnemyDefeat()
         3. TRACE	 追従敵とチャージ敵を出現
 
 */
-bool MinionEnemyManager::MinionEnemyPop()
+bool MinionEnemyManager::minionEnemyPop()
 {
 	switch (mEnemyPopPattern) // 出現パターンで切り替え
 	{
@@ -361,12 +366,6 @@ bool MinionEnemyManager::MinionEnemyPop()
 			// 出現パターンを変更、チャージ敵出現数カウントの初期化
 			mEnemyPopPattern = TRACE_ENEMY;
 			mChargeEnemyNumber = 0;
-
-			// チャージ敵の初期化。次の出現パターンでも利用するため
-			for (int i = 0; i < MAX_ENEMY_COUNT; i++)
-			{
-				mChargeEnemies[i]->start();
-			}
 		}
 
 		break;

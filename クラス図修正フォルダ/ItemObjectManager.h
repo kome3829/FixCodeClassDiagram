@@ -29,7 +29,7 @@ class ItemObjectManager
 	                   int itemObjectType,
 	                   Player *player_p); 
 	// オブジェクトクラスの当たり判定実行関数
-	void hitCheck(Player *player_p); 
+	void checkHit(Player *player_p); 
 
 	Object *mItemObjects[MAX_BULLET_NUMBER]; // アイテムオブジェクト
 

@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿#ifndef __RESULT_H__
+#define __RESULT_H__
+
 #include "BasicScene.h"
 #include"define.h"
 #include"Deta.h"
@@ -83,3 +85,4 @@ private:
 
 };
 
+#endif // !__RESULT_H__

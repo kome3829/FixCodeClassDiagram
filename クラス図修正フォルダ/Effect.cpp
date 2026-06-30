@@ -72,7 +72,7 @@ void Effect::start()
 @param		なし
 @return		なし
 
-@note     再生フラグ（Playcheck）が true の場合のみ処理を実行する
+@note     再生フラグ（mIsPlay）が true の場合のみ処理を実行する
 @note
 アニメーションカウントを更新し、テーブルに基づいて表示するフレームを決定する
 @note     指定された位置に画像を描画する

@@ -304,7 +304,7 @@ void Enemy::start()
 
 @note     フラグ(mIsActive)をtrueにしてaction関数及び敵クラスの関数の処理を有効にしている
 @note     引数で位置、敵の番号、ボスステージかどうかを指定できる
-@note     ボスステージフラグ（BOSS_STAGE）に応じて、位置・番号・体力などのパラメータ設定処理を切り替える
+@note     ボスステージフラグ（isBossStage）に応じて、位置・番号・体力などのパラメータ設定処理を切り替える
 @warning
 - 本関数は、継承先の敵クラスでも共通の出現処理として使用される
 */
@@ -339,7 +339,7 @@ void Enemy::pop(int popPositionX, int popPositionY, int number,
 }
 
 /*
-@brief	撃破SEを再生する関数。hitPlayerBullet関数で使用
+@brief	撃破SEを再生する関数。
 
 @param	なし
 
@@ -398,9 +398,9 @@ void Enemy::takeDamage(int *score, EffectManager *effectManager,
 		playSoundEffect();
 		mIsActive = false;
 		effectManager->setEffect(&(mX), &(mY), EXPLOSION_EF);
-		itemObjectManager->dropItem(mX, mY, OBJECT_EXP, player);
-		itemObjectManager->dropItem(mX, mY, OBJECT_LIFE, player);
-		itemObjectManager->dropItem(mX, mY, OBJECT_STAR, player);
+		itemObjectManager->dropItem((int)mX, (int)mY, OBJECT_EXP, player);
+		itemObjectManager->dropItem((int)mX, (int)mY, OBJECT_LIFE, player);
+		itemObjectManager->dropItem((int)mX, (int)mY, OBJECT_STAR, player);
 	}
 }
 /*
@@ -411,7 +411,7 @@ void Enemy::takeDamage(int *score, EffectManager *effectManager,
 @return		なし
 
 @note      弾を発射する敵の有効化フラグ(mIsActive)がtrueの場合のみ処理を実行する
-@note      shotCount変数でカウントし、一定間隔で弾を発射を繰り返している
+@note      mShotCount変数でカウントし、一定間隔で弾を発射を繰り返している
 @note      角度を変えながら、薙ぎ払うように連続で発射している
 @note      弾発射と同時に発射エフェクト表示と発射SEの再生も行う
 */

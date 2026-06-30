@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿#ifndef __DATA_H__
+#define __DATA_H__
+
+
 #include "DxLib.h"
 #include "define.h"
 // 最大数
@@ -95,3 +98,5 @@ class Data
 
 	static Data *mInstance; // 唯一のクラスポインタ
 };
+
+#endif // !__DATA_H__

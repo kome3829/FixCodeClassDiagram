@@ -1,5 +1,12 @@
 ﻿#include "ItemObjectManager.h"
+/*
+@brief	コンストラクタ
 
+@param	なし
+@return		なし
+
+@note     各オブジェクトクラスのインスタンスを生成している
+*/
 ItemObjectManager::ItemObjectManager()
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -7,7 +14,15 @@ ItemObjectManager::ItemObjectManager()
 		mItemObjects[i] = new Object();
 	}
 }
+/*
+@brief	デストラクタ
 
+@param	なし
+@return		なし
+
+@note
+インスタンス生成した 全てのオブジェクトクラスのdeleteを行い、メモリの開放を行う
+*/
 ItemObjectManager::~ItemObjectManager()
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -16,7 +31,13 @@ ItemObjectManager::~ItemObjectManager()
 		mItemObjects[i] = nullptr;
 	}
 }
+/*
+@brief	メインループで実行する更新処理を行う関数
 
+@param     	なし
+@return     なし
+@note		生成した全てのオブジェクトクラスの更新処理を行う
+*/
 void ItemObjectManager::action()
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -24,7 +45,15 @@ void ItemObjectManager::action()
 		mItemObjects[i]->action();
 	}
 }
+/*
+@brief	描画ループで実行する描画処理を行う関数
 
+@param	なし
+@return		なし
+
+@note	生成した全てのオブジェクトクラスの描画処理を行う
+
+*/
 void ItemObjectManager::draw()
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -32,7 +61,14 @@ void ItemObjectManager::draw()
 		mItemObjects[i]->draw();
 	}
 }
+/*
+@brief	処理開始に必要なパラーメータの初期設定や処理を行う関数
 
+@param	なし
+@return		なし
+@note	生成した全てのオブジェクトクラスの初期設定や処理を行う
+
+*/
 void ItemObjectManager::start()
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
@@ -47,18 +83,16 @@ void ItemObjectManager::start()
 @param[in]	int setPositionY			:出現させるのY座標
 @param[in]	int setAngle				:発射角度
 @param[in]	int itemObjectType			:アイテムの種類
-@param[in]	double* playerPositionX		:プレイヤー位置のｘ座標ポインタ
-@param[in]	double* playerPositionY		:プレイヤー位置のｙ座標ポインタ
+@param[in]	Player *player_p		:プレイヤークラスのポインタ
 
-@return		実行状態:bool:実行した　true/実行してない false
-
+@return		なし
 @note
 
-- フラグ（flg）が true の場合は再設定を行わず false を返す
-- フラグ（flg）をtrueにしてaction関数及びdraw関数の処理を有効にしている
+- フラグ（mIsActive）が true の場合、設定処理を行わず次のオブジェクトクラスへ
+-
+フラグ（mIsActive）をtrueにしてaction関数及びオブジェクトクラスの関数の処理を有効にしている
 - 引数で渡された位置や種類などをもとに各パラメータを設定する
 @warning
-- ドロップ中か判定できるように、返り値は bool 型としている
 -　プレイヤーの位置変数は常に更新されるため、ポインタで直接参照している。
 */
 void ItemObjectManager::setItemObject(int setPositionX, int setPositionY,
@@ -67,7 +101,7 @@ void ItemObjectManager::setItemObject(int setPositionX, int setPositionY,
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
-		if (mItemObjects[i]->mIsActive)//すでに使用されているクラスをスルー		
+		if (mItemObjects[i]->mIsActive) // すでに使用されているクラスをスルー
 		{
 			continue;
 		}
@@ -89,71 +123,35 @@ void ItemObjectManager::setItemObject(int setPositionX, int setPositionY,
 			mItemObjects[i]->mVectorY =
 			    sin(movementRadian) * OBJECT_EXP_FAST_SPEED;
 		}
-		mItemObjects[i]->mIsActive = true;//有効判定をtrue
+		mItemObjects[i]->mIsActive = true; // 有効判定をtrue
 
-		return;
+		return; // 設置処理が行われたのでループを抜ける
 	}
 }
 
 /*
-@brief	各アイテムオブジェクトがプレイヤーへ当たったか判定を行う関数
+@brief	アイテムオブジェクトとプレイヤーの当たり判定を行う関数
 
-@param[in]	Object* itemObject :オブジェクトクラスのインスタンスポインタ
-@param[in]	int*    score		:ゲームスコアのポインタ
-
-@return		当たったアイテムの種類:int
-@note  経験値アイテム　OBJECT_EXP  1
-@note  回復アイテム　OBJECT_LIFE 2
-@note  無敵アイテム　OBJECT_STAR 3
+@param[in]	Player *player_p :プレイヤークラスのポインタ
+@return		なし
 @note
 
-- 当たったアイテムオブジェクトを示すため、返り値をint型としている
-- アイテムオブジェクトのフラグ(flg)がtrueの場合のみ処理を実行する
+- プレイヤークラスのフラグ(mIsActive)がtrueの場合のみ処理を実行する
 - プレイヤーに一定距離まで近づいたら当たったと判定する
-- 当たった場合、アイテムオブジェクトに応じて処理を分岐する
-
-    1. 経験値アイテム
-        - ショットパワーを増やす
-
-    2. 回復アイテム
-        - 残機を1つ増やす
-        - 残機が最大の場合は増やさない
-
-    3. 無敵アイテム
-        - 無敵にする
-        - 無敵の場合は残り時間を最大値まで戻す
 
 */
-void ItemObjectManager::hitCheck(Player *player_p)
+void ItemObjectManager::checkHit(Player *player_p)
 {
-	if (!player_p->mIsActive)
+	if (!player_p->mIsActive)//有効化されれいない場合は処理を行わない
 	{
 		return;
 	}
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
-		if (!mItemObjects[i]->mIsActive )
+		if (mItemObjects[i]->checkHit(
+		        player_p)) // オブジェクトクラスの判定処理を呼び出し
 		{
-			continue;
-		}
-		// アイテムと当たり判定をとるクラスとの距離を計算
-		int distX = abs((int)(player_p->mX - mItemObjects[i]->mX));
-		int distY = abs((int)(player_p->mY - mItemObjects[i]->mY));
-
-		// 一定距離まで近づいたら当たったと判定
-		if (distX < ITEM_OBJECT_WIDTH && distY < ITEM_OBJECT_HEIGHT)
-		{
-			if (!player_p->mIsItemHit) // ヒット判定中ではなければ
-			{
-				player_p->mIsItemHit = true; // ヒット判定を有効
-				player_p->mHitItemType = mItemObjects[i]->mItemObjectType; // ヒットしたアイテム種類を伝達
-
-
-			}
-			// アイテムの無効化及びリセット
-			mItemObjects[i]->reset();
-
-			return;
+			return; // 当たり判定があった場合、プレイヤークラスで効果反映処理を行うためにループを抜ける
 		}
 	}
 }
@@ -161,9 +159,9 @@ void ItemObjectManager::hitCheck(Player *player_p)
 /*
 @brief	アイテムのドロップを管理する関数
 
-@param[in]	int x			:出現させるのX座標
-@param[in]	int y			:出現させるのY座標
-@param[in]	int itemtype	:出現させるアイテムの種類
+@param[in]	int itemX			:出現させるのX座標
+@param[in]	int itemY			:出現させるのY座標
+@param[in]	int itemType		:出現させるアイテムの種類
 @param[in]	 Player *player_p	:プレイヤークラスのポインタ
 
 
@@ -181,11 +179,9 @@ void ItemObjectManager::hitCheck(Player *player_p)
            - 10パーセントの確率でドロップするようにしている。
 
         3. 無敵アイテム
-           - 10パーセントの確率でドロップするようにしている。
+           - 30パーセントの確率でドロップするようにしている。
 
       -
-雑魚敵を撃破した時場合及びボスの発射と行動パターンの切り替えする場合に使用している。
-@note　2重ループのfor分には変数ｊではなくkを使用している。iとjが見分けずらいので。３重の場合はlを使用
 */
 void ItemObjectManager::dropItem(int itemX, int itemY, int itemType,
                                  Player *player_p)

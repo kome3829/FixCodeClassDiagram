@@ -66,7 +66,6 @@ void action()
 {
 	updateKeyBuff();//キー入力更新
 	updateControllerKeyBuff();//コントローラの入力更新
-	//switch文を使わずに一文で書ける
 	 previousSceneType = sceneType;//アクション更新前のシーン番号を記憶
 	sceneType = sceneArray[sceneType]->action();//シーンのアクション関数更新
 	if (previousSceneType != sceneType)
@@ -86,7 +85,6 @@ void action()
 */
 void draw()
 {
-	//switch文を使わずに一文で書ける
 	sceneArray[sceneType]->draw();//シーンのドロー関数更新	
 }
 

@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿#ifndef __DEFINE_H__
+#define __DEFINE_H__
+
 //共通の固定値など
 
 //各シーン番号
@@ -179,3 +181,5 @@
 #define CHARGE_ENEMY_SUMMON_POINT_LEFT_Y (100)
 #define CHARGE_ENEMY_SUMMON_POINT_RIGHT_X (480)
 #define CHARGE_ENEMY_SUMMON_POINT_RIGHT_Y (100)
+
+#endif // !__DEFINE_H__

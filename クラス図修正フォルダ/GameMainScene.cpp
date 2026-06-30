@@ -29,8 +29,8 @@ GameMainScene::GameMainScene()
 	mIsBossAlert = false;
 	mRedBGFadeOutCount = 0;
 	mRedBGAlpha = MAX_ALPHA;
-	randomExplositionPositionX = 0;
-	randomExplositionPositionY = 0;
+	mRandomExplositionPositionX = 0;
+	mRandomExplositionPositionY = 0;
 }
 
 /*
@@ -73,37 +73,23 @@ GameMainScene::~GameMainScene()
       - ゲーム内時間の更新
         - 現在の時間と開始時の時間の差から経過時間を計算している
 
-      - 各オブジェクトの更新処理
-        - プレイヤー・敵・ボス・弾・アイテムのaction関数を実行する
-        - 敵・弾・アイテムはfor文で複数実行している
+      - 各キャラクタークラスの更新処理
+        - プレイヤー・ボスのaction関数を実行する
 
-      - 弾の発射処理
-        - プレイヤー・敵・ボスの弾を発射する関数を実行する
-        - 敵はfor文で複数実行している
+      - 各管理クラスの更新処理
+        -
+雑魚敵・エフェクト・アイテムオブジェクト・弾の管理クラスのaction関数を実行する
 
       - 当たり判定処理
-        - プレイヤー・敵・ボスの当たり判定関数を実行する
-        - プレイヤー・ボスの当たり判定関数はfor文で弾の数に応じて複数実行する
-        - 敵の当たり判定関数は2重のfor文で敵の数と弾の数に応じて複数実行する
-        - 敵の当たり判定関数ではエフェクトの表示、アイテムドロップも行っている
+        - 弾とアイテムオブジェクトの管理クラスの当たり判定関数を実行する
 
-      - アイテム取得処理
-        - プレイヤーのアイテム取得関数を実行する
-        -
-アイテム取得関数の返り値応じて、アイテム取得エフェクトの表示を分岐している
-        - for分で複数実行している
 
       - ステージ進行の処理
-        - ステージに応じた処理を現在のステージ(stage)に応じて分岐している
+        - ステージに応じた処理を現在のステージ(mStageType)に応じて分岐している
         1. TEST　
            - テスト用のステージ。処理は別でしているので記載なし
         2. NOMAL
-           - 雑魚敵のステージ。 それぞれの敵の出現関数を実行する
-           - 出現パターン(enemyPattern)に応じて更に処理を分岐している
-           - 撃破判定関数の実行によって出現パターンを切り替えている
-              1. CHARGE　チャージ攻撃敵を出現
-              2. NOMAL　 通常敵を出現
-              3. TRACE	 追従敵とチャージ敵を出現
+           - 雑魚敵のステージ。 雑魚敵管理クラスの出現パターン管理関数を実行
         3. BOSSSTAGE　
             - ボスステージ。
             - ボス撃破演出関数の実行。関数内の処理でクリアステージへ切り替える
@@ -116,7 +102,6 @@ GameMainScene::~GameMainScene()
         -
 プレイヤーの撃破判定関数の返り値がそのままaction関数の返り値として、シーン遷移を行う
 
-  @note　2重ループのfor分には変数ｊではなくkを使用している。iとjが見分けずらいので。３重の場合はlを使用
 */
 int GameMainScene::action()
 {
@@ -135,9 +120,6 @@ int GameMainScene::action()
 			mIsBossAlert = false;
 			mStageType = BOSS_STAGE;
 			mBoss->mIsActive = true; // ボス出現
-			// mBoss->mHitPoint = TEST_BOSS_HP;
-			// boss->HP = BOSS_MAX_HP;
-
 			mPlayer->mShotPower = TEST_PLAYER_POWER;
 			mRedBGAlpha = MAX_ALPHA;
 		}
@@ -146,8 +128,7 @@ int GameMainScene::action()
 		// エフェクト表示の確認
 		if (checkSinglePushKey(KEY_INPUT_SPACE))
 		{
-			mEffectManager->setEffect(&(mPlayer->mX), &(mPlayer->mY),
-				                           WARP_EF);
+			mEffectManager->setEffect(&(mPlayer->mX), &(mPlayer->mY), WARP_EF);
 		}
 	}
 	// 動画ループ再生
@@ -165,22 +146,23 @@ int GameMainScene::action()
 	mTime = (GetNowCount() - mStartTime);
 
 	// プレイヤーの更新処理、発射処理
-	mPlayer->action(mBulletManager,mEffectManager,&mScore);
+	mPlayer->action(mBulletManager, mEffectManager, &mScore);
 
 	// ボスの更新処理、発射処理
-	mBoss->action(&mScore,mBulletManager,mEffectManager,mItemObjectManager,mMinionEnemyManager,mPlayer);
+	mBoss->action(&mScore, mBulletManager, mEffectManager, mItemObjectManager,
+	              mMinionEnemyManager, mPlayer);
 
-	// 弾管理クラスの当たり判定関数管理
+	// 弾管理クラスの当たり判定管理
 	mBulletManager->checHit(mPlayer, mBoss, mMinionEnemyManager);
 
-	//アイテムクラスの当たり判定管理
-	mItemObjectManager->hitCheck(mPlayer);
-	
+	// アイテムクラスの当たり判定管理
+	mItemObjectManager->checkHit(mPlayer);
+
 	// 管理クラスの更新処理
 	mBulletManager->action();
-	mMinionEnemyManager->action(mPlayer, &mScore, mBulletManager,mEffectManager,mItemObjectManager);
+	mMinionEnemyManager->action(mPlayer, &mScore, mBulletManager,
+	                            mEffectManager, mItemObjectManager);
 	mItemObjectManager->action();
-
 
 	// ステージごとの更新処理
 	switch (mStageType)
@@ -189,7 +171,8 @@ int GameMainScene::action()
 		break;
 
 	case NOMAL_STAGE: // 雑魚敵ステージ
-		if (mMinionEnemyManager->MinionEnemyPop())//雑魚敵出現管理関数の呼び出し。処理を完了するとtrue
+		if (mMinionEnemyManager
+		        ->minionEnemyPop()) // 雑魚敵出現管理関数の呼び出し。処理を完了するとtrue
 		{
 			mIsBossAlert = true;
 		}
@@ -219,7 +202,6 @@ int GameMainScene::action()
 		break;
 
 	case BOSS_STAGE: // ボスステージ
-		mPlayer->mIsUnbeatable = true;
 		// ボス撃破の判定、撃破演出処理
 		if (mBoss->mIsDefeat)
 		{
@@ -249,16 +231,16 @@ int GameMainScene::action()
 @note
 
       - 背景動画の表示
-      - 各オブジェクトのdraw関数及びanimePlay関数を実行
+      -
+各キャラクタークラス及び管理クラスのdraw関数及びplayEffectAnimation関数を実行
       - スコア、時間、ショットパワーなどのUIを表示
       - ボスステージの場合のみボスのHPバーを表示
       - プレイヤーが撃破された場合のみ、ゲームオーバーのテロップ画像を表示
-      - ダメージ表現を画面サイズの真っ赤な画像を表示で行う
+      - ボス出現の演出を画面サイズの真っ赤な画像を表示で行う
         - アルファブレンドで素早くフェイドアウト
-        - ボス出現の演出でも使用
 @warning
 上から順に表示していくので、奥から手前に表示する順番を考えて処理を実行している
-プレイヤーのダメージ表現は重要なので画面全体でわかりやすく行う
+ボス出現の演出は重要なので画面全体でわかりやすく行う
 */
 void GameMainScene::draw()
 {
@@ -270,13 +252,11 @@ void GameMainScene::draw()
 	mBoss->draw();
 	// エフェクトの表示
 	mEffectManager->playEffectAnimation();
-	mMinionEnemyManager->draw();
 
 	// 管理クラスの表示処理
 	mBulletManager->draw();
-
-		mItemObjectManager->draw();
-
+	mMinionEnemyManager->draw();
+	mItemObjectManager->draw();
 
 	// プレイヤーの表示
 	mPlayer->draw();
@@ -321,7 +301,7 @@ void GameMainScene::draw()
 		          Data::getInstance()->mGameOverTelopImageHandle, TRUE);
 	}
 
-	// ダメージ表現 、ボスの出現演出
+	// ボスの出現演出
 	if (mIsBossAlert)
 	{
 		// 画面全体を真っ赤にする。素早くフェイドアウト
@@ -363,9 +343,9 @@ void GameMainScene::start()
 	// NOMAL_STAGE,TEST_STAGE;
 	mStageType = NOMAL_STAGE;
 	mIsBossAlert = false;
-	randomExplositionPositionX = 0;
-	randomExplositionPositionY = 0;
-	
+	mRandomExplositionPositionX = 0;
+	mRandomExplositionPositionY = 0;
+
 	// 各インスタンスの初期化処理
 	mPlayer->start();
 	mBoss->start();
@@ -374,7 +354,6 @@ void GameMainScene::start()
 	mMinionEnemyManager->start();
 	mEffectManager->start();
 	mItemObjectManager->start();
-
 }
 
 /*
@@ -387,7 +366,7 @@ void GameMainScene::start()
 @note      爆発SEと爆破エフェクトの再生を一定回数繰り返す
 @note      爆破エフェクトはボス上のランダムな位置で再生
 @note
-一定回数の演出が終わるとゲームスコア、時間をdataクラス内変数に保存し、クリアステージへ切り替える
+一定回数の演出が終わるとゲームスコア、時間をデータクラス内変数に保存し、クリアステージへ切り替える
 
 */
 void GameMainScene::playBossDefeatExplosion()
@@ -405,20 +384,20 @@ void GameMainScene::playBossDefeatExplosion()
 			// 間隔カウントリセット
 			mBossExploEFIntervalCount = 0;
 
-							// ボス画像上のランダムな位置を計算
-			randomExplositionPositionX =
+			// ボス画像上のランダムな位置を計算
+			mRandomExplositionPositionX =
 			    (int)mBoss->mX + BOSS_DEFEAT_EXPLOSION_OFFSET_X +
 			    GetRand(BOSS_DEFEAT_EXPLOSION_RANDOM_RANGE) *
 			        BOSS_DEFEAT_EXPLOSION_STEP;
-			randomExplositionPositionY =
+			mRandomExplositionPositionY =
 			    (int)mBoss->mY + BOSS_DEFEAT_EXPLOSION_OFFSET_Y +
 			    GetRand(BOSS_DEFEAT_EXPLOSION_RANDOM_RANGE) *
 			        BOSS_DEFEAT_EXPLOSION_STEP;
 
-			mEffectManager->setEffect( &(randomExplositionPositionX),
-			                           &(randomExplositionPositionY),
+			mEffectManager->setEffect(&(mRandomExplositionPositionX),
+			                          &(mRandomExplositionPositionY),
 			                          EXPLOSION_EF);
-			
+
 			mBossExploEFCount++; // 爆破エフェクト数カウントの更新
 		}
 	}
@@ -460,11 +439,11 @@ void GameMainScene::playBossDefeatExplosion()
 
 @note
 
-- プレイヤー撃破フラグ(dethFlg)がtrueの場合のみ処理を実行する
+- プレイヤー撃破フラグ(mIsDefeat)がtrueの場合のみ処理を実行する
 - ゲームスコア、時間をdataクラス内変数に保存を行う
 - 返り値SCENE_RESULTを返し、シーン遷移を行う
 -
-プレイヤー撃破フラグ(dethFlg)がfalseの場合はSCENE_GAMEMAINを返り値にしてゲームシーンを続ける
+プレイヤー撃破フラグ(mIsDefeat)がfalseの場合はSCENE_GAMEMAINを返り値にしてゲームシーンを続ける
 @warning
 - 判定を行った戻り値でそのままシーン遷移を行えるようにした
 */

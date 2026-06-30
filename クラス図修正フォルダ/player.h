@@ -1,14 +1,14 @@
 ﻿#ifndef __PLAYER_H__
 #define __PLAYER_H__
 
-#include "DxLib.h"
-#include "define.h"
+#include "Character.h"
 #include "Deta.h"
+#include "DxLib.h"
+#include "EffectManager.h"
+#include "define.h"
 #include "math.h"
 #include "myLib/MyLib.h"
 #include "myLib/key.h"
-#include "Character.h"
-#include "EffectManager.h"
 // ヒットポイント
 #define MAX_HP (3)
 // ダメージ演出
@@ -40,7 +40,7 @@
 #define PLAYER_NOMAL_SHOT_INTERVAL (5)
 
 // 通常弾
-#define PLAYER_NORMAL_SHOT_SPEED (2)
+#define PLAYER_NORMAL_SHOT_SPEED  (2)
 #define PLAYER_UPGRADE_SHOT_SPEED (1)
 #define PLAYER_NORMAL_SHOT_ANGLE (-90)
 
@@ -65,7 +65,6 @@
 #define FIRE_POINT_OFFSET_X (18)
 #define FIRE_POINT_OFFSET_Y (-5)
 
-
 class BulletManager;
 
 class Player : public Character
@@ -80,9 +79,9 @@ class Player : public Character
 	int mImageWidth;  // 画像の横サイズ
 	int mImageHeight; // 画像の縦サイズ
 
-	bool mIsDamegeCoolDown;//ダメージ処理の無効化
-	bool mIsItemHit;//アイテムヒット判定
-	int mHitItemType;//当たったアイテムの種類
+	bool mIsDamegeCoolDown; // ダメージ処理の無効化
+	bool mIsItemHit;        // アイテムヒット判定
+	int mHitItemType;       // 当たったアイテムの種類
 
 	bool mIsActiveMissileShot;        // ミサイル弾有効化判定
 	double mSpeed;                    // 移動速度
@@ -93,25 +92,22 @@ class Player : public Character
 	int mShotPower;                   // ショットパワー
 	bool mIsUnbeatable;               // 無敵判定
 	int mUnbeatableCount;             // 無敵時間カウント
-	double mUnbeatableGagePercent; // 無敵時間ゲージの表示範囲割合
+	double mUnbeatableGagePercent;    // 無敵時間ゲージの表示範囲割合
 
-		//---プレイヤーの発射に関する変数---
-	int mShotCount;          // プレイヤー発射カウント
+	//---プレイヤーの発射に関する変数---
+	int mShotCount;                // プレイヤー発射カウント
 	int mNomalShotIntervalCount;   // 通常弾発射間隔カウント
 	int mNomalShotInterval;        // 通常弾発射間隔
 	int mMissileShotIntervalCount; // ミサイル発射間隔カウント
 	int mSpecialShotCount;         // スペシャル弾発射カウント
   private:
-	/// <summary>
-	/// プレイヤー弾発射関数
-	/// </summary>
+	// プレイヤー弾発射関数
 	void shotPlayerBullet(BulletManager *bulletManager,
 	                      EffectManager *effectManager);
 	// ダメージ処理
 	void takeDamage();
-	//アイテム効果反映処理
-	void applyItemeffect(int *score, EffectManager *effectManager);
+	// アイテム効果反映処理
+	void applyItemEffect(int *score, EffectManager *effectManager);
 };
 
 #endif // !__PLAYER_H__
-
