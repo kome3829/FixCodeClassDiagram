@@ -146,9 +146,9 @@ void Bullet::hitCheck(Character *class_p)
 	int distX = abs((int)(class_p->mX - mX));
 	int distY = abs((int)(class_p->mY - mY));
 
-	// 弾と当たり判定をとるクラスのサイズを加算した半分の値を計算
-	int hitRangeX = (class_p->mWidth + mWidth) / 2;
-	int hitRangeY = (class_p->mHeight + mHeight) / 2;
+	// 弾と当たり判定をとるクラスのサイズを加算した半分の値を計算。実際の画像よりも小さい判定にする。
+	int hitRangeX = ((class_p->mWidth + mWidth) / 2)-HIT_MARGIN;
+	int hitRangeY = ((class_p->mHeight + mHeight) / 2) - HIT_MARGIN;
 
 	// 一定距離まで近づいたら当たったと判定
 	if (distX < hitRangeX && distY < hitRangeY)

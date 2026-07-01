@@ -19,6 +19,7 @@
 #define DRAW_OFFSET_Y (10)
 // 当たり判定
 #define PLAYER_HIT_RANGE (10)
+#define HIT_MARGIN (5)
 
 enum BULLET_TYPE
 {

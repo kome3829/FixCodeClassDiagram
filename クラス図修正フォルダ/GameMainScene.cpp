@@ -254,12 +254,14 @@ void GameMainScene::draw()
 	mEffectManager->playEffectAnimation();
 
 	// 管理クラスの表示処理
-	mBulletManager->draw();
+
 	mMinionEnemyManager->draw();
 	mItemObjectManager->draw();
 
 	// プレイヤーの表示
 	mPlayer->draw();
+	//弾管理クラスの表示処理
+	mBulletManager->draw();
 
 	// UI表示
 	SetFontSize(UI_FONT_SIZE);
