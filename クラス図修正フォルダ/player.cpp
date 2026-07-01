@@ -370,6 +370,10 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 					    (int)mY + FIRE_POINT_OFFSET_Y, PLAYER_NORMAL_SHOT_ANGLE,
 					    BULLET_TYPE::PLAYER_NOMAL, false, true);
 				}
+				// 発射SEの再生
+				PlaySoundMem(Data::getInstance()->mPlayerShotSoundEffectHandle,
+				             DX_PLAYTYPE_BACK, TRUE);
+
 			}
 			// shootPowarが1500超えたら発射間隔を短くする
 			if (mShotPower >= SHOT_POWER_GRADE1 &&
@@ -421,6 +425,11 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 						        PLAYER_MISSILE_START_ANGLE + TURN_AROUND_ANGLE,
 						    BULLET_TYPE::PLAYER_MISSILE, false, true);
 					}
+					// 発射SEの再生
+					PlaySoundMem(
+					    Data::getInstance()->mPlayerShotSoundEffectHandle,
+					    DX_PLAYTYPE_BACK, TRUE);
+
 				}
 
 				// カウントのオーバフロー防止
@@ -461,6 +470,11 @@ void Player::shotPlayerBullet(BulletManager *bulletManager,
 						            CUT_HALF,
 						    BULLET_TYPE::PLAYER_SPECIAL, false, true);
 					}
+					// 発射SEの再生
+					PlaySoundMem(
+					    Data::getInstance()->mPlayerShotSoundEffectHandle,
+					    DX_PLAYTYPE_BACK, TRUE);
+
 				}
 				// 10カウントでスペシャル弾発射カウントをリセット(実質50フレーム)
 				if (mSpecialShotCount > PLAYER_SPECIAL_SHOT_COUNTER_RESET)

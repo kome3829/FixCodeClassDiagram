@@ -1,4 +1,12 @@
 ﻿#include "BulletManager.h"
+
+#include "BossEnemy.h"
+#include "Deta.h"
+#include "DxLib.h"
+#include "Enemy.h"
+#include "MinionEnemyManager.h"
+#include "Player.h"
+#include <cmath>
 /*
 @brief	コンストラクタ
 
@@ -89,8 +97,8 @@ void BulletManager::start()
 @note	プレイヤー側と敵側で当たり判定関数に渡すの引数の変更している
 
 */
-void BulletManager::checHit(Player *player_p, BossEnemy *bossEnemy_p,
-                            MinionEnemyManager *minionEnemyManager_p)
+void BulletManager::checkHit(Player *player_p, BossEnemy *bossEnemy_p,
+                             MinionEnemyManager *minionEnemyManager_p)
 {
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
@@ -138,16 +146,13 @@ void BulletManager::setBullet(int setPositionX, int setPositionY, int setAngle,
 		{
 			continue;
 		}
-		// 発射SEの再生
-		PlaySoundMem(Data::getInstance()->mPlayerShotSoundEffectHandle,
-		             DX_PLAYTYPE_BACK, TRUE);
 		// 各パラメータの設定
-		mBullets[i]->mX = setPositionX;                      // ｘ座標
-		mBullets[i]->mY = setPositionY;                      // y座標
-		mBullets[i]->mBulletType = bulletType;               // 弾の種類
-		mBullets[i]->mWidth = mBulletWidthList[bulletType];  // 横幅
-		mBullets[i]->mHeight = mBulletHightList[bulletType]; // 縦幅
-		mBullets[i]->mSpeed = mBulletSpeedList[bulletType];  // 速度
+		mBullets[i]->mX = setPositionX;                        // ｘ座標
+		mBullets[i]->mY = setPositionY;                        // y座標
+		mBullets[i]->mBulletType = bulletType;                 // 弾の種類
+		mBullets[i]->mWidth = BULLET_DATA[bulletType].width;   // 横幅
+		mBullets[i]->mHeight = BULLET_DATA[bulletType].height; // 縦幅
+		mBullets[i]->mSpeed = BULLET_DATA[bulletType].speed;   // 速度
 		// ラジアンに変換
 		double moveRadian = setAngle / DEGREE_TO_RADIAN_DIVISOR * PI;
 
@@ -170,33 +175,28 @@ void BulletManager::setBullet(int setPositionX, int setPositionY, int setAngle,
 @param[in]	Bullet *bullet:弾クラスのポインタ
 @note	有効化されている雑魚敵全てとの当たり判定処理を行う
 @note	引数でクラスポインタから座標とサイズを参照している
+@note	敵種類ごとに配列が分かれているため、ここでまとめて処理
 
 */
 void BulletManager::checkHitMinionEnemy(MinionEnemyManager *minionEnemyManager,
                                         Bullet *bullet)
 {
-	for (int i = 0; i < MAX_ENEMY_COUNT; i++)//インスタンスした数繰り返す
+	for (int enemyIndex = 0; enemyIndex < MAX_ENEMY_COUNT; enemyIndex++)
 	{
-		if (!minionEnemyManager->mEnemies[i]->mIsActive)//有効化されていなければスルー
-		{
-			continue;
-		}
-		bullet->hitCheck(minionEnemyManager->mEnemies[i]); // 通常敵と
+		checkHitEnemy(minionEnemyManager->mEnemies[enemyIndex], bullet);
+
+		checkHitEnemy(minionEnemyManager->mTraceEnemies[enemyIndex], bullet);
+
+		checkHitEnemy(minionEnemyManager->mChargeEnemies[enemyIndex], bullet);
 	}
-	for (int i = 0; i < MAX_ENEMY_COUNT; i++)//インスタンスした数繰り返す
+}
+
+void BulletManager::checkHitEnemy(Enemy *enemy, Bullet *bullet)
+{
+	if (!enemy->mIsActive) // 有効でない場合は処理を行わない
 	{
-		if (!minionEnemyManager->mTraceEnemies[i]->mIsActive)//有効化されていなければスルー
-		{
-			continue;
-		}
-		bullet->hitCheck(minionEnemyManager->mTraceEnemies[i]); // 追従敵と
+		return;
 	}
-	for (int i = 0; i < MAX_ENEMY_COUNT; i++)//インスタンスした数繰り返す
-	{
-		if (!minionEnemyManager->mChargeEnemies[i]->mIsActive)//有効化されていなければスルー
-		{
-			continue;
-		}
-		bullet->hitCheck(minionEnemyManager->mChargeEnemies[i]); // チャージ敵と
-	}
+
+	bullet->hitCheck(enemy);
 }

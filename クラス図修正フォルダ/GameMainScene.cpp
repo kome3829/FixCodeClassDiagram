@@ -153,7 +153,7 @@ int GameMainScene::action()
 	              mMinionEnemyManager, mPlayer);
 
 	// 弾管理クラスの当たり判定管理
-	mBulletManager->checHit(mPlayer, mBoss, mMinionEnemyManager);
+	mBulletManager->checkHit(mPlayer, mBoss, mMinionEnemyManager);
 
 	// アイテムクラスの当たり判定管理
 	mItemObjectManager->checkHit(mPlayer);

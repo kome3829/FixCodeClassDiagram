@@ -1,16 +1,31 @@
 ﻿#ifndef __BULLETMANAGER_H__
 #define __BULLETMANAGER_H__
 
-#include "BossEnemy.h"
 #include "Bullet.h"
-#include "Character.h"
-#include "Deta.h"
-#include "DxLib.h"
-#include "MinionEnemyManager.h"
-#include "Player.h"
 #include "define.h"
-#include "math.h"
 
+// 前方宣言。ヘッダファイルでのインクルードを減らすため
+class BossEnemy;
+class MinionEnemyManager;
+class Player;
+class Enemy;
+
+struct BulletData
+{
+	int width;//横サイズ
+	int height;//縦サイズ
+	int speed;//速さ
+};
+// 各弾のパラメータ
+constexpr BulletData BULLET_DATA[] = {
+    {64, 64, 10}, // プレイヤー通常弾
+    {64, 64, 10},    // ミサイル弾
+    {20, 20, 8}, // スペシャル弾
+    {30, 30, 6}, // 敵通常弾
+    {20, 20, 4}, // 敵ミニ弾弾
+    {20, 20, 4}  // 敵ミニ弾弾
+
+};
 class BulletManager
 {
   public:
@@ -19,25 +34,22 @@ class BulletManager
 	void action();
 	void draw();
 	void start();
-	void checHit(Player *player_p, BossEnemy *bossEnemy_p,
-	             MinionEnemyManager *minionEnemyManager_p);//当たり判定処理の管理関数
+	void checkHit(
+	    Player *player_p, BossEnemy *bossEnemy_p,
+	    MinionEnemyManager *minionEnemyManager_p); // 当たり判定処理の管理関数
 
 	void setBullet(int setPositionX, int setPositionY, int setAngle,
 	               BULLET_TYPE bulletType, bool isBossEnemy,
-	               bool isPlayerBullet);     // 設置処理関数
-	Bullet *mBullets[MAX_BULLET_NUMBER]; // 弾クラス
+	               bool isPlayerBullet); // 設置処理関数
 
   private:
-	void checkHitMinionEnemy(MinionEnemyManager *minionEnemyManager,
-	                            Bullet *bullet);//雑魚敵との当たり判定処理関数
+	Bullet *mBullets[MAX_BULLET_NUMBER]; // 弾クラス
 
-	// 各弾のパラメータ
-	static constexpr int mBulletWidthList // 弾の横幅サイズの配列
-	    [MAX_BULLET_TYPE_NUMBER] = {64, 64, 20, 30, 20, 20};
-	static constexpr int mBulletHightList // 弾の縦幅サイズの配列
-	    [MAX_BULLET_TYPE_NUMBER] = {48, 48, 20, 30, 20, 20};
-	static constexpr int mBulletSpeedList // 弾の速度の配列
-	    [MAX_BULLET_TYPE_NUMBER] = {10, 10, 8, 6, 4, 4};
+	void checkHitMinionEnemy(MinionEnemyManager *minionEnemyManager,
+	                         Bullet *bullet); // 各雑魚敵との当たり判定処理関数
+	void checkHitEnemy(Enemy *enemy, Bullet *bullet); // 敵との判定処理
+
+
 };
 
 #endif // __BULLETMANAGER_H__
