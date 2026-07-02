@@ -10,7 +10,7 @@
 */
 EffectManager::EffectManager()
 {
-	for (int i = 0; i < MAX_BULLET_NUMBER;i++)
+	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		mEffects[i] = new Effect();
 	}
@@ -30,11 +30,10 @@ EffectManager::~EffectManager()
 	{
 		delete mEffects[i];
 		mEffects[i] = nullptr;
-
 	}
 }
 /*
-@brief	処理開始に必要なパラーメータの初期設定や処理を行う関数
+@brief	処理開始に必要なパラメータの初期設定や処理を行う関数
 
 @param	なし
 @return		なし
@@ -77,7 +76,8 @@ void EffectManager::playEffectAnimation()
 @note     再生フラグ（mIsPlay）が trueの場合は、すでに再生中のため設定を行わない
 @note
 エフェクトの種類応じて処理を分岐して、サイズ・フレーム数・アニメーションテーブルなどのパラメータを設定する
-@note     設定後、再生フラグ（mIsPlay）を trueにし、アニメーション再生を開始する状態にする
+@note     設定後、再生フラグ（mIsPlay）を
+trueにし、アニメーション再生を開始する状態にする
 @warning
 - 位置変数はポインタで直接参照している
 
@@ -85,7 +85,7 @@ void EffectManager::playEffectAnimation()
 void EffectManager::setEffect(double *setPositionX, double *setPositionY,
                               int effectType)
 {
-	// フラグのたっていないものを探し、1つだけsetbullet関数を実行
+	// フラグのたっていないものを探し、1つだけsetEffect関数を実行
 	for (int i = 0; i < MAX_BULLET_NUMBER; i++)
 	{
 		if (mEffects[i]->mIsPlay)
@@ -95,65 +95,15 @@ void EffectManager::setEffect(double *setPositionX, double *setPositionY,
 
 		// 使用するエフェクト番号を保存する
 		mEffects[i]->mEffectType = effectType;
-		// 種別に応じてパラメータを設定する
-		switch (effectType)
-		{
-		case POWERUP_EF:
-			// パワーアップエフェクトの設定
-			setParameter(mEffects[i], mPowerUpEffectTable, POWERUP_EF);
-				break;
-
-		case CHARGE_EF:
-			// チャージエフェクトの設定
-			setParameter(mEffects[i], mChargeEffectTable, CHARGE_EF);
-
-			break;
-
-		case HIT_EF:
-			// ヒットエフェクトの設定
-			setParameter(mEffects[i], mHitEffectTable, HIT_EF);
-			mEffects[i]->mAlpha = HIT_EF_ALPHA;
-			break;
-
-		case SHOT_EF:
-			// 発射エフェクトの設定
-			setParameter(mEffects[i], mShotEffectTable, SHOT_EF);
-			break;
-
-		case LIFE_EF:
-			// ライフ取得エフェクトの設定
-			setParameter(mEffects[i], mLifeAndStarEffectTable, LIFE_EF);
-			break;
-
-		case STAR_EF:
-			// スター取得エフェクトの設定
-			setParameter(mEffects[i], mLifeAndStarEffectTable, STAR_EF);
-			break;
-
-		case WARP_EF:
-			// ワープエフェクトの設定
-			setParameter(mEffects[i], mWarpEffectTable, WARP_EF);
-			break;
-
-		case CHARGE_EF_BOSS:
-			// ボス用チャージエフェクトの設定
-			setParameter(mEffects[i], mChargeEffectTable, CHARGE_EF_BOSS);
-			break;
-
-		case EXPLOSION_EF:
-			// ボス用チャージエフェクトの設定
-			setParameter(mEffects[i], mExplosionPlayFrameTable, EXPLOSION_EF);
-			break;
-		default:
-			break;
-		}
+		//パラメータの設定
+		setParameter(mEffects[i], mEffectPlayFrameTableList[effectType],
+		             effectType);
 		mEffects[i]->mX = setPositionX;
 		mEffects[i]->mY = setPositionY;
 		mEffects[i]->mIsPlay = true;
 		return;
 	}
 }
-
 
 /*
 @brief	エフェクトアニメーションの各パラメータ設定を行う関数
@@ -171,12 +121,15 @@ void EffectManager::setEffect(double *setPositionX, double *setPositionY,
 void EffectManager::setParameter(Effect *effect, const int playFrameTable[],
                                  int effectType)
 {
-	//各パラメータの設定
-	effect->mWidth = mEffectWidthList[effectType];
-	effect->mHeight = mEffectHightList[effectType];
-	effect->mSpriteFrameMax = mEffectSpriteFrameMaxList[effectType];
-	effect->mPlayFrameMax = mEffectPlayFrameMaxList[effectType];
-
+	// 各パラメータの設定
+	effect->mWidth = EFFECT_DATA[effectType].mWidth;
+	effect->mHeight = EFFECT_DATA[effectType].mHeight;
+	effect->mSpriteFrameMax = EFFECT_DATA[effectType].mSpriteFrameMax;
+	effect->mPlayFrameMax = EFFECT_DATA[effectType].mPlayFrameMax;
+	if (effectType == HIT_EF)//ヒットエフェクトだけ透過度を変更しているため
+	{
+		effect->mAlpha = HIT_EF_ALPHA;
+	}
 	// 再生順テーブルをコピーする
 	for (int i = 0; i < effect->mPlayFrameMax; i++)
 	{

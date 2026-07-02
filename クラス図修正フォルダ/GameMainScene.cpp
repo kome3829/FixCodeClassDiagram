@@ -31,6 +31,13 @@ GameMainScene::GameMainScene()
 	mRedBGAlpha = MAX_ALPHA;
 	mRandomExplositionPositionX = 0;
 	mRandomExplositionPositionY = 0;
+
+	//ポインタの値を渡す
+	mActionData.mBulletManager = mBulletManager;
+	mActionData.mEffectManager = mEffectManager;
+	mActionData.mItemObjectManager = mItemObjectManager;
+	mActionData.mPlayer = mPlayer;
+	mActionData.mScore = &mScore;
 }
 
 /*
@@ -160,8 +167,7 @@ int GameMainScene::action()
 
 	// 管理クラスの更新処理
 	mBulletManager->action();
-	mMinionEnemyManager->action(mPlayer, &mScore, mBulletManager,
-	                            mEffectManager, mItemObjectManager);
+	mMinionEnemyManager->action(&mActionData);
 	mItemObjectManager->action();
 
 	// ステージごとの更新処理

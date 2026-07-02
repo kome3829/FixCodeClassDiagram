@@ -44,8 +44,7 @@ class ChargeEnemy : public Enemy
 public:
 	ChargeEnemy();
 	~ChargeEnemy();
-	void action(int *score, BulletManager *bulletManager, Player *player,
-	            EffectManager *effectManager, ItemObjectManager *itemObject);
+	void action(EnemyActionData *actiondata);
 	 void draw();
 	 void start();
 

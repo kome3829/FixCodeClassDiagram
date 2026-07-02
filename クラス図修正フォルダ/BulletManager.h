@@ -12,18 +12,23 @@ class Enemy;
 
 struct BulletData
 {
-	int width;//横サイズ
-	int height;//縦サイズ
-	int speed;//速さ
+	int width;  // 横サイズ
+	int height; // 縦サイズ
+	int speed;  // 速さ
 };
 // 各弾のパラメータ
 constexpr BulletData BULLET_DATA[] = {
-    {64, 64, 10}, // プレイヤー通常弾
-    {64, 64, 10},    // ミサイル弾
-    {20, 20, 8}, // スペシャル弾
-    {30, 30, 6}, // 敵通常弾
-    {20, 20, 4}, // 敵ミニ弾弾
-    {20, 20, 4}  // 敵ミニ弾弾
+    {PLAYER_BULLET_WIDTH, PLAYER_BULLET_HEIGHT,
+     PLAYER_BULLET_SPEED}, // プレイヤー通常弾
+    {PLAYER_MISSILE_BULLET_WIDTH, PLAYER_MISSILE_BULLET_HEIGHT,
+     PLAYER_MISSILE_BULLET_SPEED}, // ミサイル弾
+    {PLAYER_SPECIAL_BULLET_WIDTH, PLAYER_SPECIAL_BULLET_HEIGHT,
+     PLAYER_SPECIAL_BULLET_SPEED}, // スペシャル弾
+    {ENEMY_BULLET_WIDTH, ENEMY_BULLET_HEIGHT, ENEMY_BULLET_SPEED}, // 敵通常弾
+    {ENEMY_BULLET_MINI_WIDTH, ENEMY_BULLET_MINI_HEIGHT,
+     ENEMY_BULLET_MINI_SPEED}, // 敵ミニ弾弾(黄色)
+    {ENEMY_BULLET_MINI_WIDTH, ENEMY_BULLET_MINI_HEIGHT,
+     ENEMY_BULLET_MINI_SPEED} // 敵ミニ弾弾(オレンジ)
 
 };
 class BulletManager
@@ -48,8 +53,6 @@ class BulletManager
 	void checkHitMinionEnemy(MinionEnemyManager *minionEnemyManager,
 	                         Bullet *bullet); // 各雑魚敵との当たり判定処理関数
 	void checkHitEnemy(Enemy *enemy, Bullet *bullet); // 敵との判定処理
-
-
 };
 
 #endif // __BULLETMANAGER_H__

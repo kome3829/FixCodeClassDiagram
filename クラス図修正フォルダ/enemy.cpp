@@ -71,16 +71,15 @@ Enemy::~Enemy()
 指定位置に移動後、一定カウント内までに倒されなかった場合、画面外へ移動する
 
 */
-void Enemy::action(int *score, BulletManager *bulletManager,
-                   EffectManager *effectManager,
-                   ItemObjectManager *itemObjectManager, Player *player)
+void Enemy::action(EnemyActionData *actionData)
 {
 	if (!mIsActive)
 	{
 		return;
 	}
-	takeDamage(score, effectManager, itemObjectManager, player); // ダメージ処理
-	shotEnemyBullet(bulletManager, effectManager);
+	takeDamage(actionData->mScore, actionData->mEffectManager, actionData->mItemObjectManager,
+	           actionData->mPlayer); // ダメージ処理
+	shotEnemyBullet(actionData->mBulletManager, actionData->mEffectManager);
 	mMoveCount++; // 移動カウントの更新
 	// 通常ステージの処理
 	if (!mIsBossStage)

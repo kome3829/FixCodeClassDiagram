@@ -18,9 +18,7 @@ class TraceEnemy : public Enemy
   public:
 	TraceEnemy();
 	~TraceEnemy();
-	void action(int playerX, int playerY, int *score,
-	            BulletManager *bulletManager, EffectManager *effectManager,
-	            ItemObjectManager *itemObject, Player *player);
+	void action(EnemyActionData *actiondata);
 	void draw();
 	void start();	
 	// 追従敵弾発射関数

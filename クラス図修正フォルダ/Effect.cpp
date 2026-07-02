@@ -23,7 +23,7 @@ Effect::Effect()
 	mPlayFrameMax = 0;
 	mSpriteFrameMax = 0;
 	mAlpha = MAX_ALPHA;
-	for (int i = 0; i < MAX_TEBLE_FRAME; i++)
+	for (int i = 0; i < MAX_TABLE_FRAME; i++)
 	{
 		mPlayFrameTable[i] = 0;
 	}

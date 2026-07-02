@@ -1,155 +1,216 @@
 ﻿#ifndef __DEFINE_H__
 #define __DEFINE_H__
 
-//共通の固定値など
+// 共通の固定値など
 
-//各シーン番号
-#define SCENE_TITLE		(0)
-#define SCENE_GAMEMAIN	(1)
-#define SCENE_RESULT	(2)
-#define SCENE_MAX		(3)
+// 各シーン番号
+#define SCENE_TITLE (0)
+#define SCENE_GAMEMAIN (1)
+#define SCENE_RESULT (2)
+#define SCENE_MAX (3)
 
-//エフェクト番号
-#define POWERUP_EF		(0)
-#define CHARGE_EF		(1)
-#define HIT_EF			(2)
-#define SHOT_EF			(3)
-#define LIFE_EF			(4)
-#define STAR_EF			(5)
-#define WARP_EF			(6)
-#define CHARGE_EF_BOSS	(7)
-#define EXPLOSION_EF    (8)
+// エフェクト番号
+#define POWERUP_EF (0)
+#define CHARGE_EF (1)
+#define HIT_EF (2)
+#define SHOT_EF (3)
+#define LIFE_EF (4)
+#define STAR_EF (5)
+#define WARP_EF (6)
+#define CHARGE_EF_BOSS (7)
+#define EXPLOSION_EF (8)
 #define EFFECT_TYPE_MAX (9)
 
-//画面サイズ
-#define MAX_SCREEN_WIDTH  (640)
+// --- POWER UP ---
+#define POWER_UP_EF_WIDTH (150)
+#define POWER_UP_EF_HEIGHT (150)
+#define POWER_UP_EF_SPRITE_FRAME_MAX (8)
+#define POWER_UP_EF_FRAME_COUNT_MAX (20)
+
+// --- CHARGE ---
+#define CHARGE_EF_WIDTH (120)
+#define CHARGE_EF_HEIGHT (120)
+#define CHARGE_EF_SPRITE_FRAME_MAX (10)
+#define CHARGE_EF_FRAME_COUNT_MAX (40)
+
+// --- HIT ---
+#define HIT_EF_WIDTH (120)
+#define HIT_EF_HEIGHT (120)
+#define HIT_EF_SPRITE_FRAME_MAX (14)
+#define HIT_EF_FRAME_COUNT_MAX (14)
+#define HIT_EF_ALPHA (120)
+
+// --- SHOT ---
+#define SHOT_EF_WIDTH (240)
+#define SHOT_EF_HEIGHT (240)
+#define SHOT_EF_SPRITE_FRAME_MAX (12)
+#define SHOT_EF_FRAME_COUNT_MAX (12)
+
+// --- LIFE/STAR共通 ---
+#define LIFE_STAR_EF_WIDTH (150)
+#define LIFE_STAR_EF_HEIGHT (150)
+#define LIFE_STAR_EF_SPRITE_FRAME_MAX (5)
+#define LIFE_STAR_EF_FRAME_COUNT_MAX (30)
+
+// --- WARP ---
+#define WARP_EF_WIDTH (320)
+#define WARP_EF_HEIGHT (240)
+#define WARP_EF_SPRITE_FRAME_MAX (2)
+#define WARP_EFFRAME_COUNT_MAX (26)
+
+// --- BOSS CHARGE ---
+#define BOSS_CHARGE_EF_WIDTH (240)
+#define BOSS_CHARGE_EF_HEIGHT (240)
+#define BOSS_CHARGE_EF_SPRITE_FRAME_MAX (10)
+#define BOSS_CHARGE_EFFRAME_COUNT_MAX (40)
+
+// --- EXPLOSION---
+#define EXPLOSION_WIDTH (200)
+#define EXPLOSION_HEIGHT (200)
+#define EXPLOSION_SPRITE_COL (8)
+#define EXPLOSION_ANIME_END (20)
+
+// 画面サイズ
+#define MAX_SCREEN_WIDTH (640)
 #define MAX_SCREEN_HEIGHT (480)
-#define SCREEN_ORIGIN_POINT     (0)
-//画面中心位置
+#define SCREEN_ORIGIN_POINT (0)
+// 画面中心位置
 #define SCREEN_CENTER_X (320)
 #define SCREEN_CENTER_Y (240)
 
-//画像サイズ
-#define ITEM_OBJECT_WIDTH	(20)
-#define ITEM_OBJECT_HEIGHT	(20)
-#define CUT_HALF			(2)
-//アルファ値
-#define MAX_ALPHA	(255)
+// 画像サイズ
+#define ITEM_OBJECT_WIDTH (20)
+#define ITEM_OBJECT_HEIGHT (20)
+#define CUT_HALF (2)
+// アルファ値
+#define MAX_ALPHA (255)
 // フェイドアウトの減少量
-#define FADE_ALPHA_STEP     (25)
-//偶数判定
-#define EVEN_NUMBER			(2)
-//スコア桁数
-#define SCPRE_MAX_DIGIT (6)//修正案。桁数の増加
+#define FADE_ALPHA_STEP (25)
+// 偶数判定
+#define EVEN_NUMBER (2)
+// スコア桁数
+#define SCPRE_MAX_DIGIT (6) // 修正案。桁数の増加
 
-//アイテムオブジェクト番号
-#define OBJECT_EXP	(1)
+// アイテムオブジェクト番号
+#define OBJECT_EXP (1)
 #define OBJECT_LIFE (2)
 #define OBJECT_STAR (3)
 
-//アイテムオブジェクトパラメータ
+// アイテムオブジェクトパラメータ
 #define OBJECT_HOMING_RANGE (100)
 #define OBJECT_VECTOR_X (2.0f)
 #define OBJECT_VECTOR_Y (1.0f)
 
-//アイテムドロップ率
+// アイテムドロップ率
 #define OBJECT_LIFE_DROP_PAESENT (10)
-#define OBJECT_STAR_DROP_PAESENT (30) 
-
-//円周率
+#define OBJECT_STAR_DROP_PAESENT (30)
+// 乱数
+#define DROP_RATE_RANDOM_MAX (100)
+// 円周率
 #define PI (3.141592653589793)
 
-//各獲得スコア
-#define HIT_SCORE	(300)
-#define EXP_SCORE	(50)
-#define LIFE_SCORE  (100)
-#define STAR_SCORE  (200)
+// 各獲得スコア
+#define HIT_SCORE (300)
+#define EXP_SCORE (50)
+#define LIFE_SCORE (100)
+#define STAR_SCORE (200)
 #define ENEMY_SCORE (1000)
 
-//プレイヤーパラメータ
-#define PLAYER_WIDTH	(64)
-#define PLAYER_HEIGHT	(48)
-#define PLAYER_SPEED	 (5.0f)
+// プレイヤーパラメータ
+#define PLAYER_WIDTH (64)
+#define PLAYER_HEIGHT (48)
+#define PLAYER_SPEED (5.0f)
 #define PLAYER_LOW_SPEED (2.5f)
-#define PLAYER_UNBEATABLE_TIME  (180)
+#define PLAYER_UNBEATABLE_TIME (180)
 #define MAX_LIFE (3)
-#define SHOT_POWER_GRADE1		(1500)
-#define SHOT_POWER_GRADE2		(3000)
-#define SHOT_POWER_GRADE3		(6000)
+#define SHOT_POWER_GRADE1 (1500)
+#define SHOT_POWER_GRADE2 (3000)
+#define SHOT_POWER_GRADE3 (6000)
 
-//各所弾のパラメータ設定
-#define DEGREE_TO_RADIAN_DIVISOR	(180.0)
-#define SCREEN_MARGIN  (3)
+// 各所弾のパラメータ設定
+#define DEGREE_TO_RADIAN_DIVISOR (180.0)
+#define SCREEN_MARGIN (3)
 #define MAX_BULLET_NUMBER (1024)
 #define MAX_BULLET_TYPE_NUMBER (6)
-#define PLAYER_BULLET_WIDTH		(64)
-#define PLAYER_BULLET_HEIGHT	(48)
-#define PLAYER_SPECIAL_BULLET_WIDTH		(20)
-#define PLAYER_SPECIAL_BULLET_HEIGHT	(20)
+#define PLAYER_MISSILE_BULLET_WIDTH (64)
+#define PLAYER_MISSILE_BULLET_HEIGHT (48)
+#define PLAYER_MISSILE_BULLET_SPEED (10)
+#define PLAYER_BULLET_WIDTH (64)
+#define PLAYER_BULLET_HEIGHT (48)
+#define PLAYER_BULLET_SPEED (10)
+#define PLAYER_SPECIAL_BULLET_WIDTH (20)
+#define PLAYER_SPECIAL_BULLET_HEIGHT (20)
+#define PLAYER_SPECIAL_BULLET_SPEED (8)
+
 #define PLAYER_BULLET_VECTOR_Y (-10.0f)
-#define ENEMY_BULLET_WIDTH	(30)
-#define ENEMY_BULLET_HEIGHT	(30)
-#define ENEMY_BULLET_SPEED (6.0f)
-#define ENEMY_BULLET_MINI_WIDTH		(20)
-#define ENEMY_BULLET_MINI_HEIGHT	(20)
+#define ENEMY_BULLET_WIDTH (30)
+#define ENEMY_BULLET_HEIGHT (30)
+#define ENEMY_BULLET_SPEED (6)
+#define ENEMY_BULLET_MINI_WIDTH (20)
+#define ENEMY_BULLET_MINI_HEIGHT (20)
+#define ENEMY_BULLET_MINI_SPEED (4)
+
 #define MINI_BULLET_YELLOW (0)
 #define MINI_BULLET_ORANGE (1)
 #define BOSS_BULLET_SPEEDDOWN (0.983f)
 
-//エネミーパラメータ設定
+// エネミーパラメータ設定
 #define ENEMY_MAX_HP (30)
 #define ENEMY_MAX_HP_BOSS_STAGE (60)
 #define ENEMY_TAKE_DAMAGE (5)
 #define MAX_ENEMY_COUNT (20)
-#define ENEMY_WIDTH		(64)
-#define ENEMY_HEIGHT	(48)
-#define ENEMY_POP_FRAME		(270)
-#define ENEMY_POP_LEFT_POSITION		(160)
-#define ENEMY_POP_RIGHT_POSITION	(480)
+#define ENEMY_WIDTH (64)
+#define ENEMY_HEIGHT (48)
+#define ENEMY_POP_FRAME (270)
+#define ENEMY_POP_LEFT_POSITION (160)
+#define ENEMY_POP_RIGHT_POSITION (480)
 
-//通常敵　赤色
+// 通常敵　赤色
 #define ENEMY_VECTOR_X (1.0f)
 #define ENEMY_VECTOR_Y (6.5f)
 #define ENEMY_EXIT_SPD (1.0f)
 #define ENEMY_SLOWDOWN_Y (0.95f)
 #define ENEMY_SPEEDUP_Y (1.08f)
 #define ENEMY_SPEEDUP_X (1.05f)
-#define ENEMY_SHOT_START_FRAME	(60)
-#define ENEMY_SHOT_STOP_FRAME	(100)
-#define ENEMY_SHOT_INTERVALS	(160)
+#define ENEMY_SHOT_START_FRAME (60)
+#define ENEMY_SHOT_STOP_FRAME (100)
+#define ENEMY_SHOT_INTERVALS (160)
 
-//チャージ敵 オレンジ色
+// チャージ敵 オレンジ色
 #define CHARGE_ENEMY_VECTOR_X (3.5f)
 #define CHARGE_ENEMY_VECTOR_Y (6.5f)
 #define CHARGE_ENEMY_SPD_MARGIN (0.02f)
-
-//ボス敵
+// --- チャージ敵出現タイミング ---
+#define CHARGE_ENEMY_POP_INTERVAL_FRAME (30)
+#define CHARGE_ENEMY_POP_END_COUNT                                             \
+	(ENEMY_POP_FRAME + CHARGE_ENEMY_POP_INTERVAL_FRAME * 6 - 10)
+// ボス敵
 #define BOSS_MAX_HP (3000)
 #define BOSS_ENEMY_VECTOR_X (1.0f)
 #define BOSS_ENEMY_VECTOR_Y (6.5f)
-#define ENEMY_BOSS_WIDTH	(96)
-#define ENEMY_BOSS_HEIGHT	(84) 
-#define BOSS_CENTER__POSITION_Y (100) 
-#define BOSS_MAX_BOMB_COUNT (20) 
+#define ENEMY_BOSS_WIDTH (96)
+#define ENEMY_BOSS_HEIGHT (84)
+#define BOSS_CENTER__POSITION_Y (100)
+#define BOSS_MAX_BOMB_COUNT (20)
 
-#define BOSS_HP_PER_MAX				(100)
-#define BOSS_HP_PER_PHASE1_END		(75)
-#define BOSS_HP_PER_PHASE2_END		(50)
-#define BOSS_HP_PER_PHASE3_END		(25)
-#define BOSS_HP_PER_DEFEAT			(0)
-//円運動での仕様するパラメータ
-#define LEFT_CIRCLE_CENTER_POSITION_X (300.0f) 
-#define LEFT_CIRCLE_CENTER_POSITION_Y (-150.0f) 
-#define ANGLE_SPEED_LEFT	(-0.01f)
-#define ANGLE_SPEED_RIGHT	(0.01f)
-#define RIGHT_CIRCLE_CENTER_POSITION_X (340.0f) 
-#define RIGHT_CIRCLE_CENTER_POSITION_Y (-150.0f) 
+#define BOSS_HP_PER_MAX (100)
+#define BOSS_HP_PER_PHASE1_END (75)
+#define BOSS_HP_PER_PHASE2_END (50)
+#define BOSS_HP_PER_PHASE3_END (25)
+#define BOSS_HP_PER_DEFEAT (0)
+// 円運動での仕様するパラメータ
+#define LEFT_CIRCLE_CENTER_POSITION_X (300.0f)
+#define LEFT_CIRCLE_CENTER_POSITION_Y (-150.0f)
+#define ANGLE_SPEED_LEFT (-0.01f)
+#define ANGLE_SPEED_RIGHT (0.01f)
+#define RIGHT_CIRCLE_CENTER_POSITION_X (340.0f)
+#define RIGHT_CIRCLE_CENTER_POSITION_Y (-150.0f)
 
-//BOSS敵の瞬間移動で使う定数
+// BOSS敵の瞬間移動で使う定数
 #define BOSS_ENEMY_WARP_VECTOR_Y (-0.09f)
 #define BOSS_ENEMY_SPD (5.0f)
-#define BOSS_ENEMY_SLOWDOWN		(0.78f)
-#define BOSS_ENEMY_SLOWDOWN_Y	(0.98f)
+#define BOSS_ENEMY_SLOWDOWN (0.78f)
+#define BOSS_ENEMY_SLOWDOWN_Y (0.98f)
 #define BOSS_ENEMY_SPEEDUP_Y (1.6f)
 #define BOSS_WARP_LEFT_POINT_X (100)
 #define BOSS_WARP_LEFT_POINT_Y (220)
@@ -160,15 +221,15 @@
 #define BOSS_WARP_TOP_POINT_X (320)
 #define BOSS_WARP_TOP_POINT_Y (100)
 
-//ボス戦でのチャージ敵の瞬間移動位置
+// ボス戦でのチャージ敵の瞬間移動位置
 #define CHARGE_ENEMY_WARP_POINT_LEFT_X (-32)
 #define CHARGE_ENEMY_WARP_POINT_LEFT_Y (120)
 #define CHARGE_ENEMY_WARP_POINT_RIGHT_X (630)
 #define CHARGE_ENEMY_WARP_POINT_RIGHT_Y (120)
 
-//ボス戦の雑魚敵のポジション
-#define SUMMON_LEFT  (0)
-#define SUMMON_RIGHT  (1)
+// ボス戦の雑魚敵のポジション
+#define SUMMON_LEFT (0)
+#define SUMMON_RIGHT (1)
 #define ENEMY_SUMMON_POINT_LEFT_X (130)
 #define ENEMY_SUMMON_POINT_LEFT_Y (160)
 #define ENEMY_SUMMON_POINT_RIGHT_X (450)

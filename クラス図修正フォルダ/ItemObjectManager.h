@@ -1,20 +1,17 @@
 ﻿#ifndef __ITEMOBJECTMANAGER_H__
 #define __ITEMOBJECTMANAGER_H__
 
-#include "DxLib.h"
-#include "define.h"
 #include "Deta.h"
-#include "math.h"
 #include "Object.h"
 #include "Player.h"
+#include "define.h"
 // --- アイテムドロップ位置補正 ---
-#define DROP_OFFSET_X (20)
+constexpr int DROP_OFFSET_X = 20;
 // EXPアイテム拡散
-#define DROP_EXP_ITEM_AMOUNT (6)
-#define DROP_EXP_ANGLE_STEP (60)
-#define DROP_EXP_START_INDEX (1)
-// 乱数
-#define DROP_RATE_RANDOM_MAX (100)
+constexpr int DROP_EXP_ITEM_AMOUNT = 6;
+constexpr int DROP_EXP_ANGLE_STEP = 60;
+constexpr int DROP_EXP_START_INDEX = 1;
+
 class ItemObjectManager
 {
   public:
@@ -26,17 +23,14 @@ class ItemObjectManager
 
 	// アイテムオブジェクトの設置
 	void setItemObject(int setPositionX, int setPositionY, int setAngle,
-	                   int itemObjectType,
-	                   Player *player_p); 
+	                   int itemObjectType, Player *player_p);
 	// オブジェクトクラスの当たり判定実行関数
-	void checkHit(Player *player_p); 
-
-	Object *mItemObjects[MAX_BULLET_NUMBER]; // アイテムオブジェクト
+	void checkHit(Player *player_p);
 
 	// アイテムドロップ関数
-	void dropItem(int itemX, int itemY, int itemType,
-	              Player *player_p); 
+	void dropItem(int itemX, int itemY, int itemType, Player *player_p);
 
   private:
+	Object *mItemObjects[MAX_BULLET_NUMBER]; // アイテムオブジェクト
 };
 #endif // !__ITEMOBJECTMANAGER_H__

@@ -69,17 +69,16 @@ TraceEnemy::~TraceEnemy()
     - 指定位置に移動後、一定カウント内までに倒されなかった場合、画面外へ移動する
 
 */
-void TraceEnemy::action(int playerX, int playerY, int *score,
-                        BulletManager *bulletManager,
-                        EffectManager *effectManager,
-                        ItemObjectManager *itemObject, Player *player)
+void TraceEnemy::action(EnemyActionData *actiondata)
 {
 	if (!mIsActive)
 	{
 		return;
 	}
-	takeDamage(score, effectManager, itemObject, player); // ダメージ処理
-	shotTraceEnemyBullet(bulletManager, effectManager);   // 弾発射処理
+	takeDamage(actiondata->mScore, actiondata->mEffectManager, actiondata->mItemObjectManager,
+	           actiondata->mPlayer);                             // ダメージ処理
+	shotTraceEnemyBullet(actiondata->mBulletManager,
+	                     actiondata->mEffectManager); // 弾発射処理
 	mMoveCount++;                                         // 移動カウントの更新
 
 	if (!mIsBossStage)
@@ -100,8 +99,8 @@ void TraceEnemy::action(int playerX, int playerY, int *score,
 			else // プレイヤーを追いかけるように移動
 			{
 				// atan2を使用してプレイヤーと追従敵とのなす角を計算
-				double vectorTargetX = (playerX - mX);
-				double vectorTargetY = (playerY - mY);
+				double vectorTargetX = (actiondata->mPlayer->mX- mX);
+				double vectorTargetY = (actiondata->mPlayer->mY - mY);
 				double targetAngle = atan2(vectorTargetY, vectorTargetX);
 				// 角度から速度を計算
 				mVectorX = cos(targetAngle) * TRACE_ENEMY_TRACK_SPEED;

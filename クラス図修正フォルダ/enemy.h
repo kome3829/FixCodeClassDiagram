@@ -13,6 +13,17 @@
 #include "myLib/key.h"
 class BulletManager; // 関数の引数利用のための前提宣言
 
+// action関数の引数を短くするため作成。必要なクラスポインタの構造体
+struct EnemyActionData
+{
+	Player *mPlayer;
+	int *mScore;
+	BulletManager *mBulletManager;
+	EffectManager *mEffectManager;
+	ItemObjectManager *mItemObjectManager;
+};
+
+
 // --- 移動フレーム制御 ---
 #define MOVE_INTERVAL_FRAME (2)
 // --- 出現位置限界 ---
@@ -42,9 +53,7 @@ class Enemy : public Character
   public:
 	Enemy();
 	~Enemy();
-	virtual void action(int *score, BulletManager *bulletManager,
-	                    EffectManager *effectManager,
-	                    ItemObjectManager *itemObjectManager, Player *player);
+	virtual void action(EnemyActionData *actionData);
 	void draw();
 	void start();
 	void pop(int popPositionX, int popPositionY, int number,

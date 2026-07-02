@@ -23,7 +23,7 @@ MinionEnemyManager::MinionEnemyManager()
 	mTraceEnemyNumber = 0;
 	mChargeEnemyNumber = 0;
 	mChargeEnemyPopCount = 0;
-	mEnemyPopPattern = NOMAL_ENEMY;
+	mEnemyPopPattern = NORMAL_ENEMY;
 }
 /*
 @brief	デストラクタ
@@ -55,20 +55,14 @@ MinionEnemyManager::~MinionEnemyManager()
 @return     なし
 @note		生成した全ての雑魚敵クラスの更新処理を行う
 */
-void MinionEnemyManager::action(Player *player_p, int *score,
-                                BulletManager *bulletManager,
-                                EffectManager *effectManager,
-                                ItemObjectManager *itemObjectManager
-                                )
+void MinionEnemyManager::action(EnemyActionData *actiondata)
 {
 	// 雑魚敵の更新処理
 	for (int i = 0; i < MAX_ENEMY_COUNT; i++)
 	{
-		mEnemies[i]->action(score, bulletManager, effectManager,
-		                    itemObjectManager, player_p);
-		mTraceEnemies[i]->action((int)player_p->mX, (int)player_p->mY, score,bulletManager,effectManager,itemObjectManager,player_p);
-		mChargeEnemies[i]->action(score, bulletManager, player_p, effectManager,
-		                          itemObjectManager);
+		mEnemies[i]->action(actiondata);
+		mTraceEnemies[i]->action(actiondata);
+		mChargeEnemies[i]->action(actiondata);
 	}
 }
 /*
@@ -114,10 +108,8 @@ void MinionEnemyManager::start()
 	mTraceEnemyNumber = 0;
 	mChargeEnemyNumber = 0;
 	mChargeEnemyPopCount = 0;
-	mEnemyPopPattern = NOMAL_ENEMY;
+	mEnemyPopPattern = NORMAL_ENEMY;
 }
-
-
 
 /*
 @brief	通常敵の出現を管理する関数
@@ -144,13 +136,13 @@ void MinionEnemyManager::popEnemy()
 		// 出現数カウントの処理は1つにまとめられそう
 		if (mEnemyNumber % EVEN_NUMBER == 0)
 		{
-			mEnemies[mEnemyNumber]->pop(ENEMY_POP_LEFT_POSITION, 0,
+			mEnemies[mEnemyNumber]->pop(ENEMY_POP_LEFT_POSITION, ENEMY_POP_Y,
 			                            mEnemyNumber, false); // 敵を出現
 			mEnemyNumber++; // 出現数をカウント
 		}
 		else
 		{
-			mEnemies[mEnemyNumber]->pop(ENEMY_POP_RIGHT_POSITION, 0,
+			mEnemies[mEnemyNumber]->pop(ENEMY_POP_RIGHT_POSITION, ENEMY_POP_Y,
 			                            mEnemyNumber, false); // 敵を出現
 			mEnemyNumber++; // 出現数をカウント
 		}
@@ -181,9 +173,9 @@ void MinionEnemyManager::popTraceEnemy()
 		// 出現数カウントが奇数or偶数で判定
 		if (mTraceEnemyNumber % EVEN_NUMBER == 0)
 		{
-			mTraceEnemies[mTraceEnemyNumber]->pop(ENEMY_POP_LEFT_POSITION, 0,
-			                                      mTraceEnemyNumber,
-			                                      false); // 敵を出現
+			mTraceEnemies[mTraceEnemyNumber]->pop(
+			    ENEMY_POP_LEFT_POSITION, ENEMY_POP_Y, mTraceEnemyNumber,
+			    false); // 敵を出現
 		}
 		else
 		{
@@ -226,18 +218,18 @@ void MinionEnemyManager::popChargeEnemy()
 		if (mChargeEnemyNumber % EVEN_NUMBER == 0)
 		{
 			mChargeEnemies[mChargeEnemyNumber]->start();
-			mChargeEnemies[mChargeEnemyNumber]->pop(CHARGE_ENEMY_POP_LEFT_X, 0,
-			                                        mChargeEnemyNumber,
-			                                        false); // 敵を出現
-			mChargeEnemyNumber++;                           // 出現数をカウント
+			mChargeEnemies[mChargeEnemyNumber]->pop(
+			    CHARGE_ENEMY_POP_LEFT_X, ENEMY_POP_Y, mChargeEnemyNumber,
+			    false);           // 敵を出現
+			mChargeEnemyNumber++; // 出現数をカウント
 		}
 		else
 		{
 			mChargeEnemies[mChargeEnemyNumber]->start();
-			mChargeEnemies[mChargeEnemyNumber]->pop(CHARGE_ENEMY_POP_RIGHT_X, 0,
-			                                        mChargeEnemyNumber,
-			                                        false); // 敵を出現
-			mChargeEnemyNumber++;                           // 出現数をカウント
+			mChargeEnemies[mChargeEnemyNumber]->pop(
+			    CHARGE_ENEMY_POP_RIGHT_X, ENEMY_POP_Y, mChargeEnemyNumber,
+			    false);           // 敵を出現
+			mChargeEnemyNumber++; // 出現数をカウント
 		}
 	}
 	// 出現6体分のカウントが進んだ場合（449カウント以上）
@@ -370,7 +362,7 @@ bool MinionEnemyManager::minionEnemyPop()
 
 		break;
 
-	case NOMAL_ENEMY: // 通常敵出現パターン
+	case NORMAL_ENEMY: // 通常敵出現パターン
 		// 通常敵の出現処理
 		popEnemy();
 		// 全ての敵の撃破確認。撃破が確認できると次の出現パターン

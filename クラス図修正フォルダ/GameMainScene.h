@@ -92,6 +92,7 @@ class GameMainScene : public BasicScene
 	EffectManager *mEffectManager;           // エフェクト管理クラス
 	ItemObjectManager *mItemObjectManager; // アイテムオブジェクト管理クラス
 
+	EnemyActionData mActionData;//敵処理用の参照データ
 	//---ボス敵の演出に関わる変数---
 
 	int mRedBGFadeOutCount;        // ボス出現演出回数カウント

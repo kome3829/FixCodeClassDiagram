@@ -5,7 +5,7 @@
 #include "define.h"
 
 // 最大フレーム数
-#define MAX_TEBLE_FRAME (120)
+#define MAX_TABLE_FRAME (120)
 
 class Effect
 {
@@ -32,7 +32,7 @@ class Effect
 	bool mIsPlay;        // 再生判定
 
 	int mPlayFrameTable
-	    [MAX_TEBLE_FRAME]; // エフェクトアニメーションのフレーム再生順のテーブル
+	    [MAX_TABLE_FRAME]; // エフェクトアニメーションのフレーム再生順のテーブル
   private:
 };
 

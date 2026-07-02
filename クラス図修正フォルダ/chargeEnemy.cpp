@@ -68,17 +68,17 @@ ChargeEnemy::~ChargeEnemy()
 - 他雑魚敵と違いボスステージでの移動パターンはボス攻撃と合わせた動きにしている
 
 */
-void ChargeEnemy::action(int *score, BulletManager *bulletManager,
-                         Player *player, EffectManager *effectManager,
-                         ItemObjectManager *itemObjectManager)
+void ChargeEnemy::action(EnemyActionData *actiondata)
 {
 	if (!mIsActive)
 	{
 		return;
 	}
-	takeDamage(score, effectManager, itemObjectManager, player); // ダメージ処理
-	shotChargeEnemyBullet(bulletManager, player, effectManager,
-	                      itemObjectManager); // 弾発射処理
+	takeDamage(actiondata->mScore, actiondata->mEffectManager, actiondata->mItemObjectManager,
+	           actiondata->mPlayer); // ダメージ処理
+	shotChargeEnemyBullet(actiondata->mBulletManager, actiondata->mPlayer,
+	                      actiondata->mEffectManager,
+	                      actiondata->mItemObjectManager); // 弾発射処理
 	mMoveCount++;                             // 移動カウントの更新
 	                                          // 通常ステージの処理
 	if (!mIsBossStage)

@@ -79,8 +79,8 @@ void ItemObjectManager::start()
 /*
 @brief	アイテムドロップに必要な位置やフラグなどのパラメータ設定を行う関数
 
-@param[in]	int setPositionX			:出現させるのX座標
-@param[in]	int setPositionY			:出現させるのY座標
+@param[in]	int setPositionX			:出現させるX座標
+@param[in]	int setPositionY			:出現させるY座標
 @param[in]	int setAngle				:発射角度
 @param[in]	int itemObjectType			:アイテムの種類
 @param[in]	Player *player_p		:プレイヤークラスのポインタ
@@ -112,7 +112,7 @@ void ItemObjectManager::setItemObject(int setPositionX, int setPositionY,
 		mItemObjects[i]->mPlayerY = &(player_p->mY);
 		mItemObjects[i]->mMovementAngle = setAngle;
 		mItemObjects[i]->mItemObjectType = itemObjectType;
-		// 経験値アイテムの場合、速度をを設定
+		// 経験値アイテムの場合、速度を設定
 		if (itemObjectType == OBJECT_EXP)
 		{
 			// ラジアンに変換
@@ -142,7 +142,7 @@ void ItemObjectManager::setItemObject(int setPositionX, int setPositionY,
 */
 void ItemObjectManager::checkHit(Player *player_p)
 {
-	if (!player_p->mIsActive)//有効化されれいない場合は処理を行わない
+	if (!player_p->mIsActive) // 有効化されていない場合は処理を行わない
 	{
 		return;
 	}
@@ -159,8 +159,8 @@ void ItemObjectManager::checkHit(Player *player_p)
 /*
 @brief	アイテムのドロップを管理する関数
 
-@param[in]	int itemX			:出現させるのX座標
-@param[in]	int itemY			:出現させるのY座標
+@param[in]	int itemX			:出現させるX座標
+@param[in]	int itemY			:出現させるY座標
 @param[in]	int itemType		:出現させるアイテムの種類
 @param[in]	 Player *player_p	:プレイヤークラスのポインタ
 
@@ -221,7 +221,7 @@ void ItemObjectManager::dropItem(int itemX, int itemY, int itemType,
 
 		// 乱数の取得
 		randomNumber = GetRand(DROP_RATE_RANDOM_MAX);
-		// 30％野確率で実行
+		// 30％の確率で実行
 		if (randomNumber <= OBJECT_STAR_DROP_PAESENT)
 		{
 			setItemObject(itemX + DROP_OFFSET_X, itemY, 0, OBJECT_STAR,
